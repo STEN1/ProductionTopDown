@@ -7,14 +7,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d4a48352-6de4-4afa-afdf-79a72f992219" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/riderModule.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/riderModule.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEditor.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEditor.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Arms.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Arms.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Body.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Body.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Eyes.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Eyes.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Torus.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Torus.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +18,15 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/GameFramework/Volume.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/Engine/TriggerVolume.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/Components/ShapeComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/Engine/Brush.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/Components/BoxComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/GameFramework/Actor.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://D:/Epic Games/UE_4.26/Engine/Source/Runtime/Engine/Classes/Components/PrimitiveComponent.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/Private/Pawns/BasePawn.cpp" />
@@ -32,6 +35,10 @@
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/Private/Pawns/PlayerPawn.cpp" />
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/GameMode/TopDownGameModeBase.h" />
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/GameMode/TopDownGameModeBase.cpp" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/Components/Door/DoorComponent.h" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/Components/Door/DoorComponent.cpp" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/Actors/Door/DoorActor.h" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/Actors/Door/DoorActor.cpp" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1nyxyvPVikOZuMnoOhTCtISsDBC" />
@@ -280,6 +287,7 @@
       <workItem from="1612531205258" duration="231000" />
       <workItem from="1612531461930" duration="200000" />
       <workItem from="1613051552060" duration="1269000" />
+      <workItem from="1613064626149" duration="11589000" />
     </task>
     <servers />
   </component>

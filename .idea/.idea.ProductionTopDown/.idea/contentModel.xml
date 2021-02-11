@@ -24,6 +24,18 @@
       <e p="ProductionTopDown.uproject" t="Include" />
       <e p="Source" t="Include">
         <e p="ProductionTopDown" t="Include">
+          <e p="Actors" t="Include">
+            <e p="Door" t="Include">
+              <e p="DoorActor.cpp" t="Include" />
+              <e p="DoorActor.h" t="Include" />
+            </e>
+          </e>
+          <e p="Components" t="Include">
+            <e p="Door" t="Include">
+              <e p="DoorComponent.cpp" t="Include" />
+              <e p="DoorComponent.h" t="Include" />
+            </e>
+          </e>
           <e p="GameMode" t="Include">
             <e p="TopDownGameModeBase.cpp" t="Include" />
             <e p="TopDownGameModeBase.h" t="Include" />

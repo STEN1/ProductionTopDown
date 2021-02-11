@@ -1,0 +1,94 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "DoorActor.h"
+
+
+#include "Camera/CameraComponent.h"
+#include "Pawns/PlayerPawn.h"
+
+// Sets default values
+ADoorActor::ADoorActor()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	StaticMeshComponent->SetupAttachment(RootComponent);
+}
+
+// Called when the game starts or when spawned
+void ADoorActor::BeginPlay()
+{
+	Super::BeginPlay();
+	SetActorTickEnabled(false);
+	if (!TriggerVolume)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No TriggerVolume on %s"), *GetHumanReadableName());
+		return;
+	}
+	SetActorTickEnabled(true);
+	TriggerVolume->OnActorBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
+	TriggerVolume->OnActorEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
+	StartLocation = GetActorLocation();
+	StartRotation = GetActorRotation();
+	
+	TargetLocation = FVector(
+        StartLocation.X + TargetXPos,
+        StartLocation.Y + TargetYPos,
+        StartLocation.Z + TargetZPos);
+	TargetRotation = FRotator(
+        StartRotation.Pitch,
+        StartRotation.Yaw + TargetYaw,
+        StartRotation.Roll);
+	
+}
+
+// Called every frame
+void ADoorActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	OpenDoor(DeltaTime);
+}
+
+void ADoorActor::OpenDoor(float DeltaTime)
+{
+	FRotator NewRotation = TargetRotation;
+	NewRotation.Yaw = FMath::FInterpConstantTo(GetActorRotation().Yaw, TargetRotation.Yaw, DeltaTime, OpenSpeed);
+	SetActorRotation(NewRotation);
+
+	FVector NewLocation = TargetLocation;
+	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, TargetLocation.Z, DeltaTime, OpenSpeed);
+	SetActorLocation(NewLocation);
+}
+
+void ADoorActor::CloseDoor(float DeltaTime)
+{
+	FRotator NewRotation = StartRotation;
+	NewRotation.Yaw = FMath::FInterpConstantTo(GetActorRotation().Yaw, StartRotation.Yaw, DeltaTime, CloseSpeed);
+	SetActorRotation(NewRotation);
+
+	FVector NewLocation = StartLocation;
+	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, CloseSpeed);
+	SetActorLocation(NewLocation);
+}
+
+
+void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
+	}
+}
+
+void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
+	}
+}
+
