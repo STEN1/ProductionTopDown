@@ -9,8 +9,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/riderModule.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/riderModule.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ProductionTopDown/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEditor.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEditor.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductionTopDown.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/ProductionTopDown.uproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Arms.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Arms.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Body.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Body.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Eyes.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Eyes.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Meshes/Player/Torus.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Meshes/Player/Torus.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +30,8 @@
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/Public/Pawns/PlayerPawn.h" />
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/Public/Pawns/BasePawn.h" />
       <option value="$PROJECT_DIR$/Source/ProductionTopDown/Private/Pawns/PlayerPawn.cpp" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/GameMode/TopDownGameModeBase.h" />
+      <option value="$PROJECT_DIR$/Source/ProductionTopDown/GameMode/TopDownGameModeBase.cpp" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1nyxyvPVikOZuMnoOhTCtISsDBC" />
@@ -271,6 +277,9 @@
       <workItem from="1612376413886" duration="670000" />
       <workItem from="1612524974510" duration="818000" />
       <workItem from="1612525837566" duration="1425000" />
+      <workItem from="1612531205258" duration="231000" />
+      <workItem from="1612531461930" duration="200000" />
+      <workItem from="1613051552060" duration="1269000" />
     </task>
     <servers />
   </component>
