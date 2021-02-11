@@ -9,7 +9,13 @@
 #include "Trace/Detail/LogScope.h"
 
 #include "DoorActor.generated.h"
-
+UENUM(BlueprintType)
+enum class EDoorType : uint8
+{
+	EaseOut	= 0			UMETA(DisplayName = "Ease out door movement"),
+    Accelerate = 1		UMETA(DisplayName = "Accelerate door movement"),
+    Constant = 2		UMETA(DisplayName = "Constant movement"),
+};
 UCLASS()
 class PRODUCTIONTOPDOWN_API ADoorActor : public AActor
 {
@@ -28,11 +34,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Trigger", meta = (AllowPrivateAccess = "true"))
 	ATriggerVolume* TriggerVolume;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	EDoorType DoorType;
 	
 	FVector StartLocation;
 	FRotator StartRotation;
@@ -57,6 +65,10 @@ private:
 
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
+	void EaseOpenDoor(float DeltaTime);
+	void EaseCloseDoor(float DeltaTime);
+	void AccelOpenDoor(float DeltaTime);
+	void AccelCloseDoor(float DeltaTime);
 	UFUNCTION()
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()

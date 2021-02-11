@@ -48,7 +48,26 @@ void ADoorActor::BeginPlay()
 void ADoorActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	OpenDoor(DeltaTime);
+
+	switch (DoorType)
+	{
+		case EDoorType::Constant:
+			if (bDoorOpen)
+			{
+				OpenDoor(DeltaTime);
+			}
+			else
+			{
+				CloseDoor(DeltaTime);
+			}
+			break;
+		case EDoorType::Accelerate:
+			break;
+		case EDoorType::EaseOut:
+			break;
+		default:
+			break;
+	}
 }
 
 void ADoorActor::OpenDoor(float DeltaTime)
@@ -73,11 +92,28 @@ void ADoorActor::CloseDoor(float DeltaTime)
 	SetActorLocation(NewLocation);
 }
 
+void ADoorActor::EaseOpenDoor(float DeltaTime)
+{
+}
+
+void ADoorActor::EaseCloseDoor(float DeltaTime)
+{
+}
+
+void ADoorActor::AccelOpenDoor(float DeltaTime)
+{
+}
+
+void ADoorActor::AccelCloseDoor(float DeltaTime)
+{
+}
+
 
 void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
 	{
+		bDoorOpen = true;
 		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
 		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
@@ -87,6 +123,7 @@ void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
 	{
+		bDoorOpen = false;
 		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
 		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
