@@ -51,7 +51,7 @@ void APlayerPawn::Move(float DeltaTime)
 void APlayerPawn::Rotate()
 {
 	FRotator RotationR{ 0.f, MouseX, 0.f };
-	AddActorLocalRotation(RotationR * MouseSens, false);
+	AddActorLocalRotation(RotationR * MouseSens, true);
 }
 
 void APlayerPawn::SetForwarInput(float Value)
