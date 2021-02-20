@@ -28,9 +28,8 @@ void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	Move();
 	Rotate();
+	Move(DeltaTime);
 	
 }
 
@@ -38,28 +37,34 @@ void APlayerPawn::Tick(float DeltaTime)
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAxis("MoveForward",this, &APlayerPawn::CalculateMoveInput);
-	PlayerInputComponent->BindAxis("Rotate", this, &APlayerPawn::CalculateRotateInput);
+	PlayerInputComponent->BindAxis("MoveForward",this, &APlayerPawn::SetForwarInput);
+	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerPawn::SetRightInput);
+	PlayerInputComponent->BindAxis("MouseX", this, &APlayerPawn::SetMouseX);
 }
 
-void APlayerPawn::Move()
+void APlayerPawn::Move(float DeltaTime)
 {
-	AddActorLocalOffset(MoveDirection, true);
+	FVector MoveV{ ForwardInput, RightInput, 0.f };
+	AddActorLocalOffset(MoveV * DeltaTime * MoveSpeed, true);
 }
 
 void APlayerPawn::Rotate()
 {
-	AddActorLocalRotation(RotationDirection, true);
+	FRotator RotationR{ 0.f, MouseX, 0.f };
+	AddActorLocalRotation(RotationR * MouseSens, false);
 }
 
-void APlayerPawn::CalculateMoveInput(float Value)
+void APlayerPawn::SetForwarInput(float Value)
 {
-	MoveDirection = FVector(Value*MoveSpeed*GetWorld()->DeltaTimeSeconds,0 ,0 );
+	ForwardInput = Value;
 }
 
-void APlayerPawn::CalculateRotateInput(float Value)
+void APlayerPawn::SetRightInput(float Value)
 {
-	float RotateAmount = Value*RotateSpeed*GetWorld()->DeltaTimeSeconds;
-	FRotator Rotation = FRotator(0, RotateAmount ,0);
-	RotationDirection = FQuat(Rotation);
+	RightInput = Value;
+}
+
+void APlayerPawn::SetMouseX(float Value)
+{
+	MouseX = Value;
 }
