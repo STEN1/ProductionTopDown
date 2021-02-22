@@ -3,24 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "CharacterBase.generated.h"
+#include "CharacterBase.h"
+#include "PlayerCharacter.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class PRODUCTIONTOPDOWN_API ACharacterBase : public ACharacter
+class PRODUCTIONTOPDOWN_API APlayerCharacter : public ACharacterBase
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this character's properties
-	ACharacterBase();
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	
-public:	
+	
+public:
+	//Constructor
+	APlayerCharacter();
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -28,7 +31,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-private:
+	private:
 	//Variables
-
+	
 };
