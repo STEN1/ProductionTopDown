@@ -22,25 +22,25 @@ void AProductionTopDownGameModeBase::BeginPlay()
 	StartGame();
 }
 
-int32 AProductionTopDownGameModeBase::GetPlayerHealth() const
+float AProductionTopDownGameModeBase::GetPlayerHealth() const
 {
 	if (!Player) return 0;
 	return Player->FindComponentByClass<UHealthComponent>()->GetHealth();
 }
 
-int32 AProductionTopDownGameModeBase::GetPlayerDefaultStamina() const
+float AProductionTopDownGameModeBase::GetPlayerDefaultStamina() const
 {
 	if (!Player) return 0;
 	return Player->FindComponentByClass<UStaminaComponent>()->GetDefaultStamina();
 }
 
-int32 AProductionTopDownGameModeBase::GetPlayerStamina() const
+float AProductionTopDownGameModeBase::GetPlayerStamina() const
 {
 	if (!Player) return 0;
 	return Player->FindComponentByClass<UStaminaComponent>()->GetStamina();
 }
 
-int32 AProductionTopDownGameModeBase::GetPlayerDefaultHealth() const
+float AProductionTopDownGameModeBase::GetPlayerDefaultHealth() const
 {
 	if (!Player) return 0;
 	return Player->FindComponentByClass<UHealthComponent>()->GetDefaultHealth();

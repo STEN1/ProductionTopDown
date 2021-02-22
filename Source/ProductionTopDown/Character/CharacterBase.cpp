@@ -2,12 +2,16 @@
 
 
 #include "CharacterBase.h"
+#include "ProductionTopDown/Components/HealthComponent.h"
+#include "ProductionTopDown/Components/StaminaComponent.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("Health Component");
+	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>("Stamina Component");
 
 }
 
@@ -31,5 +35,31 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	
+}
+
+void ACharacterBase::Attack()
+{
+	if (StaminaComponent)
+	{
+		if (StaminaComponent->GetStamina() < StaminaComponent->GetAttackCost())
+		{
+			return;
+		}
+		// Subtracts the stamina cost from current stamina.
+		StaminaComponent->Attack();
+	}
+}
+
+void ACharacterBase::Dash()
+{
+	if (StaminaComponent)
+	{
+		if (StaminaComponent->GetStamina() < StaminaComponent->GetDashCost())
+		{
+			return;
+		}
+		// Subtracts the stamina cost from current stamina.
+		StaminaComponent->Dash();
+	}
 }
 

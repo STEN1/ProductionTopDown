@@ -34,11 +34,11 @@ private:
 	APlayerPawn* Player;
 
 	UFUNCTION()
-	int32 GetPlayerDefaultHealth() const;
+	float GetPlayerDefaultHealth() const;
 	UFUNCTION()
-	int32 GetPlayerHealth() const;
+	float GetPlayerHealth() const;
 	UFUNCTION()
-	int32 GetPlayerDefaultStamina() const;
+	float GetPlayerDefaultStamina() const;
 	UFUNCTION()
-	int32 GetPlayerStamina() const;
+	float GetPlayerStamina() const;
 };

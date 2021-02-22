@@ -3,6 +3,9 @@
 
 #include "StaminaComponent.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/ProductionTopDownGameModeBase.h"
+
 // Sets default values for this component's properties
 UStaminaComponent::UStaminaComponent()
 {
@@ -19,15 +22,70 @@ void UStaminaComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	Stamina = DefaultStamina;
+	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	
 }
 
-int32 UStaminaComponent::GetStamina() const
+void UStaminaComponent::RegenerateStamina()
+{
+	Stamina += StaminaRegenerationAmount;
+	if (Stamina > DefaultStamina)
+	{
+		Stamina = DefaultStamina;
+		// stop timer..
+		GetWorld()->GetTimerManager().ClearTimer(RegenerationTimerHandle);
+	}
+	GameModeRef->UpdateStaminaUI(Stamina, DefaultStamina);
+}
+
+float UStaminaComponent::GetStamina() const
 {
 	return Stamina;
 }
 
-int32 UStaminaComponent::GetDefaultStamina() const
+float UStaminaComponent::GetDefaultStamina() const
 {
 	return DefaultStamina;
+}
+
+float UStaminaComponent::GetAttackCost() const
+{
+	return AttackCost;
+}
+
+float UStaminaComponent::GetDashCost() const
+{
+	return DashCost;
+}
+
+void UStaminaComponent::Attack()
+{
+	Stamina -= AttackCost;
+	GameModeRef->UpdateStaminaUI(Stamina, DefaultStamina);
+	// stop timer
+	GetWorld()->GetTimerManager().ClearTimer(RegenerationTimerHandle);
+	// start new timer
+	GetWorld()->GetTimerManager().SetTimer(
+		RegenerationTimerHandle,
+		this, 
+		&UStaminaComponent::RegenerateStamina, 
+		StaminaRegenerationTimer, 
+		true);
+	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
+}
+
+void UStaminaComponent::Dash()
+{
+	Stamina -= DashCost;
+	GameModeRef->UpdateStaminaUI(Stamina, DefaultStamina);
+	// stop timer
+	GetWorld()->GetTimerManager().ClearTimer(RegenerationTimerHandle);
+	// start new timer
+	GetWorld()->GetTimerManager().SetTimer(
+		RegenerationTimerHandle,
+		this,
+		&UStaminaComponent::RegenerateStamina,
+		StaminaRegenerationTimer,
+		true);
+	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
 }

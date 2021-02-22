@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UStaminaComponent;
+class UHealthComponent;
 UCLASS()
 class PRODUCTIONTOPDOWN_API ACharacterBase : public ACharacter
 {
@@ -18,7 +20,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	// Functions
+	virtual void Attack();
+	virtual void Dash();
 	
 public:	
 	// Called every frame
@@ -29,6 +33,12 @@ public:
 
 
 private:
-	//Variables
+	// Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UHealthComponent* HealthComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStaminaComponent* StaminaComponent;
+
+
 
 };
