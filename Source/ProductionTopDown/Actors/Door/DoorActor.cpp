@@ -111,21 +111,21 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 
 void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
+	if (/*APlayerPawn* Player = */Cast<APlayerPawn>(OtherActor))
 	{
 		bDoorOpen = true;
-		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
 }
 
 void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
+	if (/*APlayerPawn* Player = */Cast<APlayerPawn>(OtherActor))
 	{
 		bDoorOpen = false;
-		UE_LOG(LogTemp, Warning, TEXT("ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
+		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
 }
 

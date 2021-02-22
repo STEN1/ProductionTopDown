@@ -20,6 +20,8 @@ public:
 	void UpdateHealthUI(float Health, float DefaultHealth);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateStaminaUI(float Stamina, float DefaultStamina);
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameOver(bool PlayerWon);
 
 	void ActorDied(AActor* DeadActor);
 protected:

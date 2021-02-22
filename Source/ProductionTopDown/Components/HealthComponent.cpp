@@ -28,22 +28,13 @@ int32 UHealthComponent::GetDefaultHealth() const
 	return DefaultHealth;
 }
 
-int32 UHealthComponent::GetStamina() const
-{
-	return Stamina;
-}
 
-int32 UHealthComponent::GetDefaultStamina() const
-{
-	return DefaultStamina;
-}
 
 // Called when the game starts
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	Health = DefaultHealth;
-	Stamina = DefaultStamina;
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeDmg);
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	// ...

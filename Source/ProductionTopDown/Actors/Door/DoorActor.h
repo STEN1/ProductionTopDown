@@ -73,5 +73,6 @@ private:
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	
 
 };

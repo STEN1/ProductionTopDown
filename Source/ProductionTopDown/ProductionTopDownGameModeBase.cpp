@@ -4,6 +4,7 @@
 #include "ProductionTopDownGameModeBase.h"
 
 #include "Components/HealthComponent.h"
+#include "Components/StaminaComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Pawns/PlayerPawn.h"
 
@@ -30,13 +31,13 @@ int32 AProductionTopDownGameModeBase::GetPlayerHealth() const
 int32 AProductionTopDownGameModeBase::GetPlayerDefaultStamina() const
 {
 	if (!Player) return 0;
-	return Player->FindComponentByClass<UHealthComponent>()->GetDefaultStamina();
+	return Player->FindComponentByClass<UStaminaComponent>()->GetDefaultStamina();
 }
 
 int32 AProductionTopDownGameModeBase::GetPlayerStamina() const
 {
 	if (!Player) return 0;
-	return Player->FindComponentByClass<UHealthComponent>()->GetStamina();
+	return Player->FindComponentByClass<UStaminaComponent>()->GetStamina();
 }
 
 int32 AProductionTopDownGameModeBase::GetPlayerDefaultHealth() const
