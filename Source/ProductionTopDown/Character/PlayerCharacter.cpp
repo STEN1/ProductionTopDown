@@ -15,14 +15,34 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
-void APlayerCharacter::Attack()
+bool APlayerCharacter::Attack()
 {
-	Super::Attack();
+	// returns false if there is not enough stamina
+	if (!Super::Attack()) return false;
+	// Attack code here
+
+	
+	return true;
 }
 
-void APlayerCharacter::Dash()
+bool APlayerCharacter::Dash()
 {
-	Super::Dash();
+	// returns false if there is not enough stamina
+	if (!Super::Dash()) return false;
+	// Dash code here
+
+	
+	return true;
+}
+
+void APlayerCharacter::AttackEvent()
+{
+	Attack();
+}
+
+void APlayerCharacter::DashEvent()
+{
+	Dash();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -33,6 +53,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
-	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::Dash);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
 }

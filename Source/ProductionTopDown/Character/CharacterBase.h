@@ -21,8 +21,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	// Functions
-	virtual void Attack();
-	virtual void Dash();
+	virtual bool Attack();
+	virtual bool Dash();
 	
 public:	
 	// Called every frame

@@ -18,8 +18,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void Attack() override;
-	virtual void Dash() override;
+	virtual bool Attack() override;
+	virtual bool Dash() override;
+	void AttackEvent();
+	void DashEvent();
 	
 public:
 	//Constructor

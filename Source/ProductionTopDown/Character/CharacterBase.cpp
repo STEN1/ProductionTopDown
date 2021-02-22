@@ -37,29 +37,31 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	
 }
 
-void ACharacterBase::Attack()
+bool ACharacterBase::Attack()
 {
 	if (StaminaComponent)
 	{
 		if (StaminaComponent->GetStamina() < StaminaComponent->GetAttackCost())
 		{
-			return;
+			return false;
 		}
 		// Subtracts the stamina cost from current stamina.
 		StaminaComponent->Attack();
 	}
+	return true;
 }
 
-void ACharacterBase::Dash()
+bool ACharacterBase::Dash()
 {
 	if (StaminaComponent)
 	{
 		if (StaminaComponent->GetStamina() < StaminaComponent->GetDashCost())
 		{
-			return;
+			return false;
 		}
 		// Subtracts the stamina cost from current stamina.
 		StaminaComponent->Dash();
 	}
+	return true;
 }
 
