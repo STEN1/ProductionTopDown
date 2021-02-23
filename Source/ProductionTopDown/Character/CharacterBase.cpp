@@ -12,7 +12,6 @@ ACharacterBase::ACharacterBase()
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("Health Component");
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>("Stamina Component");
-
 }
 
 // Called when the game starts or when spawned

@@ -13,28 +13,20 @@ UCLASS()
 class PRODUCTIONTOPDOWN_API APlayerCharacter : public ACharacterBase
 {
 	GENERATED_BODY()
+public:
+	APlayerCharacter();
+	
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual bool Attack() override;
 	virtual bool Dash() override;
 	void AttackEvent();
 	void DashEvent();
-	
-public:
-	//Constructor
-	APlayerCharacter();
-	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
-	private:
-	//Variables
-	
+	void MoverForward(float Value);
+	void MoveRight(float Value);
 };

@@ -45,6 +45,16 @@ void APlayerCharacter::DashEvent()
 	Dash();
 }
 
+void APlayerCharacter::MoverForward(float Value)
+{
+	AddMovementInput(GetActorForwardVector() * Value);
+}
+
+void APlayerCharacter::MoveRight(float Value)
+{
+	AddMovementInput(GetActorRightVector() * Value);
+}
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -55,4 +65,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
+	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoverForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 }

@@ -6,6 +6,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Pawns/PlayerPawn.h"
+#include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values
 ADoorActor::ADoorActor()
@@ -111,7 +112,7 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 
 void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (/*APlayerPawn* Player = */Cast<APlayerPawn>(OtherActor))
+	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
 	{
 		bDoorOpen = true;
 		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
@@ -121,7 +122,7 @@ void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (/*APlayerPawn* Player = */Cast<APlayerPawn>(OtherActor))
+	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
 	{
 		bDoorOpen = false;
 		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
