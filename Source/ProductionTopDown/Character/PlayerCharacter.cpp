@@ -3,10 +3,12 @@
 
 #include "PlayerCharacter.h"
 
+#include "ProductionTopDown/Components/InventoryComponent.h"
+
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 	
 }
 

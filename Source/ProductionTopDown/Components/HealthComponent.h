@@ -33,6 +33,7 @@ private:
 	UFUNCTION()
 	void TakeDmg(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 
+	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
 
 };
