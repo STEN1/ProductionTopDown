@@ -7,7 +7,12 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "ItemBase.generated.h"
-
+enum ItemClass
+{
+	Empty,
+    RustySword,
+	HealthPickup
+};
 UCLASS()
 class PRODUCTIONTOPDOWN_API AItemBase : public AActor
 {
@@ -19,13 +24,20 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	FString GetItemName() const;
+	UFUNCTION(BlueprintCallable)
+	FString GetItemLore() const;
+	
+	ItemClass GetItemClass() const;
 
 protected:
 	virtual void BeginPlay() override;
 	bool bUsable{ true };
 	bool bPickup{ false };
 
+	ItemClass ThisItemClass{ Empty };
+
 	FString ItemName{TEXT("")};
+	FString ItemLore{TEXT("")};
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

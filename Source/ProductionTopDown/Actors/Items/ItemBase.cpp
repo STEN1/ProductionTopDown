@@ -59,3 +59,13 @@ FString AItemBase::GetItemName() const
 	return ItemName;
 }
 
+FString AItemBase::GetItemLore() const
+{
+	return ItemLore;
+}
+
+ItemClass AItemBase::GetItemClass() const
+{
+	return ThisItemClass;
+}
+
