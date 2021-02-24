@@ -30,8 +30,11 @@ protected:
 	void DashEvent();
 	void MoverForward(float Value);
 	void MoveRight(float Value);
+	void RotateCharacter(float Value);
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInventoryComponent* InventoryComponent;
+
+	USkeletalMeshComponent* CharacterMesh;
 };

@@ -49257,6 +49257,18 @@
               <e p="DoorActor.cpp" t="Include" />
               <e p="DoorActor.h" t="Include" />
             </e>
+            <e p="Items" t="Include">
+              <e p="HealthPickup.cpp" t="Include" />
+              <e p="HealthPickup.h" t="Include" />
+              <e p="ItemBase.cpp" t="Include" />
+              <e p="ItemBase.h" t="Include" />
+              <e p="Weapons" t="Include">
+                <e p="RustySword.cpp" t="Include" />
+                <e p="RustySword.h" t="Include" />
+                <e p="WeaponBase.cpp" t="Include" />
+                <e p="WeaponBase.h" t="Include" />
+              </e>
+            </e>
           </e>
           <e p="Character" t="Include">
             <e p="CharacterBase.cpp" t="Include" />
@@ -49271,6 +49283,10 @@
             </e>
             <e p="HealthComponent.cpp" t="Include" />
             <e p="HealthComponent.h" t="Include" />
+            <e p="InventoryComponent.cpp" t="Include" />
+            <e p="InventoryComponent.h" t="Include" />
+            <e p="StaminaComponent.cpp" t="Include" />
+            <e p="StaminaComponent.h" t="Include" />
           </e>
           <e p="GameMode" t="Include">
             <e p="TopDownGameModeBase.cpp" t="Include" />
@@ -49292,6 +49308,10 @@
               <e p="BasePawn.h" t="Include" />
               <e p="PlayerPawn.h" t="Include" />
             </e>
+          </e>
+          <e p="Widgets" t="Include">
+            <e p="ItemWidget.cpp" t="Include" />
+            <e p="ItemWidget.h" t="Include" />
           </e>
         </e>
         <e p="ProductionTopDown.Target.cs" t="Include" />
