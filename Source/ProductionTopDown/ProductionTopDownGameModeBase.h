@@ -21,7 +21,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateStaminaUI(float Stamina, float DefaultStamina);
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateInventoryUI(int32 CurrentSlot);
+	void UpdateInventoryUI(int32 Slot, UTexture2D* ItemImage);
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateInventoryUICurrentSlot(int32 CurrentSlot);
 	UFUNCTION(BlueprintImplementableEvent)
 	void GameOver(bool PlayerWon);
 

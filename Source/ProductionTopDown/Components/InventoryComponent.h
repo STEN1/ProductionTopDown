@@ -4,10 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ProductionTopDown/Actors/Items/HealthPickup.h"
+#include "ProductionTopDown/Actors/Items/Weapons/RustySword.h"
 #include "ProductionTopDown/Actors/Items/Weapons/WeaponBase.h"
 #include "InventoryComponent.generated.h"
 
-
+struct FInventoryItem
+{
+	ItemClass _ItemClass{Empty};
+	FString _ItemName{""};
+	FString _ItemLore{""};
+	float _MinDamage{ 0.f };
+	float _MaxDamage{ 0.f };
+	float _CritChance{ 0.f };
+	UTexture2D* _ItemImage;
+};
 class AItemBase;
 class AWeaponBase;
 class AProductionTopDownGameModeBase;
@@ -20,15 +31,7 @@ class PRODUCTIONTOPDOWN_API UInventoryComponent : public UActorComponent
 public:	
 	UInventoryComponent();
 	
-	struct FInventoryItem
-	{
-		ItemClass _ItemClass{Empty};
-		FString _ItemName{""};
-		FString _ItemLore{""};
-		float _MinDamage{ 0.f };
-		float _MaxDamage{ 0.f };
-		float _CritChance{ 0.f };
-	};
+	
 
 	
 protected:
@@ -47,6 +50,10 @@ private:
 	void Slot2();
 	void Slot3();
 	void Slot4();
+	void DropItem(ItemClass ItemToDrop);
+	bool FillEmptySlot();
+	bool ReplaceCurrentSlot();
+	int32 PreviousSlot{ 1 };
 	int32 CurrentSlot{ 1 };
 
 	void UpdateOverlapArray();
@@ -60,4 +67,9 @@ private:
 	AWeaponBase* EquippedWeapon;
 	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items to spawn on drop")
+	TSubclassOf<ARustySword> ItemRustySword;
+	UPROPERTY(EditDefaultsOnly, Category = "Items to spawn on drop")
+	TSubclassOf<AHealthPickup> ItemHealthPickup;
 };

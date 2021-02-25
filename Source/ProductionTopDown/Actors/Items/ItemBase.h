@@ -28,6 +28,9 @@ public:
 	FString GetItemLore() const;
 	
 	ItemClass GetItemClass() const;
+	UTexture2D* GetItemImage() const;
+
+	static void SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation);
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,8 +49,10 @@ private:
 	UBoxComponent* BoxComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UWidgetComponent* WidgetComponent;
-	
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	UTexture2D* ItemImage;
+	
 	//
 	UFUNCTION()
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);

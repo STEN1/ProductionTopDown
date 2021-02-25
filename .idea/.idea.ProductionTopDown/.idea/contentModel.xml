@@ -32,6 +32,8 @@
             <e p="Items" t="Include">
               <e p="HealthPickup.cpp" t="Include" />
               <e p="HealthPickup.h" t="Include" />
+              <e p="InventoryItem.cpp" t="Include" />
+              <e p="InventoryItem.h" t="Include" />
               <e p="ItemBase.cpp" t="Include" />
               <e p="ItemBase.h" t="Include" />
               <e p="Weapons" t="Include">
