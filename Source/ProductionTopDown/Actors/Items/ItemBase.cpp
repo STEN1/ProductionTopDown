@@ -5,6 +5,7 @@
 
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "Blueprint/UserWidget.h"
+#include "Weapons/RustySword.h"
 
 
 AItemBase::AItemBase()
@@ -34,7 +35,7 @@ void AItemBase::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s should show now.."), *ItemName);
+		//UE_LOG(LogTemp, Warning, TEXT("%s should show now.."), *ItemName);
 		WidgetComponent->SetVisibility(true, true);
 	}
 }
@@ -43,7 +44,7 @@ void AItemBase::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s should hide now.."), *ItemName);
+		//UE_LOG(LogTemp, Warning, TEXT("%s should hide now.."), *ItemName);
 		WidgetComponent->SetVisibility(false, true);
 	}
 }
@@ -68,4 +69,37 @@ ItemClass AItemBase::GetItemClass() const
 {
 	return ThisItemClass;
 }
+
+UTexture2D* AItemBase::GetItemImage() const
+{
+	if (ItemImage)
+	{
+		return ItemImage;
+	}
+	return nullptr;
+}
+
+void AItemBase::SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation)
+{
+	{
+
+		// Cant spawn BP classes this way.. and if i do, i also have to chose to pack the BP files
+		// With the project to make it work on a final build.. PITA
+		
+		switch (Item)
+		{
+		case Empty:
+			UE_LOG(LogTemp, Warning, TEXT("Cant throw nothing.. Are you drunk?"));
+			break;
+		case RustySword:
+			Actor->GetWorld()->SpawnActor<ARustySword>(ARustySword::StaticClass(), Location, Rotation);
+			break;
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("Missing spawning implementation of item in ItemBase.cpp -> SpawnItemOfItemClass()"));
+			break;
+		}
+	}
+}
+
+
 

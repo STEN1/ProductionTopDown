@@ -5,6 +5,9 @@
 
 AHealthPickup::AHealthPickup()
 {
+	ItemName = TEXT("Health Pot");
+	ItemLore = TEXT("Even better than modern medicine.");
+	ThisItemClass = HealthPickup;
 }
 
 void AHealthPickup::BeginPlay()
