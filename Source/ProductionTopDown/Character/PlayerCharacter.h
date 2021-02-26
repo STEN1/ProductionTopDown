@@ -24,6 +24,14 @@ public:
 	bool GetIsDashing();
 	UFUNCTION(BlueprintCallable)
 	void SetIsDashing(bool bIsDashing);
+	UFUNCTION(BlueprintCallable)
+    bool GetIsBlocking();
+	UFUNCTION(BlueprintCallable)
+    void SetIsBlocking(bool bIsBlocking);
+	UFUNCTION(BlueprintCallable)
+    bool GetIsAttacking();
+	UFUNCTION(BlueprintCallable)
+    void SetIsAttacking(bool bIsAttacking);
 protected:
 	virtual void BeginPlay() override;
 
@@ -49,4 +57,6 @@ private:
 	float DashDistance{200};
 
 	bool IsDashing{false};
+	bool IsAttacking{false};
+	bool IsBlocking{false};
 };

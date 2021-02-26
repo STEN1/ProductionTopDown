@@ -119,3 +119,23 @@ void APlayerCharacter::SetIsDashing(bool bIsDashing)
 {
 	IsDashing = bIsDashing;
 }
+
+bool APlayerCharacter::GetIsBlocking()
+{
+	return IsBlocking;
+}
+
+void APlayerCharacter::SetIsBlocking(bool bIsBlocking)
+{
+	IsBlocking = bIsBlocking;
+}
+
+bool APlayerCharacter::GetIsAttacking()
+{
+	return IsAttacking;
+}
+
+void APlayerCharacter::SetIsAttacking(bool bIsAttacking)
+{
+	IsAttacking  = bIsAttacking;
+}
