@@ -26,6 +26,13 @@ public:
 	FString GetItemName() const;
 	UFUNCTION(BlueprintCallable)
 	FString GetItemLore() const;
+	UFUNCTION(BlueprintCallable)
+	float GetMinDamage() const;
+	UFUNCTION(BlueprintCallable)
+    float GetMaxDamage() const;
+	UFUNCTION(BlueprintCallable)
+    float GetCritChance() const;
+	float GetKnockbackAmount() const;
 	
 	ItemClass GetItemClass() const;
 	UTexture2D* GetItemImage() const;
@@ -41,6 +48,11 @@ protected:
 
 	FString ItemName{TEXT("")};
 	FString ItemLore{TEXT("")};
+	float MinDamage{8.f};
+	float MaxDamage{13.f};
+	float CritChance{30.f}; // Percentage
+
+	float KnockbackAmount{200.f};
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -58,4 +70,8 @@ private:
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	
+	
+
 };

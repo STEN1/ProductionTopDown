@@ -5,7 +5,6 @@
 
 
 #include "Camera/CameraComponent.h"
-#include "Pawns/PlayerPawn.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values

@@ -6,7 +6,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Pawns/PlayerPawn.h"
+#include "Character/PlayerCharacter.h"
 
 void AProductionTopDownGameModeBase::ActorDied(AActor* DeadActor)
 {
@@ -16,7 +16,7 @@ void AProductionTopDownGameModeBase::ActorDied(AActor* DeadActor)
 void AProductionTopDownGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-	Player = Cast<APlayerPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+	Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	// Blueprint Event
 	StartGame();
