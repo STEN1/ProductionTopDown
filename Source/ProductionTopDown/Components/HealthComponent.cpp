@@ -5,7 +5,6 @@
 
 
 #include "Kismet/GameplayStatics.h"
-#include "Pawns/PlayerPawn.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 
 // Sets default values for this component's properties
@@ -55,7 +54,7 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 	}*/
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
 	UE_LOG(LogTemp, Warning, TEXT("DamageCauserOwner: %s"), *DamageCauser->GetOwner()->GetHumanReadableName());
-	if (GetOwner()->IsA(APlayerPawn::StaticClass()))
+	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
 	{
 		GameModeRef->UpdateHealthUI(Health, DefaultHealth);
 	}

@@ -4,9 +4,10 @@
 #include "InventoryComponent.h"
 
 
+
+#include "Chaos/AABBTree.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Actors/Items/ItemBase.h"
-#include "ProductionTopDown/Actors/Items/Weapons/WeaponBase.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 
 
@@ -14,6 +15,10 @@ UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	Inventory.SetNum(4);
+	for (auto& Item : Inventory)
+	{
+		Item = nullptr;
+	}
 }
 
 
@@ -46,6 +51,7 @@ void UInventoryComponent::BeginPlay()
 void UInventoryComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	UpdateOverlapArray();
+	UE_LOG(LogTemp, Warning, TEXT("Stepping on item"));
 	// update interact widget
 }
 
@@ -59,7 +65,7 @@ void UInventoryComponent::UpdateOverlapArray()
 {
 	TArray<AActor*> TempArray;
 	GetOwner()->GetOverlappingActors(TempArray, TSubclassOf<AItemBase>());
-	OverlappingItems.Reset();
+	OverlappingItems.Empty();
 	for (auto& TempActor : TempArray)
 	{
 		if (AItemBase* TempItem = Cast<AItemBase>(TempActor))
@@ -72,7 +78,8 @@ void UInventoryComponent::UpdateOverlapArray()
 void UInventoryComponent::Interact()
 {
 	UpdateOverlapArray();
-	if (OverlappingItems.Num() == 0) return;
+	UE_LOG(LogTemp, Warning, TEXT("OverlappingItems.Num(): %i"), OverlappingItems.Num())
+	if (OverlappingItems.Num() <= 0) return;
 
 	if (FillEmptySlot()) return;
 	if (ReplaceCurrentSlot()) return;
@@ -106,69 +113,60 @@ void UInventoryComponent::Slot4()
 	GameModeRef->UpdateInventoryUICurrentSlot(4);
 }
 
-void UInventoryComponent::DropItem(ItemClass ItemToDrop)
+void UInventoryComponent::DropItem()
 {
-	switch (ItemToDrop)
+	if (Inventory[CurrentSlot - 1])
 	{
-		case Empty:
-			UE_LOG(LogTemp, Warning, TEXT("Trying to drop from empty slot..."));
-			break;
-		case RustySword:
-			GetWorld()->SpawnActor<ARustySword>(ItemRustySword, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-			UE_LOG(LogTemp, Warning, TEXT("Spawning RustySword."));
-			break;
-		case HealthPickup:
-			GetWorld()->SpawnActor<AHealthPickup>(ItemHealthPickup, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-			UE_LOG(LogTemp, Warning, TEXT("Spawning Health"));
-			break;
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("Missing spawning implementation of item in Inventorycomponent.cpp -> DropItem() And probably missing TSubClassOf in BP"));
-			break;
+		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant drop from empty slot"));
+	}
+	// switch (ItemToDrop)
+	// {
+	// 	case Empty:
+	// 		UE_LOG(LogTemp, Warning, TEXT("Trying to drop from empty slot..."));
+	// 		break;
+	// 	case RustySword:
+	// 		GetWorld()->SpawnActor<ARustySword>(ItemRustySword, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	// 		UE_LOG(LogTemp, Warning, TEXT("Spawning RustySword."));
+	// 		break;
+	// 	case HealthPickup:
+	// 		GetWorld()->SpawnActor<AHealthPickup>(ItemHealthPickup, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	// 		UE_LOG(LogTemp, Warning, TEXT("Spawning Health"));
+	// 		break;
+	// 	default:
+	// 		UE_LOG(LogTemp, Warning, TEXT("Missing spawning implementation of item in Inventorycomponent.cpp -> DropItem() And probably missing TSubClassOf in BP"));
+	// 		break;
+	// }
 }
 
 bool UInventoryComponent::FillEmptySlot()
 {
-	for (int32 i = 0;i < Inventory.Num();i++)
-	{
-		if (Inventory[i]._ItemClass == Empty)
-		{
-			Inventory[i]._ItemClass = OverlappingItems[OverlappingItems.Num() - 1]->GetItemClass();
-			Inventory[i]._ItemName = OverlappingItems[OverlappingItems.Num() - 1]->GetItemName();
-			Inventory[i]._ItemLore = OverlappingItems[OverlappingItems.Num() - 1]->GetItemLore();
-			Inventory[i]._ItemImage = OverlappingItems[OverlappingItems.Num() - 1]->GetItemImage();
-			if (AWeaponBase* TempWeapon = Cast<AWeaponBase>(OverlappingItems[OverlappingItems.Num() - 1]))
-			{
-				Inventory[i]._MinDamage = TempWeapon->GetMinDamage();
-				Inventory[i]._MaxDamage = TempWeapon->GetMaxDamage();
-				Inventory[i]._CritChance = TempWeapon->GetCritChance();
-			}
-			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i]._ItemImage);
-			OverlappingItems.Pop()->Destroy();
-			return true;
-		}
-	}
 	return false;
 }
 
 bool UInventoryComponent::ReplaceCurrentSlot()
 {
-	ItemClass ItemToDrop = Inventory[CurrentSlot - 1]._ItemClass;
-	Inventory[CurrentSlot - 1]._ItemClass = OverlappingItems[OverlappingItems.Num() - 1]->GetItemClass();
-	Inventory[CurrentSlot - 1]._ItemName = OverlappingItems[OverlappingItems.Num() - 1]->GetItemName();
-	Inventory[CurrentSlot - 1]._ItemLore = OverlappingItems[OverlappingItems.Num() - 1]->GetItemLore();
-	Inventory[CurrentSlot - 1]._ItemImage = OverlappingItems[OverlappingItems.Num() - 1]->GetItemImage();
-	if (AWeaponBase* TempWeapon = Cast<AWeaponBase>(OverlappingItems[OverlappingItems.Num() - 1]))
+	if (Inventory[CurrentSlot - 1])
 	{
-		Inventory[CurrentSlot - 1]._MinDamage = TempWeapon->GetMinDamage();
-		Inventory[CurrentSlot - 1]._MaxDamage = TempWeapon->GetMaxDamage();
-		Inventory[CurrentSlot - 1]._CritChance = TempWeapon->GetCritChance();
+		Inventory[CurrentSlot - 1]->SetActorLocation(GetOwner()->GetActorLocation());
+		Inventory[CurrentSlot - 1]->GetRootComponent()->SetVisibility(true, true);
+		Inventory[CurrentSlot - 1]->FindComponentByClass<UBoxComponent>()->SetGenerateOverlapEvents(true);
 	}
-	GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1]._ItemImage);
-	OverlappingItems.Pop()->Destroy();
-	DropItem(ItemToDrop);
+	
+	OverlappingItems[OverlappingItems.Num() - 1]->GetRootComponent()->SetVisibility(false, true);
+	OverlappingItems[OverlappingItems.Num() - 1]->FindComponentByClass<UBoxComponent>()->SetGenerateOverlapEvents(false);
+	
+	Inventory[CurrentSlot - 1] = OverlappingItems[OverlappingItems.Num() - 1];
+	if (Inventory[CurrentSlot - 1] && Inventory[CurrentSlot - 1]->GetItemImage())
+	{
+		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1]->GetItemImage());
+	}
 	return true;
 }
+
 
 
 

@@ -3,13 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+
+
+#include "Character/PlayerCharacter.h"
 #include "GameFramework/GameModeBase.h"
 #include "ProductionTopDownGameModeBase.generated.h"
 
-class APlayerPawn;
 /**
  * 
  */
+class APlayerCharacter;
 UCLASS()
 class PRODUCTIONTOPDOWN_API AProductionTopDownGameModeBase : public AGameModeBase
 {
@@ -36,7 +40,7 @@ protected:
 	
 private:
 	UPROPERTY()
-	APlayerPawn* Player;
+	APlayerCharacter* Player;
 
 	UFUNCTION()
 	float GetPlayerDefaultHealth() const;

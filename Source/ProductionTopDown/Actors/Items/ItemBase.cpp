@@ -28,6 +28,9 @@ void AItemBase::BeginPlay()
 	WidgetComponent->SetVisibility(false, true);
 	OnActorBeginOverlap.AddDynamic(this, &AItemBase::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AItemBase::EndOverlap);
+	StaticMeshComponent->SetGenerateOverlapEvents(false);
+	BoxComponent->SetGenerateOverlapEvents(true);
+	WidgetComponent->SetGenerateOverlapEvents(false);
 	
 }
 
@@ -36,7 +39,10 @@ void AItemBase::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%s should show now.."), *ItemName);
-		WidgetComponent->SetVisibility(true, true);
+		if (GetRootComponent()->IsVisible())
+		{
+			WidgetComponent->SetVisibility(true, true);
+		}
 	}
 }
 
@@ -63,6 +69,26 @@ FString AItemBase::GetItemName() const
 FString AItemBase::GetItemLore() const
 {
 	return ItemLore;
+}
+
+float AItemBase::GetMinDamage() const
+{
+	return MinDamage;
+}
+
+float AItemBase::GetMaxDamage() const
+{
+	return MaxDamage;
+}
+
+float AItemBase::GetCritChance() const
+{
+	return CritChance;
+}
+
+float AItemBase::GetKnockbackAmount() const
+{
+	return KnockbackAmount;
 }
 
 ItemClass AItemBase::GetItemClass() const

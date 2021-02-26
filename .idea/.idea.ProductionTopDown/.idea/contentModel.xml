@@ -32,15 +32,11 @@
             <e p="Items" t="Include">
               <e p="HealthPickup.cpp" t="Include" />
               <e p="HealthPickup.h" t="Include" />
-              <e p="InventoryItem.cpp" t="Include" />
-              <e p="InventoryItem.h" t="Include" />
               <e p="ItemBase.cpp" t="Include" />
               <e p="ItemBase.h" t="Include" />
               <e p="Weapons" t="Include">
                 <e p="RustySword.cpp" t="Include" />
                 <e p="RustySword.h" t="Include" />
-                <e p="WeaponBase.cpp" t="Include" />
-                <e p="WeaponBase.h" t="Include" />
               </e>
             </e>
           </e>
@@ -51,10 +47,6 @@
             <e p="PlayerCharacter.h" t="Include" />
           </e>
           <e p="Components" t="Include">
-            <e p="Door" t="Include">
-              <e p="DoorComponent.cpp" t="Include" />
-              <e p="DoorComponent.h" t="Include" />
-            </e>
             <e p="HealthComponent.cpp" t="Include" />
             <e p="HealthComponent.h" t="Include" />
             <e p="InventoryComponent.cpp" t="Include" />
@@ -66,27 +58,11 @@
             <e p="TopDownGameModeBase.cpp" t="Include" />
             <e p="TopDownGameModeBase.h" t="Include" />
           </e>
-          <e p="Private" t="Include">
-            <e p="Pawns" t="Include">
-              <e p="BasePawn.cpp" t="Include" />
-              <e p="PlayerPawn.cpp" t="Include" />
-            </e>
-          </e>
           <e p="ProductionTopDown.Build.cs" t="Include" />
           <e p="ProductionTopDown.cpp" t="Include" />
           <e p="ProductionTopDown.h" t="Include" />
           <e p="ProductionTopDownGameModeBase.cpp" t="Include" />
           <e p="ProductionTopDownGameModeBase.h" t="Include" />
-          <e p="Public" t="Include">
-            <e p="Pawns" t="Include">
-              <e p="BasePawn.h" t="Include" />
-              <e p="PlayerPawn.h" t="Include" />
-            </e>
-          </e>
-          <e p="Widgets" t="Include">
-            <e p="ItemWidget.cpp" t="Include" />
-            <e p="ItemWidget.h" t="Include" />
-          </e>
         </e>
         <e p="ProductionTopDown.Target.cs" t="Include" />
         <e p="ProductionTopDownEditor.Target.cs" t="Include" />

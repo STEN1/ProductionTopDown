@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponBase.h"
+#include "ProductionTopDown/Actors/Items/ItemBase.h"
 #include "RustySword.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PRODUCTIONTOPDOWN_API ARustySword : public AWeaponBase
+class PRODUCTIONTOPDOWN_API ARustySword : public AItemBase
 {
 	GENERATED_BODY()
 public:
