@@ -6,10 +6,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
 
+
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
 	
 }
 
@@ -19,6 +23,10 @@ void APlayerCharacter::BeginPlay()
 	
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 	
+	//testing purposes
+	if(Weapon)EquipWeaponFromInv(Weapon);
+		
+	
 }
 
 bool APlayerCharacter::Attack()
@@ -26,8 +34,7 @@ bool APlayerCharacter::Attack()
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
-
-	
+	IsAttacking = true;
 	return true;
 }
 
@@ -39,18 +46,6 @@ bool APlayerCharacter::Dash()
 
 	IsDashing = true;
 	
-	//GetCharacterMovement()->BrakingFrictionFactor = 0.f;
-	
-	//FVector DashVector;
-	//DashVector.X = LastDirection.X;
-	//DashVector.Y = LastDirection.Y;
-	//DashVector.Z = 0;
-	//DashVector = DashVector.GetSafeNormal(); // Normalize
-	
-	//LaunchCharacter(DashVector*DashDistance, true, true);
-
-	//timer or something to set dashing false
-	//IsDashing = false;
 	return true;
 }
 
@@ -91,6 +86,12 @@ void APlayerCharacter::RotateCharacter(float Value)
 		LastRotation = MeshRotation;
 		CharacterMesh->SetWorldRotation(MeshRotation);
 	}
+}
+
+void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
+{
+	//EquipWeapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
+	EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
 void APlayerCharacter::Tick(float DeltaTime)

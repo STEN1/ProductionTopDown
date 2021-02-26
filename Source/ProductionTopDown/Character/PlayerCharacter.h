@@ -7,9 +7,8 @@
 #include "PlayerCharacter.generated.h"
 
 class UInventoryComponent;
-/**
- * 
- */
+class AWeaponBase;
+
 UCLASS()
 class PRODUCTIONTOPDOWN_API APlayerCharacter : public ACharacterBase
 {
@@ -32,6 +31,7 @@ public:
     bool GetIsAttacking();
 	UFUNCTION(BlueprintCallable)
     void SetIsAttacking(bool bIsAttacking);
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -42,16 +42,24 @@ protected:
 	void MoverForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter(float Value);
+
+	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 	
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInventoryComponent* InventoryComponent;
-
 	USkeletalMeshComponent* CharacterMesh;
 
+	
+
+	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* Weapon;
+
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float DashDistance{200};
