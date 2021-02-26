@@ -20,7 +20,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+	UFUNCTION(BlueprintCallable)
+	bool GetIsDashing();
+	UFUNCTION(BlueprintCallable)
+	void SetIsDashing(bool bIsDashing);
 protected:
 	virtual void BeginPlay() override;
 
@@ -31,10 +34,19 @@ protected:
 	void MoverForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter(float Value);
+	
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInventoryComponent* InventoryComponent;
 
 	USkeletalMeshComponent* CharacterMesh;
+
+	FVector LastDirection;
+	FRotator LastRotation;
+	
+	UPROPERTY(EditAnywhere, Category="Movement")
+	float DashDistance{200};
+
+	bool IsDashing{false};
 };

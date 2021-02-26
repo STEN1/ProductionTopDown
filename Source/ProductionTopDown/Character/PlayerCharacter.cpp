@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -36,7 +37,20 @@ bool APlayerCharacter::Dash()
 	if (!Super::Dash()) return false;
 	// Dash code here
 
-	Jump();
+	IsDashing = true;
+	
+	//GetCharacterMovement()->BrakingFrictionFactor = 0.f;
+	
+	//FVector DashVector;
+	//DashVector.X = LastDirection.X;
+	//DashVector.Y = LastDirection.Y;
+	//DashVector.Z = 0;
+	//DashVector = DashVector.GetSafeNormal(); // Normalize
+	
+	//LaunchCharacter(DashVector*DashDistance, true, true);
+
+	//timer or something to set dashing false
+	//IsDashing = false;
 	return true;
 }
 
@@ -47,6 +61,8 @@ void APlayerCharacter::AttackEvent()
 
 void APlayerCharacter::DashEvent()
 {
+	//Dash Animation and particles
+	
 	Dash();
 }
 
@@ -62,14 +78,17 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::RotateCharacter(float Value)
 {
-	FVector ChVelocity = GetVelocity();
-	float VLen = ChVelocity.Size();
-	FRotator MeshRotation = ChVelocity.Rotation();
+	
+	
+	float VLen = GetVelocity().Size();
+	FRotator MeshRotation = GetVelocity().Rotation();
 	MeshRotation.Yaw -= 90; //rotates the char så den blir rett vei
 	MeshRotation.Pitch = 0;
 	//SetActorRotation(ActorRotation);
 	if (CharacterMesh && VLen != 0)
 	{
+		LastDirection = GetVelocity();
+		LastRotation = MeshRotation;
 		CharacterMesh->SetWorldRotation(MeshRotation);
 	}
 }
@@ -78,7 +97,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	RotateCharacter(1);
+	if(!IsDashing)RotateCharacter(1);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -89,4 +108,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoverForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
+}
+
+bool APlayerCharacter::GetIsDashing()
+{
+	return IsDashing;
+}
+
+void APlayerCharacter::SetIsDashing(bool bIsDashing)
+{
+	IsDashing = bIsDashing;
 }
