@@ -15,6 +15,8 @@ class PRODUCTIONTOPDOWN_API ARustySword : public AItemBase
 	GENERATED_BODY()
 public:
 	ARustySword();
+
+	virtual void UseItem() override;
 protected:
 	virtual void BeginPlay() override;
 	

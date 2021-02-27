@@ -14,11 +14,20 @@
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	Inventory.SetNum(4);
+	Inventory.SetNum(InventorySize);
 	for (auto& Item : Inventory)
 	{
 		Item = nullptr;
 	}
+}
+
+AItemBase* UInventoryComponent::GetItemObject()
+{
+	if (Inventory[CurrentSlot - 1])
+	{
+		return Inventory[CurrentSlot - 1].GetDefaultObject();
+	}
+	return nullptr;
 }
 
 
@@ -39,6 +48,7 @@ void UInventoryComponent::BeginPlay()
 		PlayerInputComponent->BindAction("InventorySlot2", IE_Pressed, this, &UInventoryComponent::Slot2);
 		PlayerInputComponent->BindAction("InventorySlot3", IE_Pressed, this, &UInventoryComponent::Slot3);
 		PlayerInputComponent->BindAction("InventorySlot4", IE_Pressed, this, &UInventoryComponent::Slot4);
+		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &UInventoryComponent::UseInventoryItem);
 	}
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!GameModeRef)
@@ -52,13 +62,11 @@ void UInventoryComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherAct
 {
 	UpdateOverlapArray();
 	UE_LOG(LogTemp, Warning, TEXT("Stepping on item"));
-	// update interact widget
 }
 
 void UInventoryComponent::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	UpdateOverlapArray();
-	// update interact widget
 }
 
 void UInventoryComponent::UpdateOverlapArray()
@@ -89,28 +97,45 @@ void UInventoryComponent::Slot1()
 {
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 1;
-	GameModeRef->UpdateInventoryUICurrentSlot(1);
+	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
 }
 
 void UInventoryComponent::Slot2()
 {
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 2;
-	GameModeRef->UpdateInventoryUICurrentSlot(2);
+	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
 }
 
 void UInventoryComponent::Slot3()
 {
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 3;
-	GameModeRef->UpdateInventoryUICurrentSlot(3);
+	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
 }
 
 void UInventoryComponent::Slot4()
 {
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 4;
-	GameModeRef->UpdateInventoryUICurrentSlot(4);
+	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+}
+
+void UInventoryComponent::UseInventoryItem()
+{
+	AItemBase* InventoryItem = Inventory[CurrentSlot - 1].GetDefaultObject();
+	if (InventoryItem)
+	{
+		InventoryItem->UseItem();
+		UE_LOG(LogTemp, Warning, TEXT("Item name: %s IsConsumable(): %i"), *InventoryItem->GetItemName(),InventoryItem->IsConsumable());
+		if (InventoryItem->IsConsumable())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GOT HERE!!!"));
+			Inventory[CurrentSlot - 1] = nullptr;
+			if (EmptySlotImage)
+				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
+		}
+	}
 }
 
 
@@ -118,6 +143,8 @@ bool UInventoryComponent::FillEmptySlot()
 {
 	if (OverlappingItems.Num() <= 0) return false;
 
+	// See if any inventory slot is empty. Then fill that slot with object from overlapping items. 
+	// Then destroy that item from the world.
 	for (int32 i = 0;i < Inventory.Num();i++)
 	{
 		if (!Inventory[i])
