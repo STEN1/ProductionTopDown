@@ -113,56 +113,47 @@ void UInventoryComponent::Slot4()
 	GameModeRef->UpdateInventoryUICurrentSlot(4);
 }
 
-void UInventoryComponent::DropItem()
-{
-	if (Inventory[CurrentSlot - 1])
-	{
-		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cant drop from empty slot"));
-	}
-	// switch (ItemToDrop)
-	// {
-	// 	case Empty:
-	// 		UE_LOG(LogTemp, Warning, TEXT("Trying to drop from empty slot..."));
-	// 		break;
-	// 	case RustySword:
-	// 		GetWorld()->SpawnActor<ARustySword>(ItemRustySword, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-	// 		UE_LOG(LogTemp, Warning, TEXT("Spawning RustySword."));
-	// 		break;
-	// 	case HealthPickup:
-	// 		GetWorld()->SpawnActor<AHealthPickup>(ItemHealthPickup, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-	// 		UE_LOG(LogTemp, Warning, TEXT("Spawning Health"));
-	// 		break;
-	// 	default:
-	// 		UE_LOG(LogTemp, Warning, TEXT("Missing spawning implementation of item in Inventorycomponent.cpp -> DropItem() And probably missing TSubClassOf in BP"));
-	// 		break;
-	// }
-}
 
 bool UInventoryComponent::FillEmptySlot()
 {
+	if (OverlappingItems.Num() <= 0) return false;
+
+	for (int32 i = 0;i < Inventory.Num();i++)
+	{
+		if (!Inventory[i])
+		{
+			Inventory[i] = OverlappingItems.Last()->GetClass();
+			OverlappingItems.Pop()->Destroy();
+			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i].GetDefaultObject()->GetItemImage());
+			return true;
+		}
+	}
 	return false;
 }
 
 bool UInventoryComponent::ReplaceCurrentSlot()
 {
+	if (OverlappingItems.Num() <= 0) return false;
+
+	// check if there is already an item in the inventory. Then save that to a TempValue to spawn in the world.
+	TSubclassOf<AItemBase> TempItem;
 	if (Inventory[CurrentSlot - 1])
 	{
-		Inventory[CurrentSlot - 1]->SetActorLocation(GetOwner()->GetActorLocation());
-		Inventory[CurrentSlot - 1]->GetRootComponent()->SetVisibility(true, true);
-		Inventory[CurrentSlot - 1]->FindComponentByClass<UBoxComponent>()->SetGenerateOverlapEvents(true);
+		TempItem = Inventory[CurrentSlot - 1];
 	}
 	
-	OverlappingItems[OverlappingItems.Num() - 1]->GetRootComponent()->SetVisibility(false, true);
-	OverlappingItems[OverlappingItems.Num() - 1]->FindComponentByClass<UBoxComponent>()->SetGenerateOverlapEvents(false);
-	
-	Inventory[CurrentSlot - 1] = OverlappingItems[OverlappingItems.Num() - 1];
-	if (Inventory[CurrentSlot - 1] && Inventory[CurrentSlot - 1]->GetItemImage())
+	// Add item to inventory and Destroy it from the world. Then update ui if it is valid.
+	Inventory[CurrentSlot - 1] = OverlappingItems.Last()->GetClass();
+	OverlappingItems.Pop()->Destroy();
+	if (Inventory[CurrentSlot - 1])
 	{
-		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1]->GetItemImage());
+		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1].GetDefaultObject()->GetItemImage());
+	}
+
+	// Now spawn item from inventory if there was an item there.
+	if (TempItem)
+	{
+		GetWorld()->SpawnActor<AItemBase>(TempItem, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	}
 	return true;
 }
