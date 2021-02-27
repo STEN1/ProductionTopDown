@@ -6,6 +6,15 @@
 #include "CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	Attacking = 0		UMETA(DisplayName = "Attack state"),
+    Dashing = 1		UMETA(DisplayName = "Dashing state"),
+    Moving = 2		UMETA(DisplayName = "Moving state"),
+};
+
 class UInventoryComponent;
 class AWeaponBase;
 
@@ -19,6 +28,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
+	UFUNCTION(BlueprintCallable)
+    void ResetWalkSpeed();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsDashing();
 	UFUNCTION(BlueprintCallable)
@@ -31,8 +43,12 @@ public:
     bool GetIsAttacking();
 	UFUNCTION(BlueprintCallable)
     void SetIsAttacking(bool bIsAttacking);
+	
 	UFUNCTION(BlueprintCallable)
-    void SetMaxWalkSpeed();
+	void SetPlayerState(EPlayerState inpPlayerState);
+	
+	UFUNCTION(BlueprintCallable)
+    EPlayerState GetPlayerState();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -69,4 +85,6 @@ private:
 	bool IsDashing{false};
 	bool IsAttacking{false};
 	bool IsBlocking{false};
+
+	EPlayerState PlayerState;
 };

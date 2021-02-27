@@ -17,6 +17,11 @@ APlayerCharacter::APlayerCharacter()
 	
 }
 
+EPlayerState APlayerCharacter::GetPlayerState()
+{
+	return PlayerState;
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -54,6 +59,7 @@ bool APlayerCharacter::Dash()
 
 void APlayerCharacter::AttackEvent()
 {
+	PlayerState = EPlayerState::Attacking;
 	Attack();
 }
 
@@ -102,6 +108,24 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if(!IsDashing)RotateCharacter(1);
+
+
+	switch (PlayerState)
+	{
+	case EPlayerState::Attacking:
+		//attack state
+		break;
+	case EPlayerState::Dashing:
+		//dashing state
+		break;
+	case EPlayerState::Moving:
+		//move state
+		break;
+
+	default:
+		
+		break;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -144,7 +168,12 @@ void APlayerCharacter::SetIsAttacking(bool bIsAttacking)
 	IsAttacking  = bIsAttacking;
 }
 
-void APlayerCharacter::SetMaxWalkSpeed()
+void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
+{
+	PlayerState = inpPlayerState;
+}
+
+void APlayerCharacter::ResetWalkSpeed()
 {
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
