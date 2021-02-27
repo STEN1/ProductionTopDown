@@ -33,7 +33,6 @@ private:
 	void Slot2();
 	void Slot3();
 	void Slot4();
-	void DropItem();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
 	int32 PreviousSlot{ 1 };
@@ -42,7 +41,7 @@ private:
 	void UpdateOverlapArray();
 	TArray<AItemBase*> OverlappingItems;
 	
-	TArray<AItemBase*> Inventory;
+	TArray<TSubclassOf<AItemBase>> Inventory;
 
 	UPROPERTY()
 	UInputComponent* PlayerInputComponent;
