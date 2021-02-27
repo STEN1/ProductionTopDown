@@ -34,6 +34,9 @@ bool APlayerCharacter::Attack()
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
+	//makes you walk in half speed when attacking
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2.f;
+	
 	IsAttacking = true;
 	return true;
 }
@@ -139,4 +142,9 @@ bool APlayerCharacter::GetIsAttacking()
 void APlayerCharacter::SetIsAttacking(bool bIsAttacking)
 {
 	IsAttacking  = bIsAttacking;
+}
+
+void APlayerCharacter::SetMaxWalkSpeed()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }

@@ -31,6 +31,8 @@ public:
     bool GetIsAttacking();
 	UFUNCTION(BlueprintCallable)
     void SetIsAttacking(bool bIsAttacking);
+	UFUNCTION(BlueprintCallable)
+    void SetMaxWalkSpeed();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -63,7 +65,7 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float DashDistance{200};
-
+	float MaxWalkSpeed{400};
 	bool IsDashing{false};
 	bool IsAttacking{false};
 	bool IsBlocking{false};
