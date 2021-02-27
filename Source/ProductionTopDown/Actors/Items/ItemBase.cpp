@@ -105,6 +105,16 @@ UTexture2D* AItemBase::GetItemImage() const
 	return nullptr;
 }
 
+void AItemBase::UseItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Calling use on AItemBase."));
+}
+
+bool AItemBase::IsConsumable()
+{
+	return bConsumable;
+}
+
 void AItemBase::SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation)
 {
 	{

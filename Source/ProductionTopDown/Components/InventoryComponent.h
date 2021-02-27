@@ -20,6 +20,7 @@ class PRODUCTIONTOPDOWN_API UInventoryComponent : public UActorComponent
 public:	
 	UInventoryComponent();
 	
+	AItemBase* GetItemObject();
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,10 +34,13 @@ private:
 	void Slot2();
 	void Slot3();
 	void Slot4();
+	void UseInventoryItem();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
 	int32 PreviousSlot{ 1 };
 	int32 CurrentSlot{ 1 };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmptySlotImage", meta = (AllowPrivateAccess = "true"))
+	UTexture2D* EmptySlotImage;
 
 	void UpdateOverlapArray();
 	TArray<AItemBase*> OverlappingItems;
@@ -48,8 +52,5 @@ private:
 	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Items to spawn on drop")
-	TSubclassOf<ARustySword> ItemRustySword;
-	UPROPERTY(EditDefaultsOnly, Category = "Items to spawn on drop")
-	TSubclassOf<AHealthPickup> ItemHealthPickup;
+	int32 InventorySize{4};
 };

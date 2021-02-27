@@ -10,6 +10,11 @@ ARustySword::ARustySword()
 	ThisItemClass = RustySword;
 }
 
+void ARustySword::UseItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Calling use on Rusty Sword."));
+}
+
 void ARustySword::BeginPlay()
 {
 	Super::BeginPlay();

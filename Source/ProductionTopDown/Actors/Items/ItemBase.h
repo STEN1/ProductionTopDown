@@ -37,12 +37,16 @@ public:
 	ItemClass GetItemClass() const;
 	UTexture2D* GetItemImage() const;
 
+	virtual void UseItem();
+	bool IsConsumable();
+	
 	static void SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation);
 
 protected:
 	virtual void BeginPlay() override;
 	bool bUsable{ true };
 	bool bPickup{ false };
+	bool bConsumable{ false };
 
 	ItemClass ThisItemClass{ Empty };
 

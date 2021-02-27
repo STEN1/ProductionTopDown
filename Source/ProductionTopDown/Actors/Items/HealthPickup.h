@@ -15,6 +15,8 @@ class PRODUCTIONTOPDOWN_API AHealthPickup : public AItemBase
 	GENERATED_BODY()
 public:
 	AHealthPickup();
+
+	virtual void UseItem() override;
 protected:
 	virtual void BeginPlay() override;
 	
