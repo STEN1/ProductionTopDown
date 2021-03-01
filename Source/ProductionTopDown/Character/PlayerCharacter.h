@@ -27,23 +27,11 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	
 	UFUNCTION(BlueprintCallable)
     void ResetWalkSpeed();
-	UFUNCTION(BlueprintCallable)
-	bool GetIsDashing();
-	UFUNCTION(BlueprintCallable)
-	void SetIsDashing(bool bIsDashing);
-	UFUNCTION(BlueprintCallable)
-    bool GetIsBlocking();
-	UFUNCTION(BlueprintCallable)
-    void SetIsBlocking(bool bIsBlocking);
-	UFUNCTION(BlueprintCallable)
-    bool GetIsAttacking();
-	UFUNCTION(BlueprintCallable)
-    void SetIsAttacking(bool bIsAttacking);
-	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetStateToFalse();
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(EPlayerState inpPlayerState);
 	
@@ -57,12 +45,16 @@ protected:
 	virtual bool Dash() override;
 	void AttackEvent();
 	void DashEvent();
-	void MoverForward(float Value);
+	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter(float Value);
 
-	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 	
+	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
+
+
+	//debug functions
+	void LogPlayerState();
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -80,11 +72,8 @@ private:
 
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
-	float DashDistance{200};
+	float DashDistance{100};
 	float MaxWalkSpeed{400};
-	bool IsDashing{false};
-	bool IsAttacking{false};
-	bool IsBlocking{false};
 
 	EPlayerState PlayerState;
 };

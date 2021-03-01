@@ -25,12 +25,14 @@ EPlayerState APlayerCharacter::GetPlayerState()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//start in moving state
+	PlayerState = EPlayerState::Moving;
 	
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 	
 	//testing purposes
 	if(Weapon)EquipWeaponFromInv(Weapon);
-		
+	
 	
 }
 
@@ -42,7 +44,19 @@ bool APlayerCharacter::Attack()
 	//makes you walk in half speed when attacking
 	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2.f;
 	
-	IsAttacking = true;
+	//PlayerState = EPlayerState::Attacking;
+	LogPlayerState();
+	
+	
+	//attack delay
+	const float DelayTime = 0.7f;
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+        //code who runs after delay time
+        PlayerState = EPlayerState::Moving;
+        LogPlayerState();
+		ResetWalkSpeed();
+    }, DelayTime, 0);
 	return true;
 }
 
@@ -52,25 +66,44 @@ bool APlayerCharacter::Dash()
 	if (!Super::Dash()) return false;
 	// Dash code here
 
-	IsDashing = true;
+	//IsDashing = true;
+	//PlayerState = EPlayerState::Dashing;
+	LogPlayerState();
+	
+	FVector DashDirection  = LastDirection.GetSafeNormal()*DashDistance;
+	DashDirection.Z = 0;
+	LaunchCharacter(DashDirection, true , false);
+
+	//delay until dash is finish
+	const float DelayTime = 0.5f;
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+		//code who runs after delay time
+		PlayerState = EPlayerState::Moving;
+		LogPlayerState();
+    }, DelayTime, 0);
 	
 	return true;
 }
 
 void APlayerCharacter::AttackEvent()
 {
-	PlayerState = EPlayerState::Attacking;
-	Attack();
+	if(InventoryComponent->GetItemObject()!= nullptr)
+	{
+		PlayerState = EPlayerState::Attacking;
+		Attack();
+	}
+	
 }
 
 void APlayerCharacter::DashEvent()
 {
 	//Dash Animation and particles
-	
+	PlayerState = EPlayerState::Dashing;
 	Dash();
 }
 
-void APlayerCharacter::MoverForward(float Value)
+void APlayerCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value);
 }
@@ -82,7 +115,6 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::RotateCharacter(float Value)
 {
-	
 	
 	float VLen = GetVelocity().Size();
 	FRotator MeshRotation = GetVelocity().Rotation();
@@ -103,11 +135,16 @@ void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
 	EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
+void APlayerCharacter::LogPlayerState()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player state is : %i"), PlayerState);
+}
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(!IsDashing)RotateCharacter(1);
+	if(PlayerState != EPlayerState::Dashing)RotateCharacter(1);
 
 
 	switch (PlayerState)
@@ -133,39 +170,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
-	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoverForward);
+	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
 
-bool APlayerCharacter::GetIsDashing()
+void APlayerCharacter::UpdateInventory()
 {
-	return IsDashing;
-}
-
-void APlayerCharacter::SetIsDashing(bool bIsDashing)
-{
-	IsDashing = bIsDashing;
-}
-
-bool APlayerCharacter::GetIsBlocking()
-{
-	return IsBlocking;
-}
-
-void APlayerCharacter::SetIsBlocking(bool bIsBlocking)
-{
-	IsBlocking = bIsBlocking;
-}
-
-bool APlayerCharacter::GetIsAttacking()
-{
-	return IsAttacking;
-}
-
-void APlayerCharacter::SetIsAttacking(bool bIsAttacking)
-{
-	IsAttacking  = bIsAttacking;
+	
 }
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
