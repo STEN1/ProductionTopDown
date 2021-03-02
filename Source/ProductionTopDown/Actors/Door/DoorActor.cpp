@@ -2,8 +2,6 @@
 
 
 #include "DoorActor.h"
-
-
 #include "Camera/CameraComponent.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 
@@ -64,6 +62,14 @@ void ADoorActor::Tick(float DeltaTime)
 		case EDoorType::Accelerate:
 			break;
 		case EDoorType::EaseOut:
+			if (bDoorOpen)
+			{
+				EaseOpenDoor(DeltaTime);
+			}
+			else
+			{
+				EaseCloseDoor(DeltaTime);
+			}
 			break;
 		default:
 			break;
@@ -94,10 +100,16 @@ void ADoorActor::CloseDoor(float DeltaTime)
 
 void ADoorActor::EaseOpenDoor(float DeltaTime)
 {
+	FRotator NewRotation = TargetRotation;
+	NewRotation.Yaw = FMath::Lerp(GetActorRotation().Yaw, TargetRotation.Yaw, DeltaTime * OpenSpeed * 0.01f);
+	SetActorRotation(NewRotation);
 }
 
 void ADoorActor::EaseCloseDoor(float DeltaTime)
 {
+	FRotator NewRotation = StartRotation;
+	NewRotation.Yaw = FMath::Lerp(GetActorRotation().Yaw, StartRotation.Yaw, DeltaTime * CloseSpeed * 0.01f);
+	SetActorRotation(NewRotation);
 }
 
 void ADoorActor::AccelOpenDoor(float DeltaTime)
