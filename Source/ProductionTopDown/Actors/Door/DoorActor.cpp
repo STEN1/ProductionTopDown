@@ -60,6 +60,14 @@ void ADoorActor::Tick(float DeltaTime)
 			}
 			break;
 		case EDoorType::Accelerate:
+			if (bDoorOpen)
+			{
+				AccelOpenDoor(DeltaTime);
+			}
+			else
+			{
+				AccelCloseDoor(DeltaTime);
+			}
 			break;
 		case EDoorType::EaseOut:
 			if (bDoorOpen)
