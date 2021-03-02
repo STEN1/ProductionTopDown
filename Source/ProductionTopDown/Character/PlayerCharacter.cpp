@@ -175,11 +175,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
 
-void APlayerCharacter::UpdateInventory()
-{
-	
-}
-
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
 	PlayerState = inpPlayerState;
