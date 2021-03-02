@@ -40,7 +40,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
-	EDoorType DoorType;
+	EDoorType DoorTypeOpen;
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	EDoorType DoorTypeClose;
 	
 	FVector StartLocation;
 	FRotator StartRotation;
@@ -62,6 +64,9 @@ private:
 	float OpenSpeed = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	float CloseSpeed = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	float MaxExpoSpeed = 1200.f;
+	float ExpoSpeed{10.f};
 
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);

@@ -47,49 +47,42 @@ void ADoorActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	switch (DoorType)
+
+	if (bDoorOpen)
 	{
-		case EDoorType::Constant:
-			if (bDoorOpen)
-			{
+		switch(DoorTypeOpen)
+		{
+			case EDoorType::Constant:
 				OpenDoor(DeltaTime);
-			}
-			else
-			{
-				CloseDoor(DeltaTime);
-			}
-			break;
-		case EDoorType::Accelerate:
-			if (bDoorOpen)
-			{
-				AccelOpenDoor(DeltaTime);
-			}
-			else
-			{
-				AccelCloseDoor(DeltaTime);
-			}
-			break;
-		case EDoorType::EaseOut:
-			if (bDoorOpen)
-			{
+				break;
+			case EDoorType::EaseOut:
 				EaseOpenDoor(DeltaTime);
-			}
-			else
-			{
-				EaseCloseDoor(DeltaTime);
-			}
-			break;
-		default:
-			break;
+				break;
+			case EDoorType::Accelerate:
+				AccelOpenDoor(DeltaTime);
+				break;
+		}
 	}
+	else
+	{
+		switch(DoorTypeClose)
+		{
+			case EDoorType::Constant:
+				CloseDoor(DeltaTime);
+				break;
+			case EDoorType::EaseOut:
+				EaseCloseDoor(DeltaTime);
+				break;
+			case EDoorType::Accelerate:
+				AccelCloseDoor(DeltaTime);
+				break;
+		}
+	}
+
 }
 
 void ADoorActor::OpenDoor(float DeltaTime)
 {
-	FRotator NewRotation = TargetRotation;
-	NewRotation.Yaw = FMath::FInterpConstantTo(GetActorRotation().Yaw, TargetRotation.Yaw, DeltaTime, OpenSpeed);
-	SetActorRotation(NewRotation);
-
 	FVector NewLocation = TargetLocation;
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, TargetLocation.Z, DeltaTime, OpenSpeed);
 	SetActorLocation(NewLocation);
@@ -97,10 +90,6 @@ void ADoorActor::OpenDoor(float DeltaTime)
 
 void ADoorActor::CloseDoor(float DeltaTime)
 {
-	FRotator NewRotation = StartRotation;
-	NewRotation.Yaw = FMath::FInterpConstantTo(GetActorRotation().Yaw, StartRotation.Yaw, DeltaTime, CloseSpeed);
-	SetActorRotation(NewRotation);
-
 	FVector NewLocation = StartLocation;
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, CloseSpeed);
 	SetActorLocation(NewLocation);
@@ -108,32 +97,62 @@ void ADoorActor::CloseDoor(float DeltaTime)
 
 void ADoorActor::EaseOpenDoor(float DeltaTime)
 {
-	FRotator NewRotation = TargetRotation;
-	NewRotation.Yaw = FMath::Lerp(GetActorRotation().Yaw, TargetRotation.Yaw, DeltaTime * OpenSpeed * 0.01f);
-	SetActorRotation(NewRotation);
+	FVector NewLocation = TargetLocation;
+	NewLocation.Z = FMath::InterpExpoOut(GetActorLocation().Z, TargetLocation.Z, DeltaTime * OpenSpeed * 0.005f);
+	SetActorLocation(NewLocation);
 }
 
 void ADoorActor::EaseCloseDoor(float DeltaTime)
 {
-	FRotator NewRotation = StartRotation;
-	NewRotation.Yaw = FMath::Lerp(GetActorRotation().Yaw, StartRotation.Yaw, DeltaTime * CloseSpeed * 0.01f);
-	SetActorRotation(NewRotation);
+	FVector NewLocation = StartLocation;
+	NewLocation.Z = FMath::InterpExpoOut(GetActorLocation().Z, StartLocation.Z, DeltaTime * OpenSpeed * 0.005f);
+	SetActorLocation(NewLocation);
 }
 
 void ADoorActor::AccelOpenDoor(float DeltaTime)
 {
+	FVector NewLocation = StartLocation;
+	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, TargetLocation.Z, DeltaTime, OpenSpeed + ExpoSpeed);
+	SetActorLocation(NewLocation);
+
+	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.025f),0.f,MaxExpoSpeed);
+
+	if (NewLocation.Z == TargetLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door at Top"))
+
+		//Particle FX and Sound here***
+		
+		SetActorTickEnabled(false);
+	}
+
 }
 
 void ADoorActor::AccelCloseDoor(float DeltaTime)
 {
-}
+	FVector NewLocation = TargetLocation;
+	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, OpenSpeed + ExpoSpeed);
+	SetActorLocation(NewLocation);
+	
+	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.025f),0.f,MaxExpoSpeed);
 
+	if (NewLocation.Z == StartLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door at Floor"))
+
+		//Particle FX and Sound here***
+		
+		SetActorTickEnabled(false);
+	}
+}
 
 void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
 	{
 		bDoorOpen = true;
+		ExpoSpeed = 10.f;
+		SetActorTickEnabled(true);
 		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
 		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
@@ -144,6 +163,8 @@ void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
 	{
 		bDoorOpen = false;
+		ExpoSpeed = 10.f;
+		SetActorTickEnabled(true);
 		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
 		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
 	}
