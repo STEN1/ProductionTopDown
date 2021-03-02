@@ -22,11 +22,22 @@ EPlayerState APlayerCharacter::GetPlayerState()
 	return PlayerState;
 }
 
+float APlayerCharacter::GetDashTimer()
+{
+	return DashTimer;
+}
+
+float APlayerCharacter::GetAttackTimer()
+{
+	return AttackTimer;
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	//start in moving state
 	PlayerState = EPlayerState::Moving;
+	LogPlayerState();
 	
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 	
@@ -49,14 +60,13 @@ bool APlayerCharacter::Attack()
 	
 	
 	//attack delay
-	const float DelayTime = 0.7f;
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
         PlayerState = EPlayerState::Moving;
         LogPlayerState();
 		ResetWalkSpeed();
-    }, DelayTime, 0);
+    }, DashTimer, 0);
 	return true;
 }
 
@@ -75,13 +85,12 @@ bool APlayerCharacter::Dash()
 	LaunchCharacter(DashDirection, true , false);
 
 	//delay until dash is finish
-	const float DelayTime = 0.5f;
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
 		//code who runs after delay time
 		PlayerState = EPlayerState::Moving;
 		LogPlayerState();
-    }, DelayTime, 0);
+    }, AttackTimer, 0);
 	
 	return true;
 }
@@ -175,10 +184,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
 
-void APlayerCharacter::UpdateInventory()
-{
-	
-}
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
