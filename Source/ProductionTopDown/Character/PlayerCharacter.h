@@ -37,6 +37,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
     EPlayerState GetPlayerState();
+
+	UFUNCTION(BlueprintCallable)
+	float GetDashTimer();
+	UFUNCTION(BlueprintCallable)
+	float GetAttackTimer();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -76,4 +81,9 @@ private:
 	float MaxWalkSpeed{400};
 
 	EPlayerState PlayerState;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float DashTimer{0.05f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float AttackTimer{0.5f};
 };
