@@ -6,6 +6,15 @@
 #include "CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	Attacking = 0		UMETA(DisplayName = "Attack state"),
+    Dashing = 1		UMETA(DisplayName = "Dashing state"),
+    Moving = 2		UMETA(DisplayName = "Moving state"),
+};
+
 class UInventoryComponent;
 class AWeaponBase;
 
@@ -18,19 +27,16 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	UFUNCTION(BlueprintCallable)
-	bool GetIsDashing();
+    void ResetWalkSpeed();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetStateToFalse();
 	UFUNCTION(BlueprintCallable)
-	void SetIsDashing(bool bIsDashing);
+	void SetPlayerState(EPlayerState inpPlayerState);
+	
 	UFUNCTION(BlueprintCallable)
-    bool GetIsBlocking();
-	UFUNCTION(BlueprintCallable)
-    void SetIsBlocking(bool bIsBlocking);
-	UFUNCTION(BlueprintCallable)
-    bool GetIsAttacking();
-	UFUNCTION(BlueprintCallable)
-    void SetIsAttacking(bool bIsAttacking);
+    EPlayerState GetPlayerState();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -39,12 +45,16 @@ protected:
 	virtual bool Dash() override;
 	void AttackEvent();
 	void DashEvent();
-	void MoverForward(float Value);
+	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter(float Value);
 
-	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 	
+	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
+
+
+	//debug functions
+	void LogPlayerState();
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -62,9 +72,8 @@ private:
 
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
-	float DashDistance{200};
+	float DashDistance{100};
+	float MaxWalkSpeed{400};
 
-	bool IsDashing{false};
-	bool IsAttacking{false};
-	bool IsBlocking{false};
+	EPlayerState PlayerState;
 };
