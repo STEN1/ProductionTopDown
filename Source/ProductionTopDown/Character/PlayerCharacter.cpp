@@ -27,6 +27,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	//start in moving state
 	PlayerState = EPlayerState::Moving;
+	LogPlayerState();
 	
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 	
@@ -175,10 +176,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
 
-void APlayerCharacter::UpdateInventory()
-{
-	
-}
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
