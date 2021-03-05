@@ -67,6 +67,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	float MaxExpoSpeed = 1200.f;
 	float ExpoSpeed{10.f};
+	float DoorSpeed{0.f};
+	const float Accel{9.8f};
 
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);

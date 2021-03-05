@@ -5,12 +5,13 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
-
+#include "ProductionTopDown/Components/InteractComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	InteractComponent = CreateDefaultSubobject<UInteractComponent>("InteractComponent");
 
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));

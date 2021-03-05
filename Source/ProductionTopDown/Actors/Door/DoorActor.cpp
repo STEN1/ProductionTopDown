@@ -134,7 +134,7 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, OpenSpeed + ExpoSpeed);
 	SetActorLocation(NewLocation);
 	
-	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.025f),0.f,MaxExpoSpeed);
+	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.03f),0.f,MaxExpoSpeed);
 
 	if (NewLocation.Z == StartLocation.Z)
 	{

@@ -6,7 +6,6 @@
 #include "CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
-
 UENUM(BlueprintType)
 enum class EPlayerState : uint8
 {
@@ -17,6 +16,7 @@ enum class EPlayerState : uint8
 
 class UInventoryComponent;
 class AWeaponBase;
+class UInteractComponent;
 
 UCLASS()
 class PRODUCTIONTOPDOWN_API APlayerCharacter : public ACharacterBase
@@ -65,6 +65,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInventoryComponent* InventoryComponent;
 	USkeletalMeshComponent* CharacterMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UInteractComponent* InteractComponent;
 
 	
 
