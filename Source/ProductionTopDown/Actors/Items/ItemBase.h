@@ -39,9 +39,11 @@ public:
 
 	virtual void UseItem();
 	bool IsConsumable();
+	bool IsWeapon();
 	
 	static void SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation);
 
+	
 protected:
 	virtual void BeginPlay() override;
 	bool bUsable{ true };
@@ -57,6 +59,8 @@ protected:
 	float CritChance{30.f}; // Percentage
 
 	float KnockbackAmount{200.f};
+
+	bool bIsWeapon{false};
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

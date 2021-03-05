@@ -52,8 +52,9 @@ protected:
 	void DashEvent();
 	void MoveForward(float Value);
 	void MoveRight(float Value);
-	void RotateCharacter(float Value);
-
+	void RotateCharacter();
+	void RotateCharToMouse();
+	
 	
 	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 
@@ -79,7 +80,9 @@ private:
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
-
+	
+	APlayerController* CharacterController;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Weapon;
 
@@ -91,7 +94,7 @@ private:
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float DashTimer{0.01f};
+	float DashTimer{0.1f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float AttackTimer{0.6f};
+	float AttackTimer{0.4f};
 };
