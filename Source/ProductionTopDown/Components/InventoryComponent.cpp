@@ -61,7 +61,6 @@ void UInventoryComponent::BeginPlay()
 void UInventoryComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	UpdateOverlapArray();
-	UE_LOG(LogTemp, Warning, TEXT("Stepping on item"));
 }
 
 void UInventoryComponent::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
@@ -130,7 +129,6 @@ void UInventoryComponent::UseInventoryItem()
 		UE_LOG(LogTemp, Warning, TEXT("Item name: %s IsConsumable(): %i"), *InventoryItem->GetItemName(),InventoryItem->IsConsumable());
 		if (InventoryItem->IsConsumable())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("GOT HERE!!!"));
 			Inventory[CurrentSlot - 1] = nullptr;
 			if (EmptySlotImage)
 				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
