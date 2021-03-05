@@ -5,7 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
-
+#include "kismet/GameplayStatics.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -53,7 +53,7 @@ bool APlayerCharacter::Attack()
 	if (!Super::Attack()) return false;
 	// Attack code here
 	//makes you walk in half speed when attacking
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2.f;
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()*0.7f;
 	
 	//PlayerState = EPlayerState::Attacking;
 	LogPlayerState();
@@ -66,7 +66,7 @@ bool APlayerCharacter::Attack()
         PlayerState = EPlayerState::Moving;
         LogPlayerState();
 		ResetWalkSpeed();
-    }, DashTimer, 0);
+    }, AttackTimer, 0);
 	return true;
 }
 
@@ -76,10 +76,14 @@ bool APlayerCharacter::Dash()
 	if (!Super::Dash()) return false;
 	// Dash code here
 
-	//IsDashing = true;
-	//PlayerState = EPlayerState::Dashing;
+
+	//particle and sounds
+	if (DashSound) UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
+	if (DashParticle) UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
+	
 	LogPlayerState();
 	
+	//teleport player towards last direction
 	FVector DashDirection  = LastDirection.GetSafeNormal()*DashDistance;
 	DashDirection.Z = 0;
 	LaunchCharacter(DashDirection, true , false);
@@ -90,7 +94,7 @@ bool APlayerCharacter::Dash()
 		//code who runs after delay time
 		PlayerState = EPlayerState::Moving;
 		LogPlayerState();
-    }, AttackTimer, 0);
+    }, DashTimer, 0);
 	
 	return true;
 }

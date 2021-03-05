@@ -66,8 +66,14 @@ private:
 	UInventoryComponent* InventoryComponent;
 	USkeletalMeshComponent* CharacterMesh;
 
-	
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UParticleSystem* DashParticle;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* DashSound;
+	UPROPERTY(EditAnywhere, Category="Camera Effects")
+	TSubclassOf<UMatineeCameraShake> DashShake;
 
+	
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
@@ -83,7 +89,7 @@ private:
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float DashTimer{0.05f};
+	float DashTimer{0.01f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float AttackTimer{0.5f};
+	float AttackTimer{0.6f};
 };
