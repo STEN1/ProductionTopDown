@@ -70,7 +70,8 @@ void UStaminaComponent::Attack()
 		this, 
 		&UStaminaComponent::RegenerateStamina, 
 		StaminaRegenerationTimer, 
-		true);
+		true,
+		StaminaRegenerationTimerStartDelay);
 	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
 }
 
@@ -86,6 +87,7 @@ void UStaminaComponent::Dash()
 		this,
 		&UStaminaComponent::RegenerateStamina,
 		StaminaRegenerationTimer,
-		true);
+		true,
+		StaminaRegenerationTimerStartDelay);
 	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
 }
