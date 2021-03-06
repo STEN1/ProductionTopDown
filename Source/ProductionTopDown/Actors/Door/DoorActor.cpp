@@ -81,6 +81,19 @@ void ADoorActor::Tick(float DeltaTime)
 
 }
 
+void ADoorActor::OpenFromInteract()
+{
+	if (bDoorOpen)
+	{
+		bDoorOpen = false;
+	}else
+	{
+		bDoorOpen = true;
+	}
+	ExpoSpeed = 10.f;
+	SetActorTickEnabled(true);
+}
+
 void ADoorActor::OpenDoor(float DeltaTime)
 {
 	FVector NewLocation = TargetLocation;

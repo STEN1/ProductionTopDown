@@ -33,6 +33,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void OpenFromInteract();
+
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Trigger", meta = (AllowPrivateAccess = "true"))

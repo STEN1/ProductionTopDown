@@ -49384,6 +49384,8 @@
             <e p="Interactables" t="Include">
               <e p="InteractableBase.cpp" t="Include" />
               <e p="InteractableBase.h" t="Include" />
+              <e p="Lever.cpp" t="Include" />
+              <e p="Lever.h" t="Include" />
             </e>
             <e p="Items" t="Include">
               <e p="HealthPickup.cpp" t="Include" />
