@@ -7,4 +7,5 @@ void ATopDownGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	StartGame();
+
 }
