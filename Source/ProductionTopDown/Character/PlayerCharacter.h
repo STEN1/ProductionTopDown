@@ -96,5 +96,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DashTimer{0.1f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float AttackTimer{0.4f};
+	float AttackTimer{0.5f};
 };

@@ -61,7 +61,7 @@ bool APlayerCharacter::Attack()
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
-	//
+	PlayerState = EPlayerState::Attacking;
 	//rotates char to cursor
 	//RotateCharToMouse();
 	
@@ -89,7 +89,7 @@ bool APlayerCharacter::Dash()
 	// returns false if there is not enough stamina
 	if (!Super::Dash()) return false;
 	// Dash code here
-
+	PlayerState = EPlayerState::Dashing;
 
 	//particle and sounds
 	if (DashSound) UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
@@ -118,7 +118,7 @@ void APlayerCharacter::AttackEvent()
 	
 	if(InventoryComponent->GetItemObject()!= nullptr && InventoryComponent->GetItemObject()->IsWeapon() && PlayerState == EPlayerState::Moving)
 	{
-		PlayerState = EPlayerState::Attacking;
+		
 		Attack();
 	}
 	
@@ -129,7 +129,7 @@ void APlayerCharacter::DashEvent()
 	//Dash Animation and particles
 	if (PlayerState == EPlayerState::Moving)
 	{
-		PlayerState = EPlayerState::Dashing;
+		
 		Dash();
 	}
 	
