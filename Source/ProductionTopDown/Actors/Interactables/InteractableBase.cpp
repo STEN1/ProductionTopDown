@@ -13,7 +13,7 @@ AInteractableBase::AInteractableBase()
 
 void AInteractableBase::Interact()
 {
-	UE_LOG(LogTemp, Error, TEXT("INTERACT WORKS"));
+	//UE_LOG(LogTemp, Error, TEXT("INTERACT WORKS"));
 }
 
 // Called when the game starts or when spawned

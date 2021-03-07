@@ -24,14 +24,22 @@ public:
     float TargetYaw{60.f};
 	UPROPERTY(EditAnywhere, Category="Setup");
 	float TurnSpeed{100.f};
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	float TimeBeforeClose{1.0f};
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	bool bTimer{false};
 	
 	virtual void Interact() override;
+	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	class ADoorActor* DoorRef{nullptr};
 	
 private:
 	FRotator StartRotation{0.f, 0.f, 0.f};
 	FRotator TargetRotation{0.f, 0.f, 0.f};
+	FTimerHandle CloseTimer;
+	
+	float ActivateTimer{0.f};
 	bool bIsActivated{false};
 
 	protected:
