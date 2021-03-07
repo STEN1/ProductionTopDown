@@ -49281,6 +49281,8 @@
             <e p="Door" t="Include">
               <e p="DoorActor.cpp" t="Include" />
               <e p="DoorActor.h" t="Include" />
+              <e p="DoubleDoorsActor.cpp" t="Include" />
+              <e p="DoubleDoorsActor.h" t="Include" />
             </e>
             <e p="Interactables" t="Include">
               <e p="InteractableBase.cpp" t="Include" />
