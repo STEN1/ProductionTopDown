@@ -20,7 +20,10 @@ class PRODUCTIONTOPDOWN_API UInventoryComponent : public UActorComponent
 public:	
 	UInventoryComponent();
 	
-	AItemBase* GetItemObject();
+	AItemBase* GetItemObject() const;
+	TArray<TSubclassOf<AItemBase>> GetInventory() const;
+	void LoadInventory(TArray<TSubclassOf<AItemBase>> LoadedInventory);
+	int32 GetInventorySize() const;
 protected:
 	virtual void BeginPlay() override;
 
@@ -53,4 +56,7 @@ private:
 	AProductionTopDownGameModeBase* GameModeRef;
 
 	int32 InventorySize{4};
+
+	void Save();
+	void Load();
 };
