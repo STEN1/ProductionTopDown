@@ -6,6 +6,8 @@
 #include "InteractableBase.h"
 #include "Lever.generated.h"
 
+
+
 UCLASS()
 class PRODUCTIONTOPDOWN_API ALever : public AInteractableBase
 {
@@ -32,7 +34,7 @@ public:
 	virtual void Interact() override;
 	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
-	class ADoorActor* DoorRef{nullptr};
+	TArray<class ADoorActor*> DoorActors;
 	
 private:
 	FRotator StartRotation{0.f, 0.f, 0.f};

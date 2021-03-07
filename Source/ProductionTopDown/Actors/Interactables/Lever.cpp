@@ -76,8 +76,15 @@ void ALever::Interact()
 	SetActorTickEnabled(true);
 	bIsActivated = !bIsActivated;
 	ActivateTimer = 0.f;
-	if (DoorRef)
+	
+	if (DoorActors.Num() > 0)
 	{
-		DoorRef->OpenFromInteract();
+		for (int i = 0; i < DoorActors.Num(); ++i)
+		{
+			if (DoorActors[i])
+			{
+				DoorActors[i]->OpenFromInteract();
+			}
+		}
 	}
 }
