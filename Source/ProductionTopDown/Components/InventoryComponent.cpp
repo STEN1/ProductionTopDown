@@ -7,6 +7,7 @@
 
 #include "Chaos/AABBTree.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/MySaveGame.h"
 #include "ProductionTopDown/Actors/Items/ItemBase.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 
@@ -21,13 +22,42 @@ UInventoryComponent::UInventoryComponent()
 	}
 }
 
-AItemBase* UInventoryComponent::GetItemObject()
+AItemBase* UInventoryComponent::GetItemObject() const
 {
 	if (Inventory[CurrentSlot - 1])
 	{
 		return Inventory[CurrentSlot - 1].GetDefaultObject();
 	}
 	return nullptr;
+}
+
+TArray<TSubclassOf<AItemBase>> UInventoryComponent::GetInventory() const
+{
+	return Inventory;
+}
+
+void UInventoryComponent::LoadInventory(TArray<TSubclassOf<AItemBase>> LoadedInventory)
+{
+	InventorySize = LoadedInventory.Num();
+	Inventory.Empty();
+	Inventory.SetNum(InventorySize);
+	for (int i = 0; i < InventorySize; ++i)
+	{
+		Inventory[i] = LoadedInventory[i];
+		if (Inventory[i])
+		{
+			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i].GetDefaultObject()->GetItemImage());
+		}
+		else if (EmptySlotImage)
+		{
+			GameModeRef->UpdateInventoryUI(i + 1, EmptySlotImage);
+		}
+	}
+}
+
+int32 UInventoryComponent::GetInventorySize() const
+{
+	return InventorySize;
 }
 
 
@@ -49,6 +79,8 @@ void UInventoryComponent::BeginPlay()
 		PlayerInputComponent->BindAction("InventorySlot3", IE_Pressed, this, &UInventoryComponent::Slot3);
 		PlayerInputComponent->BindAction("InventorySlot4", IE_Pressed, this, &UInventoryComponent::Slot4);
 		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &UInventoryComponent::UseInventoryItem);
+		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &UInventoryComponent::Save);
+		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &UInventoryComponent::Load);
 	}
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!GameModeRef)
@@ -80,6 +112,16 @@ void UInventoryComponent::UpdateOverlapArray()
 			OverlappingItems.Push(TempItem);
 		}
 	}
+}
+
+void UInventoryComponent::Save()
+{
+	UMySaveGame::SaveGame(GetWorld());
+}
+
+void UInventoryComponent::Load()
+{
+	UMySaveGame::LoadGame(GetWorld());
 }
 
 void UInventoryComponent::Interact()

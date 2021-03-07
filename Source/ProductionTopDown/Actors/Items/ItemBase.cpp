@@ -115,6 +115,11 @@ bool AItemBase::IsConsumable()
 	return bConsumable;
 }
 
+bool AItemBase::IsWeapon()
+{
+	return bIsWeapon;
+}
+
 void AItemBase::SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation)
 {
 	{

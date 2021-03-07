@@ -52,8 +52,9 @@ protected:
 	void DashEvent();
 	void MoveForward(float Value);
 	void MoveRight(float Value);
-	void RotateCharacter(float Value);
-
+	void RotateCharacter();
+	void RotateCharToMouse();
+	
 	
 	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 
@@ -68,12 +69,20 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInteractComponent* InteractComponent;
 
-	
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UParticleSystem* DashParticle;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* DashSound;
+	UPROPERTY(EditAnywhere, Category="Camera Effects")
+	TSubclassOf<UMatineeCameraShake> DashShake;
 
+	
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
-
+	
+	APlayerController* CharacterController;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Weapon;
 
@@ -85,7 +94,7 @@ private:
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float DashTimer{0.05f};
+	float DashTimer{0.1f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float AttackTimer{0.5f};
 };

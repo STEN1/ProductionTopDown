@@ -35,9 +35,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	float DashCost{ 25.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	float StaminaRegenerationAmount{25.f};
+	float StaminaRegenerationAmount{4.f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	float StaminaRegenerationTimer{0.5f};
+	float StaminaRegenerationTimer{0.05f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	float StaminaRegenerationTimerStartDelay{2.f};
 
 	float Stamina;
 	void RegenerateStamina();

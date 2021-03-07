@@ -5,7 +5,11 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
+
+#include "kismet/GameplayStatics.h"
+
 #include "ProductionTopDown/Components/InteractComponent.h"
+
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -44,8 +48,12 @@ void APlayerCharacter::BeginPlay()
 	
 	//testing purposes
 	if(Weapon)EquipWeaponFromInv(Weapon);
-	
-	
+
+	CharacterController = GetWorld()->GetFirstPlayerController();
+	if (CharacterController)
+	{
+		CharacterController->bShowMouseCursor = true;
+	}
 }
 
 bool APlayerCharacter::Attack()
@@ -53,8 +61,12 @@ bool APlayerCharacter::Attack()
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
-	//makes you walk in half speed when attacking
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2.f;
+	PlayerState = EPlayerState::Attacking;
+	//rotates char to cursor
+	//RotateCharToMouse();
+	
+	//makes you walk slower while attacking
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
 	
 	//PlayerState = EPlayerState::Attacking;
 	LogPlayerState();
@@ -67,20 +79,25 @@ bool APlayerCharacter::Attack()
         PlayerState = EPlayerState::Moving;
         LogPlayerState();
 		ResetWalkSpeed();
-    }, DashTimer, 0);
+    }, AttackTimer, 0);
 	return true;
 }
 
 bool APlayerCharacter::Dash()
 {
+	if(PlayerState != EPlayerState::Attacking)
 	// returns false if there is not enough stamina
 	if (!Super::Dash()) return false;
 	// Dash code here
+	PlayerState = EPlayerState::Dashing;
 
-	//IsDashing = true;
-	//PlayerState = EPlayerState::Dashing;
+	//particle and sounds
+	if (DashSound) UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
+	if (DashParticle) UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
+	
 	LogPlayerState();
 	
+	//teleport player towards last direction
 	FVector DashDirection  = LastDirection.GetSafeNormal()*DashDistance;
 	DashDirection.Z = 0;
 	LaunchCharacter(DashDirection, true , false);
@@ -91,16 +108,17 @@ bool APlayerCharacter::Dash()
 		//code who runs after delay time
 		PlayerState = EPlayerState::Moving;
 		LogPlayerState();
-    }, AttackTimer, 0);
+    }, DashTimer, 0);
 	
 	return true;
 }
 
 void APlayerCharacter::AttackEvent()
 {
-	if(InventoryComponent->GetItemObject()!= nullptr)
+	
+	if(InventoryComponent->GetItemObject()!= nullptr && InventoryComponent->GetItemObject()->IsWeapon() && PlayerState == EPlayerState::Moving)
 	{
-		PlayerState = EPlayerState::Attacking;
+		
 		Attack();
 	}
 	
@@ -109,8 +127,12 @@ void APlayerCharacter::AttackEvent()
 void APlayerCharacter::DashEvent()
 {
 	//Dash Animation and particles
-	PlayerState = EPlayerState::Dashing;
-	Dash();
+	if (PlayerState == EPlayerState::Moving)
+	{
+		
+		Dash();
+	}
+	
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -123,7 +145,7 @@ void APlayerCharacter::MoveRight(float Value)
 	AddMovementInput(GetActorRightVector() * Value);
 }
 
-void APlayerCharacter::RotateCharacter(float Value)
+void APlayerCharacter::RotateCharacter()
 {
 	
 	float VLen = GetVelocity().Size();
@@ -137,6 +159,31 @@ void APlayerCharacter::RotateCharacter(float Value)
 		LastRotation = MeshRotation;
 		CharacterMesh->SetWorldRotation(MeshRotation);
 	}
+}
+
+void APlayerCharacter::RotateCharToMouse()
+{
+	//https://answers.unrealengine.com/questions/663852/view.html
+	//
+	//rotates char to cursor
+	FVector MouseLocation, MouseDirection, MouseLocationEnd, CursorLocation;
+	FHitResult HitResult;
+	FRotator MouseRotation;
+
+	//gets mouse info from char controller
+	CharacterController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+
+	//Make Trace long to make it hit anything
+	MouseLocationEnd = (MouseDirection*10000) + MouseLocation;
+
+	//store Raycast Settings
+	FCollisionQueryParams TraceSettings;
+	FCollisionResponseParams TraceRespone;
+
+	CursorLocation = GetActorLocation();
+	
+	CharacterMesh->SetWorldRotation(CursorLocation.Rotation());
+	
 }
 
 void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
@@ -154,7 +201,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(PlayerState != EPlayerState::Dashing)RotateCharacter(1);
+	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
 
 
 	switch (PlayerState)
