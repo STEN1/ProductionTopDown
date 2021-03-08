@@ -69,7 +69,7 @@ void ALever::BeginPlay()
 	SetActorTickEnabled(false);
 }
 
-void ALever::Interact()
+void ALever::Interact(bool Condition)
 {
 	Super::Interact();
 	

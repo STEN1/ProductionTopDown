@@ -49289,6 +49289,8 @@
               <e p="InteractableBase.h" t="Include" />
               <e p="Lever.cpp" t="Include" />
               <e p="Lever.h" t="Include" />
+              <e p="SpikeTrap.cpp" t="Include" />
+              <e p="SpikeTrap.h" t="Include" />
             </e>
             <e p="Items" t="Include">
               <e p="HealthPickup.cpp" t="Include" />
@@ -49322,6 +49324,8 @@
           <e p="Components" t="Include">
             <e p="HealthComponent.cpp" t="Include" />
             <e p="HealthComponent.h" t="Include" />
+            <e p="HurtBoxComponent.cpp" t="Include" />
+            <e p="HurtBoxComponent.h" t="Include" />
             <e p="InteractComponent.cpp" t="Include" />
             <e p="InteractComponent.h" t="Include" />
             <e p="InventoryComponent.cpp" t="Include" />

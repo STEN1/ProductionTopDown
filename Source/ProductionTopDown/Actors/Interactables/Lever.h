@@ -31,7 +31,7 @@ public:
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	bool bTimer{false};
 	
-	virtual void Interact() override;
+	virtual void Interact(bool Condition = true) override;
 	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	TArray<class ADoorActor*> DoorActors;
