@@ -93,6 +93,11 @@ void ADoorActor::OpenFromInteract()
 	SetActorTickEnabled(true);
 }
 
+void ADoorActor::SetAlwaysMoving(bool AlwaysMoving)
+{
+	bAlwaysMoving = AlwaysMoving;
+}
+
 void ADoorActor::OpenDoor(float DeltaTime)
 {
 	FVector NewLocation = TargetLocation;
@@ -110,7 +115,16 @@ void ADoorActor::OpenDoor(float DeltaTime)
 		&& NewLocation.Z == TargetLocation.Z)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Door Open! Constant."))
-		SetActorTickEnabled(false);
+		
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -131,7 +145,15 @@ void ADoorActor::CloseDoor(float DeltaTime)
 		&& NewLocation.Z == StartLocation.Z)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Door Closed! Constant."))
-		SetActorTickEnabled(false);
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -141,18 +163,28 @@ void ADoorActor::EaseOpenDoor(float DeltaTime)
 	NewLocation.X = FMath::InterpExpoOut(GetActorLocation().X, TargetLocation.X, DeltaTime * OpenSpeed * 0.005f);
 	NewLocation.Y = FMath::InterpExpoOut(GetActorLocation().Y, TargetLocation.Y, DeltaTime * OpenSpeed * 0.005f);
 	NewLocation.Z = FMath::InterpExpoOut(GetActorLocation().Z, TargetLocation.Z, DeltaTime * OpenSpeed * 0.005f);
+	
 	SetActorLocation(NewLocation);
 
 	CurrentYawOffset = FMath::InterpExpoOut(CurrentYawOffset, TargetYaw, DeltaTime * OpenSpeed * 0.005f);
 	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
 
-	if (CurrentYawOffset == TargetYaw
-		&& NewLocation.X == TargetLocation.X
-		&& NewLocation.Y == TargetLocation.Y
-		&& NewLocation.Z == TargetLocation.Z)
+	// FMath::Abs(TargetLocation.X - NewLocation.X);
+	if (FMath::Abs(TargetYaw - CurrentYawOffset) < 0.01f
+		&& FMath::Abs(TargetLocation.X - NewLocation.X) < 0.01f
+		&& FMath::Abs(TargetLocation.Y - NewLocation.Y) < 0.01f
+		&& FMath::Abs(TargetLocation.Z - NewLocation.Z) < 0.01f)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Door Open! Ease out."))
-		SetActorTickEnabled(false);
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -167,13 +199,21 @@ void ADoorActor::EaseCloseDoor(float DeltaTime)
 	CurrentYawOffset = FMath::InterpExpoOut(CurrentYawOffset, 0.f, DeltaTime * OpenSpeed * 0.005f);
 	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
 
-	if (CurrentYawOffset == 0.f
-		&& NewLocation.X == StartLocation.X
-		&& NewLocation.Y == StartLocation.Y
-		&& NewLocation.Z == StartLocation.Z)
+	if (FMath::Abs(CurrentYawOffset) < 0.01f
+	&& FMath::Abs(StartLocation.X - NewLocation.X) < 0.01f
+    && FMath::Abs(StartLocation.Y - NewLocation.Y) < 0.01f
+    && FMath::Abs(StartLocation.Z - NewLocation.Z) < 0.01f)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Door Closed! Ease out."))
-		SetActorTickEnabled(false);
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -199,7 +239,15 @@ void ADoorActor::AccelOpenDoor(float DeltaTime)
 
 		//Particle FX and Sound here***
 		
-		SetActorTickEnabled(false);
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 
 }
@@ -214,8 +262,9 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 
 	CurrentYawOffset = FMath::FInterpConstantTo(CurrentYawOffset, 0.f, DeltaTime, OpenSpeed + ExpoSpeed);
 	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
-	
-	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.015f),0.f,MaxExpoSpeed);
+
+	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.025f),0.f,MaxExpoSpeed);
+	// ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.015f),0.f,MaxExpoSpeed);
 
 	if (CurrentYawOffset == 0.f
 		&& NewLocation.X == StartLocation.X
@@ -226,7 +275,15 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 
 		//Particle FX and Sound here***
 		
-		SetActorTickEnabled(false);
+		if (bAlwaysMoving)
+		{
+			bDoorOpen = !bDoorOpen;
+			ExpoSpeed = 10.f;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
+		}
 	}
 }
 

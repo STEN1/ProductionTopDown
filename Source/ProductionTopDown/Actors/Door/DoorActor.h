@@ -34,6 +34,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void OpenFromInteract();
+	void SetAlwaysMoving(bool AlwaysMoving);
 
 private:
 
@@ -83,6 +84,9 @@ private:
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	bool bAlwaysMoving{false};
 	
 
 };
