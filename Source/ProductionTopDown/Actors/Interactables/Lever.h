@@ -35,6 +35,8 @@ public:
 	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	TArray<class ADoorActor*> DoorActors;
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	TArray<class ASpikeTrap*> SpikeActors;
 	
 private:
 	FRotator StartRotation{0.f, 0.f, 0.f};

@@ -3,6 +3,7 @@
 
 #include "Lever.h"
 #include "ProductionTopDown/Actors/Door/DoorActor.h"
+#include "ProductionTopDown/Actors/Interactables/SpikeTrap.h"
 
 ALever::ALever()
 {
@@ -84,6 +85,17 @@ void ALever::Interact(bool Condition)
 			if (DoorActors[i])
 			{
 				DoorActors[i]->OpenFromInteract();
+			}
+		}
+	}
+
+	if (SpikeActors.Num() > 0)
+	{
+		for (int i = 0; i < SpikeActors.Num(); ++i)
+		{
+			if (SpikeActors[i])
+			{
+				SpikeActors[i]->ActivateFromInteractObject(false);
 			}
 		}
 	}
