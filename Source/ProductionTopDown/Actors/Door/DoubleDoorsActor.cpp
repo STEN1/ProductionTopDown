@@ -38,7 +38,7 @@ void ADoubleDoorsActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsOpen)
+	if (bIsOpen || bStayOpen)
 	{
 		FRotator NewRotation = TargetRotation;
 		NewRotation = FMath::InterpExpoOut(LeftDoor->GetRelativeRotation(), TargetRotation, OpenSpeed * DeltaTime);
@@ -53,15 +53,23 @@ void ADoubleDoorsActor::Tick(float DeltaTime)
 	}
 	else
 	{
-		FRotator NewRotation = LeftStartRotation;
-		NewRotation = FMath::InterpExpoOut(LeftDoor->GetRelativeRotation(), LeftStartRotation, OpenSpeed * DeltaTime);
-		LeftDoor->SetRelativeRotation(NewRotation);
-		RightDoor->SetRelativeRotation(NewRotation * (-1.f));
-
-		if (NewRotation.Yaw == LeftStartRotation.Yaw -0.1f)
+		CloseTimer += DeltaTime;
+		if (CloseTimer >= CloseDelay && !bStayOpen)
+		{
+			FRotator NewRotation = LeftStartRotation;
+            NewRotation = FMath::InterpExpoOut(LeftDoor->GetRelativeRotation(), LeftStartRotation, OpenSpeed * DeltaTime);
+            LeftDoor->SetRelativeRotation(NewRotation);
+            RightDoor->SetRelativeRotation(NewRotation * (-1.f));
+            
+            if (NewRotation.Yaw == LeftStartRotation.Yaw -0.1f)
+            {
+            	SetActorTickEnabled(false);
+            }
+		} else if (bStayOpen)
 		{
 			SetActorTickEnabled(false);
 		}
+
 	}
 }
 

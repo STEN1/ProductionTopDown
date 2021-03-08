@@ -27,6 +27,11 @@ public:
 	float TargetYaw{90.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	float OpenSpeed{100.f};
+	UPROPERTY(EditAnywhere, Category="Setup")
+	float CloseDelay{1.f};
+
+	UPROPERTY(EditAnywhere, Category="Setup")
+	bool bStayOpen{false};
 	
 	void OpenFromInteract();
 
@@ -37,7 +42,8 @@ protected:
 	FRotator LeftStartRotation{0.f,0.f,0.f};
 	FRotator RightStartRotation{0.f,0.f,0.f};	//Yaw must rotate
 	FRotator TargetRotation{0.f, 0.f, 0.f};
-	
+
+	float CloseTimer{0.f};
 	bool bIsOpen{false};
 
 public:	
