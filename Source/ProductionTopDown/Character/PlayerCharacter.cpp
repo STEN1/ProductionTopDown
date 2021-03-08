@@ -9,6 +9,7 @@
 #include "kismet/GameplayStatics.h"
 
 #include "ProductionTopDown/Components/InteractComponent.h"
+#include "Widgets/Text/ISlateEditableTextWidget.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -22,6 +23,63 @@ APlayerCharacter::APlayerCharacter()
 	
 }
 
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
+	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
+}
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	//start in moving state
+	PlayerState = EPlayerState::Moving;
+	LogPlayerState();
+	
+	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
+	
+	//testing purposes
+	if(Weapon)
+	{
+		//Weapon->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnWeaponHit);
+		Weapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
+		EquipWeaponFromInv(Weapon);
+	}
+
+	CharacterController = GetWorld()->GetFirstPlayerController();
+	if (CharacterController)
+	{
+		CharacterController->bShowMouseCursor = true;
+	}
+	
+}
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
+
+
+	switch (PlayerState)
+	{
+	case EPlayerState::Attacking:
+		//attack state
+		break;
+	case EPlayerState::Dashing:
+		//dashing state
+		break;
+	case EPlayerState::Moving:
+		//move state
+		break;
+
+	default:
+		
+		break;
+	}
+}
 EPlayerState APlayerCharacter::GetPlayerState()
 {
 	return PlayerState;
@@ -37,23 +95,14 @@ float APlayerCharacter::GetAttackTimer()
 	return AttackTimer;
 }
 
-void APlayerCharacter::BeginPlay()
+void APlayerCharacter::AttackEvent()
 {
-	Super::BeginPlay();
-	//start in moving state
-	PlayerState = EPlayerState::Moving;
-	LogPlayerState();
 	
-	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
-	
-	//testing purposes
-	if(Weapon)EquipWeaponFromInv(Weapon);
-
-	CharacterController = GetWorld()->GetFirstPlayerController();
-	if (CharacterController)
+	if(InventoryComponent->GetItemObject()!= nullptr && InventoryComponent->GetItemObject()->IsWeapon() && PlayerState == EPlayerState::Moving)
 	{
-		CharacterController->bShowMouseCursor = true;
+		Attack();
 	}
+	
 }
 
 bool APlayerCharacter::Attack()
@@ -61,9 +110,11 @@ bool APlayerCharacter::Attack()
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
-	PlayerState = EPlayerState::Attacking;
 	//rotates char to cursor
-	//RotateCharToMouse();
+	RotateCharToMouse();
+
+	PlayerState = EPlayerState::Attacking;
+	
 	
 	//makes you walk slower while attacking
 	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
@@ -81,6 +132,16 @@ bool APlayerCharacter::Attack()
 		ResetWalkSpeed();
     }, AttackTimer, 0);
 	return true;
+}
+
+void APlayerCharacter::DashEvent()
+{
+	//Dash Animation and particles
+	if (PlayerState == EPlayerState::Moving)
+	{
+		Dash();
+	}
+	
 }
 
 bool APlayerCharacter::Dash()
@@ -113,28 +174,6 @@ bool APlayerCharacter::Dash()
 	return true;
 }
 
-void APlayerCharacter::AttackEvent()
-{
-	
-	if(InventoryComponent->GetItemObject()!= nullptr && InventoryComponent->GetItemObject()->IsWeapon() && PlayerState == EPlayerState::Moving)
-	{
-		
-		Attack();
-	}
-	
-}
-
-void APlayerCharacter::DashEvent()
-{
-	//Dash Animation and particles
-	if (PlayerState == EPlayerState::Moving)
-	{
-		
-		Dash();
-	}
-	
-}
-
 void APlayerCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value);
@@ -163,27 +202,18 @@ void APlayerCharacter::RotateCharacter()
 
 void APlayerCharacter::RotateCharToMouse()
 {
-	//https://answers.unrealengine.com/questions/663852/view.html
-	//
-	//rotates char to cursor
-	FVector MouseLocation, MouseDirection, MouseLocationEnd, CursorLocation;
 	FHitResult HitResult;
-	FRotator MouseRotation;
-
-	//gets mouse info from char controller
-	CharacterController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-
-	//Make Trace long to make it hit anything
-	MouseLocationEnd = (MouseDirection*10000) + MouseLocation;
-
-	//store Raycast Settings
-	FCollisionQueryParams TraceSettings;
-	FCollisionResponseParams TraceRespone;
-
-	CursorLocation = GetActorLocation();
+	ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+	CharacterController->GetHitResultUnderCursorByChannel(TraceChannel,true, HitResult);
 	
-	CharacterMesh->SetWorldRotation(CursorLocation.Rotation());
+	const FVector DirectionVector =( HitResult.Location - GetActorLocation()).GetSafeNormal2D();
+	FRotator MeshRotation = DirectionVector.Rotation();
+	MeshRotation.Yaw -= 90;
+	MeshRotation.Pitch = 0;
+	MeshRotation.Roll = 0;
 	
+	CharacterMesh->SetWorldRotation(MeshRotation);
+
 }
 
 void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
@@ -192,45 +222,25 @@ void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
 	EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
+void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Error, TEXT("Other component hit : %s"), *OtherActor->GetHumanReadableName())
+	AItemBase* ItemBase = FindComponentByClass<UInventoryComponent>()->GetItemObject();
+	if(ItemBase && OtherActor != this)UGameplayStatics::ApplyDamage(
+							OtherActor, FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
+                            GetOwner()->GetInstigatorController(),this, DamageType);
+		
+}
+
 void APlayerCharacter::LogPlayerState()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player state is : %i"), PlayerState);
 }
 
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
 
 
-	switch (PlayerState)
-	{
-	case EPlayerState::Attacking:
-		//attack state
-		break;
-	case EPlayerState::Dashing:
-		//dashing state
-		break;
-	case EPlayerState::Moving:
-		//move state
-		break;
 
-	default:
-		
-		break;
-	}
-}
-
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
-	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
-	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
-}
 
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)

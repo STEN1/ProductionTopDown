@@ -55,10 +55,11 @@ protected:
 	void RotateCharacter();
 	void RotateCharToMouse();
 	
-	
 	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
 
-
+	UFUNCTION()
+	void OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	
 	//debug functions
 	void LogPlayerState();
 private:
@@ -82,6 +83,8 @@ private:
 	FRotator LastRotation;
 	
 	APlayerController* CharacterController;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "DamageType")
+	TSubclassOf<UDamageType> DamageType;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Weapon;
@@ -96,5 +99,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DashTimer{0.1f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float AttackTimer{0.5f};
+	float AttackTimer{0.6f};
 };
