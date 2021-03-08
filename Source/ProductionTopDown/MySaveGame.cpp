@@ -36,14 +36,15 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject)
 			}
 		}
 	}
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Slot1"), 0);
+	
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, WorldContextObject->GetWorld()->GetMapName(), 0);
 
 	UE_LOG(LogTemp, Warning, TEXT("Game Saved."));
 }
 
 void UMySaveGame::LoadGame(const UObject* WorldContextObject)
 {
-	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("Slot1"), 0));
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(WorldContextObject->GetWorld()->GetMapName(), 0));
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 
 	if (Player && SaveGameInstance)
