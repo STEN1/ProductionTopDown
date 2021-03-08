@@ -20,14 +20,13 @@ void ADoorActor::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickEnabled(false);
-	if (!TriggerVolume)
+	if (TriggerVolume)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No TriggerVolume on %s"), *GetHumanReadableName());
-		return;
+		TriggerVolume->OnActorBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
+		TriggerVolume->OnActorEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
 	}
 	SetActorTickEnabled(true);
-	TriggerVolume->OnActorBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
-	TriggerVolume->OnActorEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
+
 	StartLocation = GetActorLocation();
 	StartRotation = GetActorRotation();
 	
@@ -97,42 +96,106 @@ void ADoorActor::OpenFromInteract()
 void ADoorActor::OpenDoor(float DeltaTime)
 {
 	FVector NewLocation = TargetLocation;
+	NewLocation.X = FMath::FInterpConstantTo(GetActorLocation().X, TargetLocation.X, DeltaTime, OpenSpeed);
+	NewLocation.Y = FMath::FInterpConstantTo(GetActorLocation().Y, TargetLocation.Y, DeltaTime, OpenSpeed);
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, TargetLocation.Z, DeltaTime, OpenSpeed);
 	SetActorLocation(NewLocation);
+
+	CurrentYawOffset = FMath::FInterpConstantTo(CurrentYawOffset, TargetYaw, DeltaTime, OpenSpeed);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
+
+	if (CurrentYawOffset == TargetYaw
+		&& NewLocation.X == TargetLocation.X
+		&& NewLocation.Y == TargetLocation.Y
+		&& NewLocation.Z == TargetLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door Open! Constant."))
+		SetActorTickEnabled(false);
+	}
 }
 
 void ADoorActor::CloseDoor(float DeltaTime)
 {
 	FVector NewLocation = StartLocation;
+	NewLocation.X = FMath::FInterpConstantTo(GetActorLocation().X, StartLocation.X, DeltaTime, CloseSpeed);
+	NewLocation.Y = FMath::FInterpConstantTo(GetActorLocation().Y, StartLocation.Y, DeltaTime, CloseSpeed);
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, CloseSpeed);
 	SetActorLocation(NewLocation);
+
+	CurrentYawOffset = FMath::FInterpConstantTo(CurrentYawOffset, 0.f, DeltaTime, OpenSpeed);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
+
+	if (CurrentYawOffset == 0.f
+		&& NewLocation.X == StartLocation.X
+		&& NewLocation.Y == StartLocation.Y
+		&& NewLocation.Z == StartLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door Closed! Constant."))
+		SetActorTickEnabled(false);
+	}
 }
 
 void ADoorActor::EaseOpenDoor(float DeltaTime)
 {
 	FVector NewLocation = TargetLocation;
+	NewLocation.X = FMath::InterpExpoOut(GetActorLocation().X, TargetLocation.X, DeltaTime * OpenSpeed * 0.005f);
+	NewLocation.Y = FMath::InterpExpoOut(GetActorLocation().Y, TargetLocation.Y, DeltaTime * OpenSpeed * 0.005f);
 	NewLocation.Z = FMath::InterpExpoOut(GetActorLocation().Z, TargetLocation.Z, DeltaTime * OpenSpeed * 0.005f);
 	SetActorLocation(NewLocation);
+
+	CurrentYawOffset = FMath::InterpExpoOut(CurrentYawOffset, TargetYaw, DeltaTime * OpenSpeed * 0.005f);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
+
+	if (CurrentYawOffset == TargetYaw
+		&& NewLocation.X == TargetLocation.X
+		&& NewLocation.Y == TargetLocation.Y
+		&& NewLocation.Z == TargetLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door Open! Ease out."))
+		SetActorTickEnabled(false);
+	}
 }
 
 void ADoorActor::EaseCloseDoor(float DeltaTime)
 {
 	FVector NewLocation = StartLocation;
+	NewLocation.X = FMath::InterpExpoOut(GetActorLocation().X, StartLocation.X, DeltaTime * OpenSpeed * 0.005f);
+	NewLocation.Y = FMath::InterpExpoOut(GetActorLocation().Y, StartLocation.Y, DeltaTime * OpenSpeed * 0.005f);
 	NewLocation.Z = FMath::InterpExpoOut(GetActorLocation().Z, StartLocation.Z, DeltaTime * OpenSpeed * 0.005f);
 	SetActorLocation(NewLocation);
+
+	CurrentYawOffset = FMath::InterpExpoOut(CurrentYawOffset, 0.f, DeltaTime * OpenSpeed * 0.005f);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
+
+	if (CurrentYawOffset == 0.f
+		&& NewLocation.X == StartLocation.X
+		&& NewLocation.Y == StartLocation.Y
+		&& NewLocation.Z == StartLocation.Z)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door Closed! Ease out."))
+		SetActorTickEnabled(false);
+	}
 }
 
 void ADoorActor::AccelOpenDoor(float DeltaTime)
 {
 	FVector NewLocation = StartLocation;
+	NewLocation.X = FMath::FInterpConstantTo(GetActorLocation().X, TargetLocation.X, DeltaTime, OpenSpeed + ExpoSpeed);
+	NewLocation.Y = FMath::FInterpConstantTo(GetActorLocation().Y, TargetLocation.Y, DeltaTime, OpenSpeed + ExpoSpeed);
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, TargetLocation.Z, DeltaTime, OpenSpeed + ExpoSpeed);
 	SetActorLocation(NewLocation);
 
+	CurrentYawOffset = FMath::FInterpConstantTo(CurrentYawOffset, TargetYaw, DeltaTime, OpenSpeed + ExpoSpeed);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
+	
 	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.025f),0.f,MaxExpoSpeed);
 
-	if (NewLocation.Z == TargetLocation.Z)
+	if (CurrentYawOffset == TargetYaw
+		&& NewLocation.X == TargetLocation.X
+		&& NewLocation.Y == TargetLocation.Y
+		&& NewLocation.Z == TargetLocation.Z)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Door at Top"))
+		UE_LOG(LogTemp, Warning, TEXT("Door Open! Accel."))
 
 		//Particle FX and Sound here***
 		
@@ -144,14 +207,22 @@ void ADoorActor::AccelOpenDoor(float DeltaTime)
 void ADoorActor::AccelCloseDoor(float DeltaTime)
 {
 	FVector NewLocation = TargetLocation;
+	NewLocation.X = FMath::FInterpConstantTo(GetActorLocation().X, StartLocation.X, DeltaTime, OpenSpeed + ExpoSpeed);
+	NewLocation.Y = FMath::FInterpConstantTo(GetActorLocation().Y, StartLocation.Y, DeltaTime, OpenSpeed + ExpoSpeed);
 	NewLocation.Z = FMath::FInterpConstantTo(GetActorLocation().Z, StartLocation.Z, DeltaTime, OpenSpeed + ExpoSpeed);
 	SetActorLocation(NewLocation);
+
+	CurrentYawOffset = FMath::FInterpConstantTo(CurrentYawOffset, 0.f, DeltaTime, OpenSpeed + ExpoSpeed);
+	SetActorRotation({StartRotation.Pitch, StartRotation.Yaw + CurrentYawOffset, StartRotation.Roll});
 	
 	ExpoSpeed = FMath::Clamp(FMath::Pow(ExpoSpeed, 1.015f),0.f,MaxExpoSpeed);
 
-	if (NewLocation.Z == StartLocation.Z)
+	if (CurrentYawOffset == 0.f
+		&& NewLocation.X == StartLocation.X
+		&& NewLocation.Y == StartLocation.Y
+		&& NewLocation.Z == StartLocation.Z)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Door at Floor"))
+		UE_LOG(LogTemp, Warning, TEXT("Door Closed! Accel."))
 
 		//Particle FX and Sound here***
 		

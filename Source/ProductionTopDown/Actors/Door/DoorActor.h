@@ -71,6 +71,7 @@ private:
 	float ExpoSpeed{10.f};
 	float DoorSpeed{0.f};
 	const float Accel{9.8f};
+	float CurrentYawOffset{0.f};
 
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
