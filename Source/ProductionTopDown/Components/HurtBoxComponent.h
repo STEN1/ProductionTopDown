@@ -24,6 +24,8 @@ public:
 	FVector BoxScale{1.f, 1.f, 1.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	TSubclassOf<UDamageType> DamageTypes{nullptr};
+	UPROPERTY(EditAnywhere, Category="HurtBox")
+	class UStaticMeshComponent* MeshAttachedTo{nullptr};
 
 protected:
 	// Called when the game starts

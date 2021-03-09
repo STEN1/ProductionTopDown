@@ -8,10 +8,10 @@ ASpikeTrap::ASpikeTrap()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	BaseMesh->SetupAttachment(RootComponent);
 	SpikeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpikeMesh"));
 	SpikeMesh->SetupAttachment(RootComponent);
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(RootComponent);
 	
 }
 
@@ -40,20 +40,37 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 	TickTimer += DeltaSeconds;
 	if (TickTimer >= Stage1Timer && SpikeState == 0)
 	{
-		SpikeMesh->SetRelativeLocation(TargetLocationStage1);
-		++SpikeState;
+		FVector NewLocation;
+		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage1.Z, DeltaSeconds, SpikeMoveSpeed);
+		SpikeMesh->SetRelativeLocation(NewLocation);
+		if (NewLocation.Z == TargetLocationStage1.Z)
+		{
+			++SpikeState;
+		}
+
 	} else if (TickTimer >= Stage2Timer && SpikeState == 1)
 	{
-		SpikeMesh->SetRelativeLocation(TargetLocationStage2);
-		++SpikeState;
-		SetActorTickEnabled(bLoop);
+		FVector NewLocation;
+		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage2.Z, DeltaSeconds, SpikeMoveSpeed);
+		SpikeMesh->SetRelativeLocation(NewLocation);
+		if (NewLocation.Z == TargetLocationStage2.Z)
+		{
+			++SpikeState;
+            SetActorTickEnabled(bLoop);
+		}
+
 	} else if (TickTimer >= Stage0Timer && SpikeState == 2)
 	{
-		SpikeMesh->SetRelativeLocation(StartLocation);
-		TickTimer = 0.f;
-		SpikeState = 0;
-		SetActorTickEnabled(bLoop);
-
+		FVector NewLocation;
+		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, StartLocation.Z, DeltaSeconds, SpikeMoveSpeed);
+		SpikeMesh->SetRelativeLocation(NewLocation);
+		if (NewLocation.Z == StartLocation.Z)
+		{
+			TickTimer = 0.f;
+           	SpikeState = 0;
+           	SetActorTickEnabled(bLoop);
+			//SoundFX can go here!
+		}
 	}
 }
 

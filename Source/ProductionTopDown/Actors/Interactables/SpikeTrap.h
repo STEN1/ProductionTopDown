@@ -14,7 +14,7 @@ class PRODUCTIONTOPDOWN_API ASpikeTrap : public AInteractableBase
 public:
 	ASpikeTrap();
 	
-	void Tick(float DeltaSeconds) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	//virtual void Interact(bool Condition = true);
 
@@ -34,6 +34,8 @@ public:
 	float Stage2Timer{2.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	float Stage0Timer{3.f};
+	UPROPERTY(EditAnywhere, Category="Setup")
+	float SpikeMoveSpeed{50.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	bool bLoop{true};
 	UPROPERTY(EditAnywhere, Category="Setup")
