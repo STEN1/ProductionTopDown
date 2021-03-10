@@ -31,10 +31,12 @@ public:
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	bool bTimer{false};
 	
-	virtual void Interact() override;
+	virtual void Interact(bool Condition = true) override;
 	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	TArray<class ADoorActor*> DoorActors;
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	TArray<class ASpikeTrap*> SpikeActors;
 	
 private:
 	FRotator StartRotation{0.f, 0.f, 0.f};
