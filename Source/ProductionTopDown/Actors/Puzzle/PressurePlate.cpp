@@ -3,13 +3,15 @@
 
 #include "PressurePlate.h"
 #include "PuzzleController.h"
+#include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values
 APressurePlate::APressurePlate()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
+	SceneComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
+	RootComponent = SceneComponent;
 	PlateFrame = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FrameMesh"));
 	PlateFrame->SetupAttachment(RootComponent);
 	PlateButton = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ButtonMesh"));
@@ -41,14 +43,22 @@ void APressurePlate::BeginPlay()
 
 void APressurePlate::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	bIsPressed = true;
-	PlateButton->SetRelativeLocation(PressedPosition);
+	
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		bIsPressed = true;
+		PlateButton->SetRelativeLocation(PressedPosition);
+	}
 }
 
 void APressurePlate::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	bIsPressed = false;
-	PlateButton->SetRelativeLocation(ReleasedPosition);
+	
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		bIsPressed = false;
+		PlateButton->SetRelativeLocation(ReleasedPosition);
+	}
 }
 
 // Called every frame
