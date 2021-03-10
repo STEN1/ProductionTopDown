@@ -19,12 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	APressurePlate();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Settings")
-	UStaticMeshComponent* PlateButton;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Settings")
-	UStaticMeshComponent* PlateFrame;
-	UPROPERTY(EditAnywhere, Category="Settings")
-	ATriggerVolume* PlateTrigger2;
+
 	
 	UPROPERTY(EditInstanceOnly, Category="Settings")
 	APuzzleController* PuzzleController;
@@ -41,6 +36,16 @@ protected:
 
 	FVector PressedPosition{0.f, 0.f, -5.f};
 	FVector ReleasedPosition{FVector::ZeroVector};
+
+	// Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* SceneComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* PlateButton;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* PlateFrame;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	ATriggerVolume* PlateTrigger2;
 
 public:	
 	// Called every frame
