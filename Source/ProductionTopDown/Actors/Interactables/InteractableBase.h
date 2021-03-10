@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	AInteractableBase();
 
-	virtual void Interact();
+	virtual void Interact(bool Condition = true);
 
 protected:
 	// Called when the game starts or when spawned

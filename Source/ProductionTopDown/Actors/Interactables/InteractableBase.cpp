@@ -11,7 +11,7 @@ AInteractableBase::AInteractableBase()
 
 }
 
-void AInteractableBase::Interact()
+void AInteractableBase::Interact(bool Condition)
 {
 	//UE_LOG(LogTemp, Error, TEXT("INTERACT WORKS"));
 }
