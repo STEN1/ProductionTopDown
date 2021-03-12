@@ -53,7 +53,11 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 		return;
 	}*/
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
-	UE_LOG(LogTemp, Warning, TEXT("DamageCauserOwner: %s"), *DamageCauser->GetOwner()->GetHumanReadableName());
+	if (DamageCauser && DamageCauser->GetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DamageCauserOwner: %s"), *DamageCauser->GetOwner()->GetHumanReadableName());
+	}
+	
 	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
 	{
 		GameModeRef->UpdateHealthUI(Health, DefaultHealth);
