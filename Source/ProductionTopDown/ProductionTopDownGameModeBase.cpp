@@ -10,7 +10,11 @@
 
 void AProductionTopDownGameModeBase::ActorDied(AActor* DeadActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Actor Died: %s"), *DeadActor->GetHumanReadableName());
+	if (DeadActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor Died: %s"), *DeadActor->GetHumanReadableName());
+	}
+	
 }
 
 void AProductionTopDownGameModeBase::BeginPlay()
