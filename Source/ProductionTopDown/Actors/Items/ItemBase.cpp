@@ -105,10 +105,11 @@ UTexture2D* AItemBase::GetItemImage() const
 	return nullptr;
 }
 
-void AItemBase::UseItem()
+void AItemBase::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling use on AItemBase."));
 }
+
 
 bool AItemBase::IsConsumable()
 {

@@ -3,6 +3,9 @@
 
 #include "RustySword.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/Character/PlayerCharacter.h"
+
 ARustySword::ARustySword()
 {
 	ItemName = TEXT("Rusty Sword");
@@ -11,9 +14,19 @@ ARustySword::ARustySword()
 	bIsWeapon = true;
 }
 
-void ARustySword::UseItem()
+void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Calling use on Rusty Sword."));
+	if (PlayerCharacter && World)
+	{
+		UGameplayStatics::ApplyDamage(PlayerCharacter,
+                                    10.f,
+                                    World->GetFirstPlayerController(),
+                                    PlayerCharacter,
+                                    UDamageType::StaticClass()
+                                    );
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Took DMG trying to use rusty sword."));
 }
 
 void ARustySword::BeginPlay()

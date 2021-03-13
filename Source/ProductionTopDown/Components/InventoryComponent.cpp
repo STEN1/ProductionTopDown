@@ -81,6 +81,7 @@ void UInventoryComponent::BeginPlay()
 		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &UInventoryComponent::UseInventoryItem);
 		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &UInventoryComponent::Save);
 		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &UInventoryComponent::Load);
+		PlayerInputComponent->BindAction("ThrowItem", IE_Pressed, this, &UInventoryComponent::ThrowItem);
 	}
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!GameModeRef)
@@ -167,14 +168,26 @@ void UInventoryComponent::UseInventoryItem()
 	AItemBase* InventoryItem = Inventory[CurrentSlot - 1].GetDefaultObject();
 	if (InventoryItem)
 	{
-		InventoryItem->UseItem();
-		UE_LOG(LogTemp, Warning, TEXT("Item name: %s IsConsumable(): %i"), *InventoryItem->GetItemName(),InventoryItem->IsConsumable());
+		InventoryItem->UseItem(Cast<APlayerCharacter>(GetOwner()), GetWorld());
+		InventoryItem->OnUseItem(Cast<APlayerCharacter>(GetOwner()));
 		if (InventoryItem->IsConsumable())
 		{
 			Inventory[CurrentSlot - 1] = nullptr;
 			if (EmptySlotImage)
 				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 		}
+	}
+}
+
+void UInventoryComponent::ThrowItem()
+{
+	if (Inventory[CurrentSlot - 1])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *Inventory[CurrentSlot - 1].GetDefaultObject()->GetName());
+		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1], GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		Inventory[CurrentSlot - 1] = nullptr;
+		if (EmptySlotImage)
+			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 	}
 }
 
