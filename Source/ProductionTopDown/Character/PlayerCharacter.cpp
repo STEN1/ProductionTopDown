@@ -63,7 +63,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
 
 
