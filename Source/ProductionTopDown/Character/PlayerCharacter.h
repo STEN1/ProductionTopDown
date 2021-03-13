@@ -17,6 +17,7 @@ enum class EPlayerState : uint8
 class UInventoryComponent;
 class AWeaponBase;
 class UInteractComponent;
+class UBoxComponent;
 
 UCLASS()
 class PRODUCTIONTOPDOWN_API APlayerCharacter : public ACharacterBase
@@ -69,7 +70,8 @@ private:
 	USkeletalMeshComponent* CharacterMesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UInteractComponent* InteractComponent;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* AttackRangeComponent;
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UParticleSystem* DashParticle;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")

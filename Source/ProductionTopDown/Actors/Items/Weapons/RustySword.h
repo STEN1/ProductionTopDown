@@ -16,7 +16,7 @@ class PRODUCTIONTOPDOWN_API ARustySword : public AItemBase
 public:
 	ARustySword();
 
-	virtual void UseItem() override;
+	virtual void UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
 protected:
 	virtual void BeginPlay() override;
 	

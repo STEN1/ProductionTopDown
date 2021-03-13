@@ -38,6 +38,7 @@ private:
 	void Slot3();
 	void Slot4();
 	void UseInventoryItem();
+	void ThrowItem();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
 	int32 PreviousSlot{ 1 };
