@@ -34,6 +34,7 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	Health = DefaultHealth;
+	HealthPercentage = Health / DefaultHealth;
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeDmg);
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	// ...
@@ -42,21 +43,8 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage == 0 || Health <= 0)
-	{
-		return;
-	}
-
-	//Friendly fire code for enemies? Lets see if it is needed.
-	/*if (DamageCauser->GetOwner()->IsA(APawnEnemy::StaticClass()) && GetOwner()->IsA(APawnEnemy::StaticClass()))
-	{
-		return;
-	}*/
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
-	if (DamageCauser && DamageCauser->GetOwner())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("DamageCauserOwner: %s"), *DamageCauser->GetOwner()->GetHumanReadableName());
-	}
+	HealthPercentage = Health / DefaultHealth;
 	
 	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
 	{
@@ -64,13 +52,9 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 	}
 	if (Health <= 0)
 	{
-		if (GameModeRef)
-		{
-			GameModeRef->ActorDied(GetOwner());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Health component has no reference to GameMode"));
-		}
+		// probably just call some kind of "HandleDeath()" function on the damaged actor.
+		// we need to have a virtual function in the characterbase class that the playerclass and the enemy class can override.
+		// This should play effects and Destroy enemies but have some kind of menu popup for player death with options to
+		// restart from last save etc etc
 	}
 }
