@@ -7,7 +7,7 @@
 #include "ProductionTopDown/Components/InventoryComponent.h"
 
 #include "kismet/GameplayStatics.h"
-
+#include "Components/BoxComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
@@ -16,8 +16,12 @@ APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	
 	InteractComponent = CreateDefaultSubobject<UInteractComponent>("InteractComponent");
-
+	
+	AttackRangeComponent = CreateDefaultSubobject<UBoxComponent>("Attack Range Component");
+	AttackRangeComponent->SetupAttachment(CharacterMesh, TEXT("Attack Range"));
+	
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
 	
@@ -59,7 +63,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
 
 
