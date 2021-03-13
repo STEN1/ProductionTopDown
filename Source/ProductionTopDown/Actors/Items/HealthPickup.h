@@ -16,7 +16,7 @@ class PRODUCTIONTOPDOWN_API AHealthPickup : public AItemBase
 public:
 	AHealthPickup();
 
-	virtual void UseItem() override;
+	virtual void UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
 protected:
 	virtual void BeginPlay() override;
 	

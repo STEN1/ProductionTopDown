@@ -37,7 +37,9 @@ public:
 	ItemClass GetItemClass() const;
 	UTexture2D* GetItemImage() const;
 
-	virtual void UseItem();
+	virtual void UseItem(class APlayerCharacter* PlayerCharacter, class UWorld* World);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnUseItem(class APlayerCharacter* PlayerCharacter);
 	bool IsConsumable();
 	bool IsWeapon();
 	

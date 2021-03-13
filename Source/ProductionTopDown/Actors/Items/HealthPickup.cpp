@@ -3,6 +3,9 @@
 
 #include "HealthPickup.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/Character/PlayerCharacter.h"
+
 AHealthPickup::AHealthPickup()
 {
 	ItemName = TEXT("Health Pot");
@@ -11,8 +14,17 @@ AHealthPickup::AHealthPickup()
 	bConsumable = true;
 }
 
-void AHealthPickup::UseItem()
+void AHealthPickup::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
+	if (PlayerCharacter && World)
+	{
+		UGameplayStatics::ApplyDamage(PlayerCharacter,
+                                    -20.f,
+                                    World->GetFirstPlayerController(),
+                                    PlayerCharacter,
+                                    UDamageType::StaticClass()
+                                    );
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Calling use on HealthPickup."));
 }
 
