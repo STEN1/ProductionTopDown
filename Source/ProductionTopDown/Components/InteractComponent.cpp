@@ -42,7 +42,7 @@ void UInteractComponent::BeginPlay()
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &UInteractComponent::Interact);
 	}
 
-
+	
 }
 
 void UInteractComponent::Interact()

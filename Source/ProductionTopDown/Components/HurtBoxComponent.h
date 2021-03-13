@@ -23,9 +23,13 @@ public:
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	FVector BoxScale{1.f, 1.f, 1.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
-	TSubclassOf<UDamageType> DamageTypes{nullptr};
+	FVector BoxOffset{0.f, 0.f, 0.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
+	TSubclassOf<UDamageType> DamageTypes{nullptr};
+	UPROPERTY(VisibleAnywhere, Category="HurtBox")
 	class UStaticMeshComponent* MeshAttachedTo{nullptr};
+	UPROPERTY(EditAnywhere, Category="HurtBox")
+	bool bDrawDebugBox{false};
 
 protected:
 	// Called when the game starts
@@ -33,8 +37,8 @@ protected:
 
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	UFUNCTION()
-    void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	// UFUNCTION()
+ //    void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:	
 	// Called every frame
