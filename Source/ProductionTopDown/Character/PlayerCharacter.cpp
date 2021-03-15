@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
@@ -47,6 +48,9 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if(HealthComponent)HealthComponent->SetDefaultHealth(DefaultHealth);
+	
 	//start in moving state
 	PlayerState = EPlayerState::Moving;
 	LogPlayerState();
@@ -121,7 +125,9 @@ float APlayerCharacter::GetAttackTimer()
 void APlayerCharacter::AttackEvent()
 {
 	
-	if(InventoryComponent->GetItemObject()!= nullptr && InventoryComponent->GetItemObject()->IsWeapon() && PlayerState == EPlayerState::Moving)
+	if(InventoryComponent->GetItemObject()!= nullptr
+		&& InventoryComponent->GetItemObject()->IsWeapon()
+		&& PlayerState == EPlayerState::Moving)
 	{
 		Attack();
 	}
@@ -130,12 +136,12 @@ void APlayerCharacter::AttackEvent()
 
 bool APlayerCharacter::Attack()
 {
+	RotateCharToMouse();
 	// returns false if there is not enough stamina
 	if (!Super::Attack()) return false;
 	// Attack code here
 	//rotates char to cursor
-	RotateCharToMouse();
-
+	
 	PlayerState = EPlayerState::Attacking;
 	
 	
@@ -152,8 +158,13 @@ bool APlayerCharacter::Attack()
 		{
 			if(OverlappingActors[i] != this)
 			UGameplayStatics::ApplyDamage(
-                            OverlappingActors[i], FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
-                            GetOwner()->GetInstigatorController(),this, DamageType);
+                            OverlappingActors[i],
+                            FMath::RandRange(ItemBase->GetMinDamage(),
+                            ItemBase->GetMaxDamage()),
+                            GetOwner()->GetInstigatorController(),
+                            this,
+                            DamageType
+                            );
 		}
 	}
 	
@@ -187,8 +198,10 @@ bool APlayerCharacter::Dash()
 	PlayerState = EPlayerState::Dashing;
 
 	//particle and sounds
-	if (DashSound) UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
-	if (DashParticle) UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
+	if (DashSound)
+		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
+	if (DashParticle)
+		UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
 	SpawnDashParticle();
 	
 	LogPlayerState();

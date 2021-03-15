@@ -22,14 +22,14 @@ public:
 	
 	int32 GetHealth() const;
 	int32 GetDefaultHealth() const;
-	
+	void SetDefaultHealth(float NewHealth);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	float DefaultHealth{ 200.f };
+	float DefaultHealth{ 50.f };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	float Health;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))

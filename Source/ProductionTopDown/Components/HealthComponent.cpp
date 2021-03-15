@@ -26,6 +26,10 @@ int32 UHealthComponent::GetDefaultHealth() const
 	return DefaultHealth;
 }
 
+void UHealthComponent::SetDefaultHealth(float NewHealth)
+{
+	DefaultHealth = NewHealth;
+}
 
 
 // Called when the game starts

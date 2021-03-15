@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/StaminaComponent.h"
-
+#include "NiagaraComponent.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()

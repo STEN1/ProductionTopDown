@@ -104,7 +104,8 @@ private:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float DashDistance{5000};
 	float MaxWalkSpeed{400};
-
+	UPROPERTY(EditAnywhere, Category="Health")
+	float DefaultHealth{200};
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

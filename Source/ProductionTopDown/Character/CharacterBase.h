@@ -37,14 +37,14 @@ public:
 	void SpawnAttackParticle();
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnDeathParticle();
-private:
+protected:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaminaComponent* StaminaComponent;
 
-
+private:
 	//variables
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UParticleSystem* DeathParticle;
