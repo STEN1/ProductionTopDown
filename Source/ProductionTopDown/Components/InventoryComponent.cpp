@@ -10,7 +10,7 @@
 #include "ProductionTopDown/MySaveGame.h"
 #include "ProductionTopDown/Actors/Items/ItemBase.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
-
+#include "ProductionTopDown/Character/PlayerCharacter.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -89,6 +89,8 @@ void UInventoryComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("No GameModeRef on: %s"), *GetOwner()->GetHumanReadableName());
 	}
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
 void UInventoryComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
@@ -140,6 +142,7 @@ void UInventoryComponent::Slot1()
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 1;
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
 void UInventoryComponent::Slot2()
@@ -147,6 +150,7 @@ void UInventoryComponent::Slot2()
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 2;
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
 void UInventoryComponent::Slot3()
@@ -154,6 +158,7 @@ void UInventoryComponent::Slot3()
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 3;
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
 void UInventoryComponent::Slot4()
@@ -161,6 +166,7 @@ void UInventoryComponent::Slot4()
 	PreviousSlot = CurrentSlot;
 	CurrentSlot = 4;
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
 void UInventoryComponent::UseInventoryItem()
@@ -175,7 +181,9 @@ void UInventoryComponent::UseInventoryItem()
 			Inventory[CurrentSlot - 1] = nullptr;
 			if (EmptySlotImage)
 				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
+			Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 		}
+		
 	}
 }
 
@@ -188,6 +196,7 @@ void UInventoryComponent::ThrowItem()
 		Inventory[CurrentSlot - 1] = nullptr;
 		if (EmptySlotImage)
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
+		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 	}
 }
 
@@ -235,6 +244,9 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 	{
 		GetWorld()->SpawnActor<AItemBase>(TempItem, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	}
+	
+	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
+	
 	return true;
 }
 

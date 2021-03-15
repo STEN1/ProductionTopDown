@@ -5,7 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
-
+#include "DrawDebugHelpers.h"
 #include "kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
@@ -36,20 +36,34 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
+
+void APlayerCharacter::TriggerDeath()
+{
+	Super::TriggerDeath();
+	UE_LOG(LogTemp, Warning, TEXT("Player died"));
+
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	//start in moving state
 	PlayerState = EPlayerState::Moving;
 	LogPlayerState();
-	
+
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
+
+	//Attach AttackRange to Socket
+	if(AttackRangeComponent)AttackRangeComponent->AttachToComponent(CharacterMesh,FAttachmentTransformRules::KeepRelativeTransform, TEXT("AttackRangeSocket"));
 	
 	//testing purposes
 	if(Weapon)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("weapon and attackrange found"))
 		//Weapon->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnWeaponHit);
-		Weapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
+		//AttackRangeComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
+		
+		//Weapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
 		EquipWeaponFromInv(Weapon);
 	}
 
@@ -65,7 +79,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
-
 
 	switch (PlayerState)
 	{
@@ -83,7 +96,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 		
 		break;
 	}
+	
+	if (bDrawAttackRangeBox)
+    	{
+    		DrawDebugBox(GetWorld(),AttackRangeComponent->GetComponentLocation(), AttackRangeComponent->GetScaledBoxExtent(), AttackRangeComponent->GetComponentRotation().Quaternion() ,FColor::Red,false,0.f, 0,10);
+    	}
 }
+
 EPlayerState APlayerCharacter::GetPlayerState()
 {
 	return PlayerState;
@@ -123,9 +142,20 @@ bool APlayerCharacter::Attack()
 	//makes you walk slower while attacking
 	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
 	
-	//PlayerState = EPlayerState::Attacking;
 	LogPlayerState();
-	
+	TArray<AActor*> OverlappingActors;
+	AttackRangeComponent->GetOverlappingActors(OverlappingActors);
+	AItemBase* ItemBase = FindComponentByClass<UInventoryComponent>()->GetItemObject();
+	if(OverlappingActors.Num() > 0 && ItemBase)
+	{
+		for (int i = 0; i < OverlappingActors.Num(); ++i)
+		{
+			if(OverlappingActors[i] != this)
+			UGameplayStatics::ApplyDamage(
+                            OverlappingActors[i], FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
+                            GetOwner()->GetInstigatorController(),this, DamageType);
+		}
+	}
 	
 	//attack delay
 	FTimerHandle handle;
@@ -226,10 +256,16 @@ void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
 	EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
-void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APlayerCharacter::OnInventoryChange()
 {
-	UE_LOG(LogTemp, Error, TEXT("Other component hit : %s"), *OtherActor->GetHumanReadableName())
+	
+}
+
+void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(OtherActor == this) return;
+	UE_LOG(LogTemp, Error, TEXT("Other Actor hit : %s"), *OtherActor->GetName())
 	AItemBase* ItemBase = FindComponentByClass<UInventoryComponent>()->GetItemObject();
 	if(ItemBase && OtherActor != this)UGameplayStatics::ApplyDamage(
 							OtherActor, FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
@@ -241,11 +277,6 @@ void APlayerCharacter::LogPlayerState()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player state is : %i"), PlayerState);
 }
-
-
-
-
-
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {

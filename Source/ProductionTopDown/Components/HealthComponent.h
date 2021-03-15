@@ -15,6 +15,10 @@ class PRODUCTIONTOPDOWN_API UHealthComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UHealthComponent();
+
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void TakingDamage();
 	
 	int32 GetHealth() const;
 	int32 GetDefaultHealth() const;

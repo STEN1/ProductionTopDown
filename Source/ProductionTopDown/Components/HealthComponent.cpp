@@ -3,7 +3,6 @@
 
 #include "HealthComponent.h"
 
-
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 
@@ -49,9 +48,12 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
 	{
 		GameModeRef->UpdateHealthUI(Health, DefaultHealth);
+		TakingDamage();
 	}
 	if (Health <= 0)
 	{
+		ACharacterBase* Character = Cast<ACharacterBase>(GetOwner());
+		if(Character)Character->TriggerDeath();
 		// probably just call some kind of "HandleDeath()" function on the damaged actor.
 		// we need to have a virtual function in the characterbase class that the playerclass and the enemy class can override.
 		// This should play effects and Destroy enemies but have some kind of menu popup for player death with options to
