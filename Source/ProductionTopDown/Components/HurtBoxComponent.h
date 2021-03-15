@@ -21,11 +21,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	float Damage{50.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
-	FVector BoxScale{1.f, 1.f, 1.f};
+	FVector BoxScale{2.5f, 2.5f, 1.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
-	FVector BoxOffset{0.f, 0.f, 0.f};
-	UPROPERTY(EditAnywhere, Category="HurtBox")
-	TSubclassOf<UDamageType> DamageTypes{nullptr};
+	FVector BoxOffset{0.f, 0.f, 10.f};
 	UPROPERTY(VisibleAnywhere, Category="HurtBox")
 	class UStaticMeshComponent* MeshAttachedTo{nullptr};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
