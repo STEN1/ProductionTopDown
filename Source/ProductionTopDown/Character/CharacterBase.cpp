@@ -2,6 +2,8 @@
 
 
 #include "CharacterBase.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/StaminaComponent.h"
 
@@ -33,6 +35,13 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	
+}
+
+void ACharacterBase::TriggerDeath()
+{
+	if(DeathParticle)UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticle, GetActorLocation());
+	if(DeathSound)UGameplayStatics::SpawnSoundAtLocation(this, DeathSound, GetActorLocation());
 	
 }
 

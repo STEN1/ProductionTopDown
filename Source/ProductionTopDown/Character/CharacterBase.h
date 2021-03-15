@@ -31,13 +31,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+	virtual void TriggerDeath();
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaminaComponent* StaminaComponent;
+
+
+	//variables
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UParticleSystem* DeathParticle;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* DeathSound;
 
 
 
