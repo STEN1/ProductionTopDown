@@ -32,6 +32,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void TriggerDeath();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnAttackParticle();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnDeathParticle();
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

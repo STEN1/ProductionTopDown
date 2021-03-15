@@ -189,20 +189,23 @@ bool APlayerCharacter::Dash()
 	//particle and sounds
 	if (DashSound) UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
 	if (DashParticle) UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
+	SpawnDashParticle();
 	
 	LogPlayerState();
-	
+	// fix bug if you dash from ledge.
+	GetCharacterMovement()->FallingLateralFriction = 8;
 	//teleport player towards last direction
 	FVector DashDirection  = LastDirection.GetSafeNormal()*DashDistance;
 	DashDirection.Z = 0;
 	LaunchCharacter(DashDirection, true , false);
-
+	
 	//delay until dash is finish
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
 		//code who runs after delay time
 		PlayerState = EPlayerState::Moving;
 		LogPlayerState();
+		GetCharacterMovement()->FallingLateralFriction = 0;
     }, DashTimer, 0);
 	
 	return true;

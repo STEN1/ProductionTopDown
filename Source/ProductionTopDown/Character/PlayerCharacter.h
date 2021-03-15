@@ -34,6 +34,8 @@ public:
     void ResetWalkSpeed();
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetStateToFalse();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnDashParticle();
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(EPlayerState inpPlayerState);
 	
@@ -100,7 +102,7 @@ private:
 
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
-	float DashDistance{100};
+	float DashDistance{5000};
 	float MaxWalkSpeed{400};
 
 	EPlayerState PlayerState;

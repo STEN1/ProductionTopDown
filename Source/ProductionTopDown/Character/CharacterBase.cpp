@@ -7,6 +7,7 @@
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/StaminaComponent.h"
 
+
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
@@ -42,7 +43,7 @@ void ACharacterBase::TriggerDeath()
 {
 	if(DeathParticle)UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticle, GetActorLocation());
 	if(DeathSound)UGameplayStatics::SpawnSoundAtLocation(this, DeathSound, GetActorLocation());
-	
+	SpawnDeathParticle();
 }
 
 bool ACharacterBase::Attack()
@@ -55,6 +56,9 @@ bool ACharacterBase::Attack()
 		}
 		// Subtracts the stamina cost from current stamina.
 		StaminaComponent->Attack();
+
+		//play particle
+		SpawnAttackParticle();
 	}
 	return true;
 }
