@@ -62,7 +62,7 @@ void UHurtBoxComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 {
 	if (Cast<APlayerCharacter>(OtherActor) && Cast<UCapsuleComponent>(OtherComp))
 	{
-        UGameplayStatics::ApplyDamage(OtherActor, Damage, OtherActor->GetInstigatorController(), GetOwner()->GetInstigatorController(), DamageTypes);
+        UGameplayStatics::ApplyDamage(OtherActor, Damage, OtherActor->GetInstigatorController(), GetOwner()->GetInstigatorController(), UDamageType::StaticClass());
 	}
 }
 
