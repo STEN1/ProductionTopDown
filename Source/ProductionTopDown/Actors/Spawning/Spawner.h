@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+
+
 #include "Engine/TriggerVolume.h"
 #include "GameFramework/Actor.h"
 #include "Spawner.generated.h"
@@ -24,6 +26,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnActorSpawned(FVector SpawnLocationVector);
+	
 private:
     UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
     TArray<class ASpawnpoint*> SpawnPoints;
@@ -43,7 +48,12 @@ private:
 	UFUNCTION()
 	void BeginOverlapTrigger(AActor* OverlappedActor, AActor* OtherActor);
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSTemplate;
+
+	void SpawnParticleEffect(FVector EffectSpawnLocationVector);
 	
 	bool bSpawningActors{false};
 	int32 SpawnArrayIndex{0};

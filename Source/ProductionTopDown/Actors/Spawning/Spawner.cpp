@@ -5,6 +5,10 @@
 
 #include "Spawnpoint.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+
 
 // Sets default values
 ASpawner::ASpawner()
@@ -28,6 +32,27 @@ void ASpawner::StartSpawning()
 	}
 }
 
+void ASpawner::SpawnParticleEffect(FVector EffectSpawnLocationVector)
+{
+	EffectSpawnLocationVector.Z += 200.f;
+	if (PSTemplate && !PSTemplate->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSTemplate, EffectSpawnLocationVector);
+	}
+	if (PSTemplate && PSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetHumanReadableName());
+	}
+	if (NSTemplate && !NSTemplate->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSTemplate, EffectSpawnLocationVector);
+	}
+	if (NSTemplate && NSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetHumanReadableName());
+	}
+}
+
 void ASpawner::InstantSpawn()
 {
 	for (auto& SpawnPoint : SpawnPoints)
@@ -37,7 +62,9 @@ void ASpawner::InstantSpawn()
 			GetWorld()->SpawnActor<AActor>(
 				SpawnPoint->ActorToSpawn,
 				SpawnPoint->GetActorLocation(),
-				SpawnPoint->GetActorRotation());	
+				SpawnPoint->GetActorRotation());
+			SpawnParticleEffect(SpawnPoint->GetActorLocation());
+			OnActorSpawned(SpawnPoint->GetActorLocation());
 		}
 	}
 }
@@ -55,7 +82,9 @@ void ASpawner::SpawnWithTimer()
 		GetWorld()->SpawnActor<AActor>(
             SpawnPoints[SpawnArrayIndex]->ActorToSpawn,
             SpawnPoints[SpawnArrayIndex]->GetActorLocation(),
-            SpawnPoints[SpawnArrayIndex]->GetActorRotation());	
+            SpawnPoints[SpawnArrayIndex]->GetActorRotation());
+		SpawnParticleEffect(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+		OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
 	}
 
 	SpawnArrayIndex++;
