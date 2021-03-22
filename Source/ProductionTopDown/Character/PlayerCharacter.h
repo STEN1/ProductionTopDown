@@ -92,6 +92,7 @@ private:
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
+	bool bCanDash{true};
 	
 	APlayerController* CharacterController;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "DamageType")
@@ -103,13 +104,15 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float DashDistance{5000};
-	float MaxWalkSpeed{400};
+	float MaxWalkSpeed{600};
 	UPROPERTY(EditAnywhere, Category="Health")
 	float DefaultHealth{200};
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DashTimer{0.1f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float DashDelay{1.f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float AttackTimer{0.6f};
 	
