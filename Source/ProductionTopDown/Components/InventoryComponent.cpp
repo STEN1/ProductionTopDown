@@ -26,27 +26,43 @@ AItemBase* UInventoryComponent::GetItemObject() const
 {
 	if (Inventory[CurrentSlot - 1])
 	{
-		return Inventory[CurrentSlot - 1].GetDefaultObject();
+		return Inventory[CurrentSlot - 1];
 	}
 	return nullptr;
 }
 
-TArray<TSubclassOf<AItemBase>> UInventoryComponent::GetInventory() const
+TArray<AItemBase*> UInventoryComponent::GetInventory()
 {
 	return Inventory;
 }
 
-void UInventoryComponent::LoadInventory(TArray<TSubclassOf<AItemBase>> LoadedInventory)
+void UInventoryComponent::LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory)
 {
 	InventorySize = LoadedInventory.Num();
 	Inventory.Empty();
 	Inventory.SetNum(InventorySize);
 	for (int i = 0; i < InventorySize; ++i)
 	{
-		Inventory[i] = LoadedInventory[i];
+		if (LoadedInventory[i] && Inventory[i])
+		{
+			Inventory[i]->Destroy();
+			Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
+		}
+		else if (LoadedInventory[i])
+		{
+			Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
+		}
+		else
+		{
+			Inventory[i] = nullptr;
+		}
 		if (Inventory[i])
 		{
-			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i].GetDefaultObject()->GetItemImage());
+			if (i == CurrentSlot - 1)
+			{
+				Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
+			}
+			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i]->GetItemImage());
 		}
 		else if (EmptySlotImage)
 		{
@@ -108,6 +124,7 @@ void UInventoryComponent::UpdateOverlapArray()
 	TArray<AActor*> TempArray;
 	GetOwner()->GetOverlappingActors(TempArray, TSubclassOf<AItemBase>());
 	OverlappingItems.Empty();
+	OverlappingItems.SetNum(0);
 	for (auto& TempActor : TempArray)
 	{
 		if (AItemBase* TempItem = Cast<AItemBase>(TempActor))
@@ -171,13 +188,14 @@ void UInventoryComponent::Slot4()
 
 void UInventoryComponent::UseInventoryItem()
 {
-	AItemBase* InventoryItem = Inventory[CurrentSlot - 1].GetDefaultObject();
-	if (InventoryItem)
+	if (Inventory[CurrentSlot - 1])
 	{
+		AItemBase* InventoryItem = Inventory[CurrentSlot - 1];
 		InventoryItem->UseItem(Cast<APlayerCharacter>(GetOwner()), GetWorld());
 		InventoryItem->OnUseItem(Cast<APlayerCharacter>(GetOwner()));
 		if (InventoryItem->IsConsumable())
 		{
+			Inventory[CurrentSlot - 1]->Destroy();
 			Inventory[CurrentSlot - 1] = nullptr;
 			if (EmptySlotImage)
 				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
@@ -191,8 +209,9 @@ void UInventoryComponent::ThrowItem()
 {
 	if (Inventory[CurrentSlot - 1])
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *Inventory[CurrentSlot - 1].GetDefaultObject()->GetName());
-		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1], GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *Inventory[CurrentSlot - 1]->GetName());
+		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		Inventory[CurrentSlot - 1]->Destroy();
 		Inventory[CurrentSlot - 1] = nullptr;
 		if (EmptySlotImage)
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
@@ -211,9 +230,11 @@ bool UInventoryComponent::FillEmptySlot()
 	{
 		if (!Inventory[i])
 		{
-			Inventory[i] = OverlappingItems.Last()->GetClass();
+			Inventory[i] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
+			// prevent GC
+			// Inventory[i]->AddToRoot();
 			OverlappingItems.Pop()->Destroy();
-			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i].GetDefaultObject()->GetItemImage());
+			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i]->GetItemImage());
 			return true;
 		}
 	}
@@ -225,24 +246,26 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 	if (OverlappingItems.Num() <= 0) return false;
 
 	// check if there is already an item in the inventory. Then save that to a TempValue to spawn in the world.
-	TSubclassOf<AItemBase> TempItem;
+	AItemBase* TempItem{ nullptr };
 	if (Inventory[CurrentSlot - 1])
 	{
 		TempItem = Inventory[CurrentSlot - 1];
 	}
 	
 	// Add item to inventory and Destroy it from the world. Then update ui if it is valid.
-	Inventory[CurrentSlot - 1] = OverlappingItems.Last()->GetClass();
+	Inventory[CurrentSlot - 1] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
+	// prevent GC
+	//Inventory[CurrentSlot - 1]->AddToRoot();
 	OverlappingItems.Pop()->Destroy();
 	if (Inventory[CurrentSlot - 1])
 	{
-		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1].GetDefaultObject()->GetItemImage());
+		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1]->GetItemImage());
 	}
 
 	// Now spawn item from inventory if there was an item there.
 	if (TempItem)
 	{
-		GetWorld()->SpawnActor<AItemBase>(TempItem, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		GetWorld()->SpawnActor<AItemBase>(TempItem->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	}
 	
 	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();

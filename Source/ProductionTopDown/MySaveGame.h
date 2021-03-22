@@ -16,11 +16,11 @@ class PRODUCTIONTOPDOWN_API UMySaveGame : public USaveGame
 public:
 	UMySaveGame();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FVector PlayerLocation;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FRotator PlayerRotation;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<TSubclassOf<class AItemBase>> Inventory;
 
 	static void SaveGame(const UObject* WorldContextObject);

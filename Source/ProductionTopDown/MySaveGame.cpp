@@ -26,13 +26,16 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject)
 		
 		if (InventoryComponent)
 		{
-			TArray<TSubclassOf<class AItemBase>> PlayerInventory = InventoryComponent->GetInventory();
+			TArray<class AItemBase*> PlayerInventory = InventoryComponent->GetInventory();
 			int32 InventorySize = InventoryComponent->GetInventorySize();
 			SaveGameInstance->Inventory.Empty();
 			SaveGameInstance->Inventory.SetNum(InventorySize);
 			for (int32 i = 0; i < InventorySize; i++)
 			{
-				SaveGameInstance->Inventory[i] = PlayerInventory[i];
+				if (PlayerInventory[i])
+				{
+					SaveGameInstance->Inventory[i] = PlayerInventory[i]->GetClass();
+				}
 			}
 		}
 	}
@@ -47,6 +50,7 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject)
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(WorldContextObject->GetWorld()->GetMapName(), 0));
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 
+	
 	if (Player && SaveGameInstance)
 	{
 		Player->SetActorLocation(SaveGameInstance->PlayerLocation);

@@ -30,7 +30,6 @@ void UScentComponent::SpawnScent()
 {
 	FVector NewScent{GetOwner()->GetActorLocation()};
 	ScentArray.Add(NewScent);
-	UE_LOG(LogTemp, Warning, TEXT("Scent Spawned!"));
 
 	if (ScentArray.Num() >= MaxScentActors+1)
 	{
