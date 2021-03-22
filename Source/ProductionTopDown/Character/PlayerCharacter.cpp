@@ -128,7 +128,7 @@ float APlayerCharacter::GetAttackTimer()
 void APlayerCharacter::AttackEvent()
 {
 	
-	if(InventoryComponent->GetItemObject()!= nullptr
+	if(InventoryComponent->GetItemObject()
 		&& InventoryComponent->GetItemObject()->IsWeapon()
 		&& PlayerState == EPlayerState::Moving)
 	{

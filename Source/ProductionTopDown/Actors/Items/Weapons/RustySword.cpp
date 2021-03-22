@@ -20,7 +20,7 @@ void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 	{
 		UGameplayStatics::ApplyDamage(PlayerCharacter,
                                     10.f,
-                                    World->GetFirstPlayerController(),
+                                    PlayerCharacter->GetInstigatorController(),
                                     PlayerCharacter,
                                     UDamageType::StaticClass()
                                     );

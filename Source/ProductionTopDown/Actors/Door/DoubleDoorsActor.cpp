@@ -45,7 +45,6 @@ void ADoubleDoorsActor::Tick(float DeltaTime)
 		LeftDoor->SetRelativeRotation(NewRotation);
 		RightDoor->SetRelativeRotation(NewRotation * (-1.f));
 
-		UE_LOG(LogTemp, Warning, TEXT("Yaw: %f"), NewRotation.Yaw);
 		if (NewRotation.Yaw >= TargetRotation.Yaw -0.1f)
 		{
 			SetActorTickEnabled(false);

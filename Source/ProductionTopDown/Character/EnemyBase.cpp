@@ -85,6 +85,7 @@ void AEnemyBase::Move(float ScaleSpeed, FVector MoveDir)
 void AEnemyBase::FollowPlayer()
 {
 	FVector MoveDir = GetMoveDirFromScent();
+
 	
 	Move(0.5f, MoveDir);
 	if (MoveDir != FVector::ZeroVector)

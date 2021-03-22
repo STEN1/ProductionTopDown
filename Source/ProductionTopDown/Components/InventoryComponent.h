@@ -21,8 +21,8 @@ public:
 	UInventoryComponent();
 	
 	AItemBase* GetItemObject() const;
-	TArray<TSubclassOf<AItemBase>> GetInventory() const;
-	void LoadInventory(TArray<TSubclassOf<AItemBase>> LoadedInventory);
+	TArray<AItemBase*> GetInventory();
+	void LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory);
 	int32 GetInventorySize() const;
 protected:
 	virtual void BeginPlay() override;
@@ -47,9 +47,12 @@ private:
 	UTexture2D* EmptySlotImage;
 
 	void UpdateOverlapArray();
+
+	UPROPERTY()
 	TArray<AItemBase*> OverlappingItems;
-	
-	TArray<TSubclassOf<AItemBase>> Inventory;
+
+	UPROPERTY()
+	TArray<AItemBase*> Inventory;
 
 	UPROPERTY()
 	UInputComponent* PlayerInputComponent;
