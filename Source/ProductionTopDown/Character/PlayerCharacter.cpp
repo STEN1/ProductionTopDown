@@ -23,8 +23,8 @@ APlayerCharacter::APlayerCharacter()
 	AttackRangeComponent = CreateDefaultSubobject<UBoxComponent>("Attack Range Component");
 	AttackRangeComponent->SetupAttachment(CharacterMesh, TEXT("Attack Range"));
 	
-	//Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	//Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
 	
 }
 
@@ -63,15 +63,10 @@ void APlayerCharacter::BeginPlay()
 	//Attach AttackRange to Socket
 	if(AttackRangeComponent)AttackRangeComponent->AttachToComponent(CharacterMesh,FAttachmentTransformRules::KeepRelativeTransform, TEXT("AttackRangeSocket"));
 	
-	//testing purposes
+	//attach weapon to socket
 	if(Weapon)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("weapon and attackrange found"))
-		//Weapon->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnWeaponHit);
-		//AttackRangeComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
-		
-		//Weapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponOverlap);
-		//EquipWeaponFromInv(Weapon);
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	}
 
 	CharacterController = GetWorld()->GetFirstPlayerController();
@@ -85,7 +80,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if(PlayerState != EPlayerState::Dashing)RotateCharacter();
+	//if(PlayerState != EPlayerState::Dashing)RotateCharacter();
 
 	switch (PlayerState)
 	{
@@ -96,7 +91,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		//dashing state
 		break;
 	case EPlayerState::Moving:
-		//move state
+		RotateCharacter();
 		break;
 
 	default:
@@ -276,18 +271,21 @@ void APlayerCharacter::RotateCharToMouse()
 
 }
 
-void APlayerCharacter::EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon)
+void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Trying to equip Weapon"));
-	EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	Weapon->SetStaticMesh(EquipWeapon);
+	//EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
 void APlayerCharacter::OnInventoryChange()
 {
 	AItemBase* CurrentItemBase = InventoryComponent->GetItemObject();
-	UStaticMeshComponent* CurrentItemMesh = Cast<UStaticMeshComponent>(CurrentItemBase);
+	UStaticMesh* CurrentItemMesh = nullptr;
+	if(CurrentItemBase)CurrentItemMesh = CurrentItemBase->FindComponentByClass<UStaticMeshComponent>()->GetStaticMesh();;
 	//if(CurrentItemBase)GetWorld()->SpawnActor<AItemBase>(CurrentItemBase, GetActorLocation(), GetActorRotation());
-	if(CurrentItemMesh)EquipWeaponFromInv(CurrentItemMesh);
+	if(CurrentItemBase)EquipWeaponFromInv(CurrentItemMesh);
+	else EquipWeaponFromInv(nullptr); // equip nothing ? 
 	if(!CurrentItemMesh) UE_LOG(LogTemp, Error, TEXT("Item Mesh not found"));
 	if(!CurrentItemBase) UE_LOG(LogTemp, Error, TEXT("Item Base not found"))
 }

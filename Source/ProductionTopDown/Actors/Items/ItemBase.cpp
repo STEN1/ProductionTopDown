@@ -105,6 +105,7 @@ UTexture2D* AItemBase::GetItemImage() const
 	return nullptr;
 }
 
+//does not work
 UStaticMeshComponent* AItemBase::GetItemStaticMesh() const
 {
 	return StaticMeshComponent;

@@ -63,7 +63,7 @@ protected:
 	void RotateCharacter();
 	void RotateCharToMouse();
 	
-	void EquipWeaponFromInv(UStaticMeshComponent* EquipWeapon);
+	void EquipWeaponFromInv(UStaticMesh* EquipWeapon);
 
 	
 
