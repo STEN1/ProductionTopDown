@@ -80,10 +80,18 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if(CheckForPushableActor()) PlayerState = EPlayerState::Pushing;
-	//else PlayerState = EPlayerState::Moving;
 
+	if(CheckForPushableActor() && PlayerState == EPlayerState::Moving)
+	{
+		PlayerState = EPlayerState::Pushing;
+		//walks half speed while pushing
+		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2;
+	}
+	else if(!CheckForPushableActor() && PlayerState == EPlayerState::Pushing)
+	{
+		PlayerState = EPlayerState::Moving;
+		ResetWalkSpeed();
+	}
 	switch (PlayerState)
 	{
 	case EPlayerState::Attacking:
@@ -96,6 +104,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		RotateCharacter();
 		break;
 	case EPlayerState::Pushing:
+		RotateCharacter();
 		PushObject(GetPushableActor());
 		break;
 	default:
@@ -304,9 +313,15 @@ APushable_ActorBase* APlayerCharacter::GetPushableActor()
 
 void APlayerCharacter::PushObject(APushable_ActorBase* PushableActor)
 {
-	const FVector PushDirection = LastDirection.GetSafeNormal()*PushDistance;
-	//Calculate new position by velocity from char;
-	PushableActor->SetActorLocation(PushDirection);
+	if(PushableActor)
+	{
+		FVector PushDirection = PushableActor->GetActorLocation();
+		PushDirection += LastDirection.GetSafeNormal2D()*PushDistance;
+		PushDirection.Z = PushableActor->GetActorLocation().Z;
+		//Calculate new position by velocity from char;
+		PushableActor->SetActorLocation(PushDirection);
+	}
+
 }
 
 void APlayerCharacter::OnInventoryChange()
