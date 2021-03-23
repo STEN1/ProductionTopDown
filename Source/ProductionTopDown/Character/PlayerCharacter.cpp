@@ -10,8 +10,9 @@
 #include "Components/BoxComponent.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
-#include "Widgets/Text/ISlateEditableTextWidget.h"
+#include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 
+#include "Widgets/Text/ISlateEditableTextWidget.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -48,7 +49,7 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	//makes the code and blueprint speed match
 	ResetWalkSpeed();
 	
@@ -80,7 +81,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	//if(PlayerState != EPlayerState::Dashing)RotateCharacter();
+	if(CheckForPushableActor()) PlayerState = EPlayerState::Pushing;
+	//else PlayerState = EPlayerState::Moving;
 
 	switch (PlayerState)
 	{
@@ -93,7 +95,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 	case EPlayerState::Moving:
 		RotateCharacter();
 		break;
-
+	case EPlayerState::Pushing:
+		PushObject(GetPushableActor());
+		break;
 	default:
 		
 		break;
@@ -278,6 +282,33 @@ void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 	//EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
+bool APlayerCharacter::CheckForPushableActor()
+{
+	if(GetPushableActor()) return true;
+	return false;
+}
+
+APushable_ActorBase* APlayerCharacter::GetPushableActor()
+{
+	TArray<AActor*> OverlappingActors;
+	AttackRangeComponent->GetOverlappingActors(OverlappingActors);
+	for (int i = 0; i < OverlappingActors.Num(); ++i)
+	{
+		if(OverlappingActors[i]->IsA(APushable_ActorBase::StaticClass()))
+		{
+			return Cast<APushable_ActorBase>(OverlappingActors[i]);
+		}
+	}
+	return nullptr;
+}
+
+void APlayerCharacter::PushObject(APushable_ActorBase* PushableActor)
+{
+	const FVector PushDirection = LastDirection.GetSafeNormal()*PushDistance;
+	//Calculate new position by velocity from char;
+	PushableActor->SetActorLocation(PushDirection);
+}
+
 void APlayerCharacter::OnInventoryChange()
 {
 	AItemBase* CurrentItemBase = InventoryComponent->GetItemObject();
@@ -290,6 +321,7 @@ void APlayerCharacter::OnInventoryChange()
 	if(!CurrentItemBase) UE_LOG(LogTemp, Error, TEXT("Item Base not found"))
 }
 
+//is this in use ? dont think so
 void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
