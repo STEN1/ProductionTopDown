@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+
+#include "ChaosInterfaceWrapperCore.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
@@ -12,6 +14,7 @@
 #include "ProductionTopDown/Components/InteractComponent.h"
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -36,6 +39,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::StartDrag);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::StopDrag);
 	//PlayerInputComponent->BindAxis("MouseX",this, &APlayerCharacter::RotateCharacter);
 }
 
@@ -80,7 +85,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if(CheckForPushableActor() && PlayerState == EPlayerState::Moving)
 	{
 		PlayerState = EPlayerState::Pushing;
@@ -105,13 +110,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 		break;
 	case EPlayerState::Pushing:
 		RotateCharacter();
-		PushObject(GetPushableActor());
+		PushObject(GetActorInFront());
 		break;
+	case EPlayerState::Dragging:
+		DragObject(GetActorInFront());
 	default:
 		
 		break;
 	}
-	
+	GetActorInFront();
 	if (bDrawAttackRangeBox)
     	{
     		DrawDebugBox(GetWorld(),AttackRangeComponent->GetComponentLocation(), AttackRangeComponent->GetScaledBoxExtent(), AttackRangeComponent->GetComponentRotation().Quaternion() ,FColor::Red,false,0.f, 0,10);
@@ -291,9 +298,32 @@ void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 	//EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
 
+void APlayerCharacter::StartDrag()
+{
+	if(AbleToDrag()) // able to grab
+	{
+		PlayerState = EPlayerState::Dragging;
+	}
+	
+}
+
+void APlayerCharacter::StopDrag()
+{
+	if(PlayerState == EPlayerState::Dragging)
+		PlayerState = EPlayerState::Moving;
+
+	ResetWalkSpeed();
+}
+
 bool APlayerCharacter::CheckForPushableActor()
 {
-	if(GetPushableActor()) return true;
+	if(GetActorInFront()) return true;
+	return false;
+}
+
+bool APlayerCharacter::AbleToDrag()
+{
+	if(CheckForPushableActor())return true;
 	return false;
 }
 
@@ -313,15 +343,80 @@ APushable_ActorBase* APlayerCharacter::GetPushableActor()
 
 void APlayerCharacter::PushObject(APushable_ActorBase* PushableActor)
 {
+	//locks movement to x or y axis
+	FVector Velocity = GetVelocity();
+	//UE_LOG(LogTemp, Error, TEXT("Velocity before: %s"), *Velocity.ToString())
+	if (abs(Velocity.X) > abs(Velocity.Y))
+	{
+		Velocity.Y = 0;
+	}
+	else Velocity.X = 0;
+	
+	//UE_LOG(LogTemp, Error, TEXT("Velocity After: %s"), *Velocity.ToString())
+	if(PushableActor && bCanPush)
+	{
+		FVector PushDirection = PushableActor->GetActorLocation();
+		PushDirection += Velocity.GetSafeNormal2D()*PushDistance;
+		PushDirection.Z = PushableActor->GetActorLocation().Z;
+		//Calculate new position by velocity from char;
+		PushableActor->SetActorLocation(PushDirection, true);
+	}
+
+}
+
+//dont know if i need this one
+void APlayerCharacter::DragObject(APushable_ActorBase* PushableActor)
+{
 	if(PushableActor)
 	{
 		FVector PushDirection = PushableActor->GetActorLocation();
 		PushDirection += LastDirection.GetSafeNormal2D()*PushDistance;
 		PushDirection.Z = PushableActor->GetActorLocation().Z;
 		//Calculate new position by velocity from char;
-		PushableActor->SetActorLocation(PushDirection);
+		PushableActor->SetActorLocation(PushDirection, true);
 	}
+}
 
+APushable_ActorBase* APlayerCharacter::GetActorInFront()
+{
+	APushable_ActorBase* ActorInFront = nullptr;
+	FHitResult Hit;
+	FVector TraceEnd = GetActorLocation() + LastDirection.GetSafeNormal() * PushRange;
+	ECollisionChannel CollisionChannel = ECollisionChannel::ECC_WorldDynamic;
+	FCollisionQueryParams CollisionParams(FName(TEXT("")), false, this);
+	GetWorld()->LineTraceSingleByObjectType(Hit, GetActorLocation(), TraceEnd, CollisionChannel, CollisionParams);
+
+	if((Hit.Location - GetActorLocation()).Size() < PushRange/2) bCanPush = true;
+	else bCanPush = false;
+	
+	//set to false to stop drawing debug lines
+	bool BDrawDebugLine{true};
+	if(BDrawDebugLine){
+		if(Hit.IsValidBlockingHit())DrawDebugLine(
+				GetWorld(),
+				GetActorLocation(),
+				Hit.Location,
+				FColor::Green,
+				false,
+				0.f,
+				0.f,
+				5.f
+				);
+		 else DrawDebugLine(
+	            GetWorld(),
+	            GetActorLocation(),
+	            TraceEnd,
+	            FColor::Red,
+	            false,
+	            0.f,
+	            0.f,
+	            5.f
+	            );
+	}
+		ActorInFront = Cast<APushable_ActorBase>(Hit.Actor);
+
+	
+	return ActorInFront;
 }
 
 void APlayerCharacter::OnInventoryChange()

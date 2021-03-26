@@ -11,10 +11,11 @@
 UENUM(BlueprintType)
 enum class EPlayerState : uint8
 {
-	Attacking = 0		UMETA(DisplayName = "Attack state"),
+	Attacking = 0	UMETA(DisplayName = "Attack state"),
     Dashing = 1		UMETA(DisplayName = "Dashing state"),
     Moving = 2		UMETA(DisplayName = "Moving state"),
 	Pushing = 3		UMETA(DisplayName = "Pushing state"),
+	Dragging = 4		UMETA(DisplayName = "Draging state"),
 };
 
 class UInventoryComponent;
@@ -66,11 +67,17 @@ protected:
 	void RotateCharacter();
 	void RotateCharToMouse();
 	void EquipWeaponFromInv(UStaticMesh* EquipWeapon);
-
+	void StartDrag();
+	void StopDrag();
 	bool CheckForPushableActor();
+	bool AbleToDrag();
 	APushable_ActorBase* GetPushableActor();
 	void PushObject(APushable_ActorBase* PushableActor);
-	
+	void DragObject(APushable_ActorBase* PushableActor);
+
+	APushable_ActorBase* GetActorInFront();
+
+
 
 	UFUNCTION()
 	void OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -114,7 +121,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Health")
 	float DefaultHealth{200};
 	UPROPERTY(EditAnywhere, Category="Movement")
-	float PushDistance{50};
+	float PushDistance{5};
+	UPROPERTY(EditAnywhere, Category="Movement")
+	float PushRange{100};
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -126,4 +135,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Debug", meta = (AllowPrivateAccess = "true"));
 	bool bDrawAttackRangeBox{false};
+	
+	bool bCanPush{false};
 };
