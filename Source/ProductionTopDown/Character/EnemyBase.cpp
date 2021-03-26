@@ -114,7 +114,6 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 	if (HitArray.Num() != 0)
 	{
 		FHitResult ReturnHit = HitArray[0];
-        UE_LOG(LogTemp, Error, TEXT("REturnHit Distance: %f"), ReturnHit.Distance)
 		
 		for (int i = 0; i < HitArray.Num(); ++i)
         {
