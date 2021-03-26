@@ -31,6 +31,19 @@ void AEnemyBase::Tick(float DeltaTime)
 	
 }
 
+void AEnemyBase::FollowPlayer()
+{
+	FVector MoveDir = GetMoveDirFromScent();
+	
+	if (MoveDir != FVector::ZeroVector)
+	{
+		SetActorRotation(MoveDir.Rotation());
+	}
+	
+	MoveDir += GetMoveOffsetFromWall(100.f, ECC_WorldStatic);
+	Move(0.5f, MoveDir);
+}
+
 FVector AEnemyBase::GetMoveDirFromScent()
 {
 	FHitResult Hit;
@@ -38,7 +51,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 
 	if (!Hit.IsValidBlockingHit())
 	{
-		FVector MoveDir = CalcVector(Player->GetActorLocation()).GetSafeNormal2D();
+		FVector MoveDir = CalcVectorFromPlayerToTarget(Player->GetActorLocation()).GetSafeNormal2D();
 		if (MoveDir != FVector::ZeroVector)
 		{
 			return MoveDir;
@@ -51,7 +64,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 		
 		if (!Hit.IsValidBlockingHit())
         {
-			FVector MoveDir = CalcVector(ScentComponent->ScentArray[i]).GetSafeNormal2D();
+			FVector MoveDir = CalcVectorFromPlayerToTarget(ScentComponent->ScentArray[i]).GetSafeNormal2D();
         	if (MoveDir != FVector::ZeroVector)
         	{
         		return MoveDir;
@@ -63,12 +76,67 @@ FVector AEnemyBase::GetMoveDirFromScent()
 	return FVector::ZeroVector;
 }
 
-bool AEnemyBase::Attack()
+FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel)
 {
-	return true;
+
+	
+	TArray<FHitResult> HitArray;
+	
+
+	
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
+
+	for (int i = 1; i < 9; ++i)
+	{
+		FHitResult Hit;
+			FRotator DirRot{0.f, i * 45.f,0.f};
+        	FVector Dir = DirRot.Vector() * InReach;
+		
+			GetWorld()->LineTraceSingleByObjectType(Hit, GetActorLocation(), GetActorLocation() + Dir, CollisionChannel, TraceParams);
+        
+        	if (Hit.IsValidBlockingHit())
+        	{
+					HitArray.Add(Hit);
+        		
+        			DrawDebugLine(
+                    GetWorld(),
+                    GetActorLocation(),
+                    Hit.Location,
+                    FColor::Blue,
+                    false,
+                    0.f,
+                    0,
+                    5.f
+                    );
+        	} 
+	}
+
+	if (HitArray.Num() != 0)
+	{
+		FHitResult ReturnHit = HitArray[0];
+        UE_LOG(LogTemp, Error, TEXT("REturnHit Distance: %f"), ReturnHit.Distance)
+		
+		for (int i = 0; i < HitArray.Num(); ++i)
+        {
+			if (HitArray[i].Distance < ReturnHit.Distance)
+	        {
+				ReturnHit = HitArray[i];
+			}
+        		
+        }
+		return (CalcVectorFromPlayerToTarget(ReturnHit.Location) * -1);
+	}
+
+
+	return FVector::ZeroVector;;
+
+	
+
+	
 }
 
-FVector AEnemyBase::CalcVector(FVector Target)
+
+FVector AEnemyBase::CalcVectorFromPlayerToTarget(FVector Target)
 {
 	FVector DirVector = Target - GetActorLocation();
 	DirVector.Normalize(1.f);
@@ -82,20 +150,7 @@ void AEnemyBase::Move(float ScaleSpeed, FVector MoveDir)
 	AddMovementInput(MoveDir, ScaleSpeed);
 }
 
-void AEnemyBase::FollowPlayer()
-{
-	FVector MoveDir = GetMoveDirFromScent();
-
-	
-	Move(0.5f, MoveDir);
-	if (MoveDir != FVector::ZeroVector)
-	{
-		SetActorRotation(MoveDir.Rotation());
-	}
-}
-
-FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd,
-                                          bool DrawTraceLine) const
+FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const
 {
 	FVector PawnLocation{GetActorLocation()};
 	FRotator PawnRotation{GetActorRotation()};
@@ -109,19 +164,20 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
         TraceParams
     );
 
-	if (DrawTraceLine && Hit.IsValidBlockingHit())
-	{
-		DrawDebugLine(
-        GetWorld(),
-        PawnLocation,
-        Hit.Location,
-        FColor::Red,
-        false,
-        0.f,
-        0,
-        5.f
-		);
-	} else if (DrawTraceLine && !Hit.IsValidBlockingHit())
+	// if (DrawTraceLine && Hit.IsValidBlockingHit())	//Draw to Hit out of sight
+	// {
+	// 	DrawDebugLine(
+ //        GetWorld(),
+ //        PawnLocation,
+ //        Hit.Location,
+ //        FColor::Red,
+ //        false,
+ //        0.f,
+ //        0,
+ //        5.f
+	// 	);
+	// } else
+	if (DrawTraceLine && !Hit.IsValidBlockingHit())	//Draw to Hit in sight
 	{
 		DrawDebugLine(
 		GetWorld(),
@@ -137,6 +193,10 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 		return Hit;
 }
 
+bool AEnemyBase::Attack()
+{
+	return true;
+}
 
 void AEnemyBase::TriggerDeath()
 {
