@@ -52,12 +52,11 @@ private:
 	TArray<AItemBase*> OverlappingItems;
 
 	UPROPERTY()
-	TArray<AItemBase*> Inventory;
-
-	UPROPERTY()
 	UInputComponent* PlayerInputComponent;
 	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 
 	int32 InventorySize{4};
 

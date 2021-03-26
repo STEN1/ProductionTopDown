@@ -13,5 +13,7 @@ UCLASS()
 class PRODUCTIONTOPDOWN_API UMyGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+public:
+	UPROPERTY()
+	TArray<class AItemBase*> Inventory;
 };

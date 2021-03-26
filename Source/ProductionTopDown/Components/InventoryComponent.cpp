@@ -7,6 +7,7 @@
 
 #include "Chaos/AABBTree.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/MyGameInstance.h"
 #include "ProductionTopDown/MySaveGame.h"
 #include "ProductionTopDown/Actors/Items/ItemBase.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
@@ -15,54 +16,50 @@
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	Inventory.SetNum(InventorySize);
-	for (auto& Item : Inventory)
-	{
-		Item = nullptr;
-	}
+
 }
 
 AItemBase* UInventoryComponent::GetItemObject() const
 {
-	if (Inventory[CurrentSlot - 1])
+	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		return Inventory[CurrentSlot - 1];
+		return GameInstance->Inventory[CurrentSlot - 1];
 	}
 	return nullptr;
 }
 
 TArray<AItemBase*> UInventoryComponent::GetInventory()
 {
-	return Inventory;
+	return GameInstance->Inventory;
 }
 
 void UInventoryComponent::LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory)
 {
 	InventorySize = LoadedInventory.Num();
-	Inventory.Empty();
-	Inventory.SetNum(InventorySize);
+	GameInstance->Inventory.Empty();
+	GameInstance->Inventory.SetNum(InventorySize);
 	for (int i = 0; i < InventorySize; ++i)
 	{
-		if (LoadedInventory[i] && Inventory[i])
+		if (LoadedInventory[i] && GameInstance->Inventory[i])
 		{
-			Inventory[i]->Destroy();
-			Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
+			GameInstance->Inventory[i]->Destroy();
+			GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
 		}
 		else if (LoadedInventory[i])
 		{
-			Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
+			GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), LoadedInventory[i]);
 		}
 		else
 		{
-			Inventory[i] = nullptr;
+			GameInstance->Inventory[i] = nullptr;
 		}
-		if (Inventory[i])
+		if (GameInstance->Inventory[i])
 		{
 			if (i == CurrentSlot - 1)
 			{
 				Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 			}
-			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i]->GetItemImage());
+			GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
 		}
 		else if (EmptySlotImage)
 		{
@@ -105,6 +102,20 @@ void UInventoryComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("No GameModeRef on: %s"), *GetOwner()->GetHumanReadableName());
 	}
 	GameModeRef->UpdateInventoryUICurrentSlot(CurrentSlot);
+
+	GameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Inventory Component: NO GAME INSTANCE REF!!!"))
+	}
+	else
+	{
+		GameInstance->Inventory.SetNum(InventorySize);
+		for (auto& Item : GameInstance->Inventory)
+		{
+			Item = nullptr;
+		}
+	}
 
 	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
@@ -188,15 +199,15 @@ void UInventoryComponent::Slot4()
 
 void UInventoryComponent::UseInventoryItem()
 {
-	if (Inventory[CurrentSlot - 1])
+	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		AItemBase* InventoryItem = Inventory[CurrentSlot - 1];
+		AItemBase* InventoryItem = GameInstance->Inventory[CurrentSlot - 1];
 		InventoryItem->UseItem(Cast<APlayerCharacter>(GetOwner()), GetWorld());
 		InventoryItem->OnUseItem(Cast<APlayerCharacter>(GetOwner()));
 		if (InventoryItem->IsConsumable())
 		{
-			Inventory[CurrentSlot - 1]->Destroy();
-			Inventory[CurrentSlot - 1] = nullptr;
+			GameInstance->Inventory[CurrentSlot - 1]->Destroy();
+			GameInstance->Inventory[CurrentSlot - 1] = nullptr;
 			if (EmptySlotImage)
 				GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 			Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
@@ -207,12 +218,12 @@ void UInventoryComponent::UseInventoryItem()
 
 void UInventoryComponent::ThrowItem()
 {
-	if (Inventory[CurrentSlot - 1])
+	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *Inventory[CurrentSlot - 1]->GetName());
-		GetWorld()->SpawnActor<AItemBase>(Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
-		Inventory[CurrentSlot - 1]->Destroy();
-		Inventory[CurrentSlot - 1] = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *GameInstance->Inventory[CurrentSlot - 1]->GetName());
+		GetWorld()->SpawnActor<AItemBase>(GameInstance->Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		GameInstance->Inventory[CurrentSlot - 1]->Destroy();
+		GameInstance->Inventory[CurrentSlot - 1] = nullptr;
 		if (EmptySlotImage)
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
@@ -226,15 +237,15 @@ bool UInventoryComponent::FillEmptySlot()
 
 	// See if any inventory slot is empty. Then fill that slot with object from overlapping items. 
 	// Then destroy that item from the world.
-	for (int32 i = 0;i < Inventory.Num();i++)
+	for (int32 i = 0;i < GameInstance->Inventory.Num();i++)
 	{
-		if (!Inventory[i])
+		if (!GameInstance->Inventory[i])
 		{
-			Inventory[i] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
+			GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
 			// prevent GC
 			// Inventory[i]->AddToRoot();
 			OverlappingItems.Pop()->Destroy();
-			GameModeRef->UpdateInventoryUI(i + 1, Inventory[i]->GetItemImage());
+			GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
 			return true;
 		}
 	}
@@ -247,19 +258,19 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 
 	// check if there is already an item in the inventory. Then save that to a TempValue to spawn in the world.
 	AItemBase* TempItem{ nullptr };
-	if (Inventory[CurrentSlot - 1])
+	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		TempItem = Inventory[CurrentSlot - 1];
+		TempItem = GameInstance->Inventory[CurrentSlot - 1];
 	}
 	
 	// Add item to inventory and Destroy it from the world. Then update ui if it is valid.
-	Inventory[CurrentSlot - 1] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
+	GameInstance->Inventory[CurrentSlot - 1] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
 	// prevent GC
 	//Inventory[CurrentSlot - 1]->AddToRoot();
 	OverlappingItems.Pop()->Destroy();
-	if (Inventory[CurrentSlot - 1])
+	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		GameModeRef->UpdateInventoryUI(CurrentSlot, Inventory[CurrentSlot - 1]->GetItemImage());
+		GameModeRef->UpdateInventoryUI(CurrentSlot, GameInstance->Inventory[CurrentSlot - 1]->GetItemImage());
 	}
 
 	// Now spawn item from inventory if there was an item there.
