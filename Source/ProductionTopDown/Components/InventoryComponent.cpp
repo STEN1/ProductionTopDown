@@ -108,7 +108,20 @@ void UInventoryComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Inventory Component: NO GAME INSTANCE REF!!!"))
 	}
-	else
+	else if (GameInstance->SavedInventory.Num() == InventorySize)
+	{
+		GameInstance->Inventory.SetNum(InventorySize);
+		for (int32 i = 0; i < InventorySize; ++i)
+		{
+			if (GameInstance->SavedInventory[i])
+			{
+				GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), GameInstance->SavedInventory[i]);
+				GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
+			}
+			
+		}
+	}
+	else if (IsInventoryEmpty())
 	{
 		GameInstance->Inventory.SetNum(InventorySize);
 		for (auto& Item : GameInstance->Inventory)
@@ -281,6 +294,18 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 	
 	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 	
+	return true;
+}
+
+bool UInventoryComponent::IsInventoryEmpty()
+{
+	for (auto Item : GameInstance->Inventory)
+	{
+		if (Item)
+		{
+			return false;
+		}
+	}
 	return true;
 }
 

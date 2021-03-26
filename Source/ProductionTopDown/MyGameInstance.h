@@ -16,4 +16,7 @@ class PRODUCTIONTOPDOWN_API UMyGameInstance : public UGameInstance
 public:
 	UPROPERTY()
 	TArray<class AItemBase*> Inventory;
+	UPROPERTY()
+	TArray<TSubclassOf<class AItemBase>> SavedInventory;
+	void SaveCurrentInventoryToInstance();
 };

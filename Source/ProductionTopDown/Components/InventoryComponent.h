@@ -41,6 +41,7 @@ private:
 	void ThrowItem();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
+	bool IsInventoryEmpty();
 	int32 PreviousSlot{ 1 };
 	int32 CurrentSlot{ 1 };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmptySlotImage", meta = (AllowPrivateAccess = "true"))
