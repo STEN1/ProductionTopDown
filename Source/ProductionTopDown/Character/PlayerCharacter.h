@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
+#include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
+
 #include "PlayerCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -12,6 +14,7 @@ enum class EPlayerState : uint8
 	Attacking = 0		UMETA(DisplayName = "Attack state"),
     Dashing = 1		UMETA(DisplayName = "Dashing state"),
     Moving = 2		UMETA(DisplayName = "Moving state"),
+	Pushing = 3		UMETA(DisplayName = "Pushing state"),
 };
 
 class UInventoryComponent;
@@ -62,9 +65,11 @@ protected:
 	void MoveRight(float Value);
 	void RotateCharacter();
 	void RotateCharToMouse();
-	
 	void EquipWeaponFromInv(UStaticMesh* EquipWeapon);
 
+	bool CheckForPushableActor();
+	APushable_ActorBase* GetPushableActor();
+	void PushObject(APushable_ActorBase* PushableActor);
 	
 
 	UFUNCTION()
@@ -104,9 +109,12 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float DashDistance{5000};
+	UPROPERTY(EditAnywhere, Category="Movement")
 	float MaxWalkSpeed{600};
 	UPROPERTY(EditAnywhere, Category="Health")
 	float DefaultHealth{200};
+	UPROPERTY(EditAnywhere, Category="Movement")
+	float PushDistance{50};
 	EPlayerState PlayerState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
