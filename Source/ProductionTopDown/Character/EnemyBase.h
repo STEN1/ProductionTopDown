@@ -30,7 +30,7 @@ protected:
 	bool Attack();
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
-	FVector CalcVector(FVector Target);
+	FVector CalcVectorFromPlayerToTarget(FVector Target);
 
 	APlayerCharacter* Player{nullptr};
 	UScentComponent* ScentComponent{nullptr};

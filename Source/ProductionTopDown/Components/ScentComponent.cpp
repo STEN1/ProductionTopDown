@@ -23,7 +23,9 @@ void UScentComponent::BeginPlay()
 	if (bSpawnScent)
 	{
 		GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UScentComponent::SpawnScent, SpawnRate, true);
-	}	
+	}
+	
+	SetComponentTickEnabled(bDrawDebugScent);
 }
 
 void UScentComponent::SpawnScent()
@@ -44,9 +46,8 @@ void UScentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	for (int i = 0; i < ScentArray.Num(); ++i)
-	{
-		DrawDebugSphere(GetWorld(), ScentArray[i], 50.f, 8,FColor::Green);
-	}
-	
+    {
+        DrawDebugSphere(GetWorld(), ScentArray[i], 50.f, 8,FColor::Green);
+    }	
 }
 

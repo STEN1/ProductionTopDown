@@ -51,7 +51,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 
 	if (!Hit.IsValidBlockingHit())
 	{
-		FVector MoveDir = CalcVector(Player->GetActorLocation()).GetSafeNormal2D();
+		FVector MoveDir = CalcVectorFromPlayerToTarget(Player->GetActorLocation()).GetSafeNormal2D();
 		if (MoveDir != FVector::ZeroVector)
 		{
 			return MoveDir;
@@ -64,7 +64,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 		
 		if (!Hit.IsValidBlockingHit())
         {
-			FVector MoveDir = CalcVector(ScentComponent->ScentArray[i]).GetSafeNormal2D();
+			FVector MoveDir = CalcVectorFromPlayerToTarget(ScentComponent->ScentArray[i]).GetSafeNormal2D();
         	if (MoveDir != FVector::ZeroVector)
         	{
         		return MoveDir;
@@ -86,10 +86,10 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 	
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
 
-	for (int i = 1; i < 5; ++i)
+	for (int i = 1; i < 9; ++i)
 	{
 		FHitResult Hit;
-			FRotator DirRot{0.f, i * 90.f,0.f};
+			FRotator DirRot{0.f, i * 45.f,0.f};
         	FVector Dir = DirRot.Vector() * InReach;
 		
 			GetWorld()->LineTraceSingleByObjectType(Hit, GetActorLocation(), GetActorLocation() + Dir, CollisionChannel, TraceParams);
@@ -124,7 +124,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 			}
         		
         }
-		return ReturnHit.ImpactNormal;
+		return (CalcVectorFromPlayerToTarget(ReturnHit.Location) * -1);
 	}
 
 
@@ -136,7 +136,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 }
 
 
-FVector AEnemyBase::CalcVector(FVector Target)
+FVector AEnemyBase::CalcVectorFromPlayerToTarget(FVector Target)
 {
 	FVector DirVector = Target - GetActorLocation();
 	DirVector.Normalize(1.f);
@@ -150,8 +150,7 @@ void AEnemyBase::Move(float ScaleSpeed, FVector MoveDir)
 	AddMovementInput(MoveDir, ScaleSpeed);
 }
 
-FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd,
-                                          bool DrawTraceLine) const
+FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const
 {
 	FVector PawnLocation{GetActorLocation()};
 	FRotator PawnRotation{GetActorRotation()};
