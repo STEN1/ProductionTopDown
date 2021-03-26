@@ -26,6 +26,8 @@ public:
 	int32 MaxScentActors{5};
 	UPROPERTY(EditAnywhere)
 	bool bSpawnScent{true};
+	UPROPERTY(EditAnywhere)
+	bool bDrawDebugScent{false};
 
 protected:
 	// Called when the game starts
