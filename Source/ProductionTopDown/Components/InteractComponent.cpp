@@ -3,6 +3,8 @@
 
 #include "InteractComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/MyGameInstance.h"
 #include "ProductionTopDown/Actors/Interactables/InteractableBase.h"
 
 // Sets default values for this component's properties
@@ -41,7 +43,7 @@ void UInteractComponent::BeginPlay()
 	{
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &UInteractComponent::Interact);
 	}
-
+	
 	
 }
 
