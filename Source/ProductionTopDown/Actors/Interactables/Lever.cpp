@@ -95,7 +95,7 @@ void ALever::Interact(bool Condition)
 		{
 			if (SpikeActors[i])
 			{
-				SpikeActors[i]->ActivateFromInteractObject(false);
+				SpikeActors[i]->Activate(false);
 			}
 		}
 	}

@@ -20,9 +20,11 @@ public:
 	APressurePlate();
 
 
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	TArray<class ADoorActor*> DoorActors;
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	TArray<class ASpikeTrap*> SpikeActors;
 	
-	UPROPERTY(EditInstanceOnly, Category="Settings")
-	APuzzleController* PuzzleController;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,6 +35,8 @@ protected:
 	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
     void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	void ActivateLoop(bool On);
 
 	FVector PressedPosition{0.f, 0.f, -5.f};
 	FVector ReleasedPosition{FVector::ZeroVector};
@@ -45,10 +49,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* PlateFrame;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	ATriggerVolume* PlateTrigger2;
+	ATriggerVolume* PlateTrigger;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };
+
+

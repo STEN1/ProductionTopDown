@@ -12,8 +12,12 @@ ASpikeTrap::ASpikeTrap()
 	SpikeMesh->SetupAttachment(RootComponent);
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	BaseMesh->SetupAttachment(RootComponent);
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+	BoxComponent->SetupAttachment(RootComponent);
 	
 }
+
+
 
 void ASpikeTrap::BeginPlay()
 {
@@ -24,6 +28,9 @@ void ASpikeTrap::BeginPlay()
 	TargetLocationStage2 = StartLocation + Stage2Offset;
 
 	SetActorTickEnabled(bStartActivated);
+
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::OnComponentBeginOverlap);
+	BoxComponent->SetGenerateOverlapEvents(bActivateOnTouch);
 
 	if (bStartSpikeOut)
 	{
@@ -56,7 +63,10 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 		if (NewLocation.Z == TargetLocationStage2.Z)
 		{
 			++SpikeState;
-            SetActorTickEnabled(bLoop);
+			if (bStartSpikeOut)
+			{
+				SetActorTickEnabled(bLoop);
+			}
 		}
 
 	} else if (TickTimer >= Stage0Timer && SpikeState == 2)
@@ -68,21 +78,28 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 		{
 			TickTimer = 0.f;
            	SpikeState = 0;
-           	SetActorTickEnabled(bLoop);
+			SetActorTickEnabled(bLoop);
 			//SoundFX can go here!
 		}
 	}
 }
 
-void ASpikeTrap::ActivateFromInteractObject(bool Condition)
+void ASpikeTrap::Activate(bool On)
 {
 	SetActorTickEnabled(true);
-	if (Condition)
+	if (On)
 	{
 		bLoop = true;
 	}
 }
 
-
-
-
+void ASpikeTrap::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OVERLAP"));
+	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
+	{
+		Activate(false);
+		UE_LOG(LogTemp, Warning, TEXT("OVERLAP ACTIVATED"));
+	}
+}
