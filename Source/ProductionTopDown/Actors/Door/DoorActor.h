@@ -32,7 +32,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Activate(bool On) override;
-	void OpenFromInteract();
 	void SetAlwaysMoving(bool AlwaysMoving);
 
 private:

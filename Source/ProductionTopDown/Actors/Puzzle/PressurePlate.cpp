@@ -62,20 +62,12 @@ void APressurePlate::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void APressurePlate::ActivateLoop(bool On)
 {
-	if (DoorActors.Num() != 0)
+	if (ActivateActors.Num() != 0)
 	{
-		for (int i = 0; i < DoorActors.Num(); ++i)
+		for (int i = 0; i < ActivateActors.Num(); ++i)
     	{
-    		DoorActors[i]->Activate(On);
+    		ActivateActors[i]->Activate(On);
     	}	
-	}
-
-	if (SpikeActors.Num() != 0)
-	{
-		for (int i = 0; i < SpikeActors.Num(); ++i)
-		{
-			SpikeActors[i]->Activate(On);
-		}
 	}
 
 }

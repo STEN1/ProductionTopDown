@@ -75,20 +75,7 @@ void ADoorActor::Tick(float DeltaTime)
 
 void ADoorActor::Activate(bool On)
 {
-	bDoorOpen = On;
-	ExpoSpeed = 10.f;
-	SetActorTickEnabled(true);
-}
-
-void ADoorActor::OpenFromInteract()
-{
-	if (bDoorOpen)
-	{
-		bDoorOpen = false;
-	}else
-	{
-		bDoorOpen = true;
-	}
+	bDoorOpen = !bDoorOpen;
 	ExpoSpeed = 10.f;
 	SetActorTickEnabled(true);
 }

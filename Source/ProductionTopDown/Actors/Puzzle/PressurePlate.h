@@ -19,11 +19,8 @@ public:
 	// Sets default values for this actor's properties
 	APressurePlate();
 
-
 	UPROPERTY(EditInstanceOnly, Category="Setup")
-	TArray<class ADoorActor*> DoorActors;
-	UPROPERTY(EditInstanceOnly, Category="Setup")
-	TArray<class ASpikeTrap*> SpikeActors;
+	TArray<class AActivatableBase*> ActivateActors;
 	
 protected:
 	// Called when the game starts or when spawned
