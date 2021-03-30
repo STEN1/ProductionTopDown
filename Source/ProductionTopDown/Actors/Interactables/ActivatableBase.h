@@ -4,20 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "PuzzleController.generated.h"
+#include "ActivatableBase.generated.h"
 
 UCLASS()
-class PRODUCTIONTOPDOWN_API APuzzleController : public AActor
+class PRODUCTIONTOPDOWN_API AActivatableBase : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	APuzzleController();
+	AActivatableBase();
 
-	static void PrintTest(int32 State);
-	void PressurePlateTriggered();
-
+	virtual void Activate(bool On);
 
 protected:
 	// Called when the game starts or when spawned

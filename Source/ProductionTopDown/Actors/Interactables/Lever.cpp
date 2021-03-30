@@ -78,24 +78,13 @@ void ALever::Interact(bool Condition)
 	bIsActivated = !bIsActivated;
 	ActivateTimer = 0.f;
 	
-	if (DoorActors.Num() > 0)
+	if (ActivateActors.Num() > 0)
 	{
-		for (int i = 0; i < DoorActors.Num(); ++i)
+		for (int i = 0; i < ActivateActors.Num(); ++i)
 		{
-			if (DoorActors[i])
+			if (ActivateActors[i])
 			{
-				DoorActors[i]->OpenFromInteract();
-			}
-		}
-	}
-
-	if (SpikeActors.Num() > 0)
-	{
-		for (int i = 0; i < SpikeActors.Num(); ++i)
-		{
-			if (SpikeActors[i])
-			{
-				SpikeActors[i]->ActivateFromInteractObject(false);
+				ActivateActors[i]->Activate(true);
 			}
 		}
 	}
