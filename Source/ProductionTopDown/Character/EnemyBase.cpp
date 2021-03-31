@@ -3,9 +3,17 @@
 
 #include "EnemyBase.h"
 #include "DrawDebugHelpers.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
+
+AEnemyBase::AEnemyBase()
+{
+	DetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionComponent"));
+	DetectionComponent->SetupAttachment(RootComponent);
+}
 
 void AEnemyBase::BeginPlay()
 {
@@ -20,14 +28,21 @@ void AEnemyBase::BeginPlay()
 	{
 		ScentComponent = Cast<UScentComponent>(Player->GetComponentByClass(UScentComponent::StaticClass()));
 	}
-}
 
+	DetectionComponent->SetSphereRadius(DetectionRadius);
+	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
+
+}
 
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FollowPlayer();
+	if (bIsPlayerClose)
+	{
+		FollowPlayer();
+	}
+	
 	
 }
 
@@ -43,6 +58,7 @@ void AEnemyBase::FollowPlayer()
 	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
 	Move(0.5f, MoveDir);
 }
+
 
 FVector AEnemyBase::GetMoveDirFromScent()
 {
@@ -186,6 +202,15 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 		return Hit;
 }
 
+
+void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
+	{
+		bIsPlayerClose = true;
+	}
+}
 bool AEnemyBase::Attack()
 {
 	return true;
