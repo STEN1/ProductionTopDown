@@ -22,7 +22,11 @@ public:
 	FRotator PlayerRotation;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<TSubclassOf<class AItemBase>> Inventory;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString Level;
 
-	static void SaveGame(const UObject* WorldContextObject);
-	static void LoadGame(const UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable)
+	static void SaveGame(const UObject* WorldContextObject, FString SlotName);
+	UFUNCTION(BlueprintCallable)
+	static void LoadGame(const UObject* WorldContextObject, FString SlotName);
 };
