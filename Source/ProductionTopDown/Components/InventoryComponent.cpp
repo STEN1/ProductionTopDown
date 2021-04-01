@@ -108,6 +108,8 @@ void UInventoryComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Inventory Component: NO GAME INSTANCE REF!!!"))
 	}
+	// if there is a inventory in the game instance from a level change, or from loading from save.
+	// load that inventory to the player inventory
 	else if (GameInstance->SavedInventory.Num() == InventorySize)
 	{
 		GameInstance->Inventory.SetNum(InventorySize);
@@ -121,12 +123,22 @@ void UInventoryComponent::BeginPlay()
 			
 		}
 	}
-	else if (IsInventoryEmpty())
+	else if (IsInventoryEmpty()) // if the inventory is empty -> set the inventory to the correct size.
 	{
 		GameInstance->Inventory.SetNum(InventorySize);
 		for (auto& Item : GameInstance->Inventory)
 		{
 			Item = nullptr;
+		}
+	}
+	// if the level was loaded from a saved game-> set the players location and rotation to saved states.
+	if (GameInstance)
+	{
+		if (GameInstance->bLoadedGame)
+		{
+			GetOwner()->SetActorLocation(GameInstance->PosFromSaveGame);
+			GetOwner()->SetActorRotation(GameInstance->RotFromSaveGame);
+			GameInstance->bLoadedGame = false;
 		}
 	}
 
@@ -160,12 +172,12 @@ void UInventoryComponent::UpdateOverlapArray()
 
 void UInventoryComponent::Save()
 {
-	UMySaveGame::SaveGame(GetWorld());
+	UMySaveGame::SaveGame(GetWorld(), "Slot1");
 }
 
 void UInventoryComponent::Load()
 {
-	UMySaveGame::LoadGame(GetWorld());
+	UMySaveGame::LoadGame(GetWorld(), "Slot1");
 }
 
 void UInventoryComponent::Interact()

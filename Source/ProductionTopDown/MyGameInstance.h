@@ -18,5 +18,11 @@ public:
 	TArray<class AItemBase*> Inventory;
 	UPROPERTY()
 	TArray<TSubclassOf<class AItemBase>> SavedInventory;
+	UPROPERTY()
+	FVector PosFromSaveGame{FVector::ZeroVector};
+	UPROPERTY()
+	FRotator RotFromSaveGame{FRotator::ZeroRotator};
+	UPROPERTY()
+	bool bLoadedGame{false};
 	void SaveCurrentInventoryToInstance();
 };

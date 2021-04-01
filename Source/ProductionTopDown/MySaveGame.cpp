@@ -4,6 +4,8 @@
 #include "MySaveGame.h"
 
 
+
+#include "MyGameInstance.h"
 #include "Character/PlayerCharacter.h"
 #include "Components/InventoryComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,7 +14,7 @@ UMySaveGame::UMySaveGame()
 {
 }
 
-void UMySaveGame::SaveGame(const UObject* WorldContextObject)
+void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 {
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
@@ -21,6 +23,10 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject)
 	{
 		SaveGameInstance->PlayerLocation = Player->GetActorLocation();
 		SaveGameInstance->PlayerRotation = Player->GetActorRotation();
+
+		SaveGameInstance->Level = WorldContextObject->GetWorld()->GetMapName();
+		SaveGameInstance->Level.RemoveFromStart(WorldContextObject->GetWorld()->StreamingLevelsPrefix);
+		UE_LOG(LogTemp, Warning, TEXT("Saved Level: %s"), *SaveGameInstance->Level);
 
 		UInventoryComponent* InventoryComponent = Player->FindComponentByClass<UInventoryComponent>();
 		
@@ -40,28 +46,26 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject)
 		}
 	}
 	
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, WorldContextObject->GetWorld()->GetMapName(), 0);
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SlotName, 0);
 
 	UE_LOG(LogTemp, Warning, TEXT("Game Saved."));
 }
 
-void UMySaveGame::LoadGame(const UObject* WorldContextObject)
+void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 {
-	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(WorldContextObject->GetWorld()->GetMapName(), 0));
-	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
-
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+	UMyGameInstance* GameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
 	
-	if (Player && SaveGameInstance)
+	if (SaveGameInstance && GameInstance)
 	{
-		Player->SetActorLocation(SaveGameInstance->PlayerLocation);
-		Player->SetActorRotation(SaveGameInstance->PlayerRotation);
+		GameInstance->SavedInventory = SaveGameInstance->Inventory;
+		GameInstance->PosFromSaveGame = SaveGameInstance->PlayerLocation;
+		GameInstance->RotFromSaveGame = SaveGameInstance->PlayerRotation;
+		GameInstance->bLoadedGame = true;
+
+		UGameplayStatics::OpenLevel(WorldContextObject, *SaveGameInstance->Level);
 		
-		UInventoryComponent* InventoryComponent = Player->FindComponentByClass<UInventoryComponent>();
-		
-		if (InventoryComponent)
-		{
-			InventoryComponent->LoadInventory(SaveGameInstance->Inventory);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Game Loaded."));
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Game Loaded."));
+	
 }
