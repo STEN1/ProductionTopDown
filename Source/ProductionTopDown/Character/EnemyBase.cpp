@@ -32,6 +32,8 @@ void AEnemyBase::BeginPlay()
 	DetectionComponent->SetSphereRadius(DetectionRadius);
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
 
+	EnemyState = EEnemyState::Idle;
+
 }
 
 void AEnemyBase::Tick(float DeltaTime)
@@ -40,9 +42,23 @@ void AEnemyBase::Tick(float DeltaTime)
 
 	if (bIsPlayerClose)
 	{
-		FollowPlayer();
+		IsPlayerInView();
 	}
 	
+	switch (EnemyState)
+	{
+		case EEnemyState::Idle:
+			break;
+		case EEnemyState::Patrol:
+			break;
+		case EEnemyState::Chase:
+			FollowPlayer();
+		break;
+		case EEnemyState::Attack:
+			break;
+		default:
+			break;
+	}
 	
 }
 
@@ -159,15 +175,15 @@ void AEnemyBase::Move(float ScaleSpeed, FVector MoveDir)
 	AddMovementInput(MoveDir, ScaleSpeed);
 }
 
+
 FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const
 {
-	FVector PawnLocation{GetActorLocation()};
-	FRotator PawnRotation{GetActorRotation()};
+	FVector EnemyLocation{GetActorLocation()};
 	FHitResult Hit;
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
 	GetWorld()->LineTraceSingleByChannel(
         Hit,
-        PawnLocation,
+        EnemyLocation,
         LineTraceEnd,
         CollisionChannel,
         TraceParams
@@ -190,7 +206,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 	{
 		DrawDebugLine(
 		GetWorld(),
-		PawnLocation,
+		EnemyLocation,
 		LineTraceEnd,
 		FColor::Blue,
 		false,
@@ -211,6 +227,22 @@ void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponen
 		bIsPlayerClose = true;
 	}
 }
+
+void AEnemyBase::IsPlayerInView()
+ {
+	FHitResult Hit{GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true)};
+
+	if (!Hit.IsValidBlockingHit() && EnemyState != EEnemyState::Chase && EnemyState != EEnemyState::Attack)
+	{
+		EnemyState = EEnemyState::Chase;
+	}
+
+	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange)
+	{
+		EnemyState = EEnemyState::Attack;
+	}
+ }
+
 bool AEnemyBase::Attack()
 {
 	return true;

@@ -12,9 +12,10 @@ class UScentComponent;
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-	Idle	= 0			UMETA(DisplayName = "Ease out door movement"),
-    Patrol = 1		UMETA(DisplayName = "Accelerate door movement"),
-    Chase = 2		UMETA(DisplayName = "Constant movement"),
+	Idle	= 0			UMETA(DisplayName = "Idle"),
+    Patrol = 1		UMETA(DisplayName = "Following Patrol"),
+    Chase = 2		UMETA(DisplayName = "Chasing Target"),
+	Attack = 3		UMETA(DisplayName = "Attacking"),
 };
 
 UCLASS()
@@ -36,8 +37,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void Move(float ScaleSpeed, FVector MoveDir);
+	void IsPlayerInView();
 	void FollowPlayer();
 	bool Attack();
+	void IdleState();
+	void PatrolState();
+
+	
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
 	FVector CalcVectorFromPlayerToTarget(FVector Target);
@@ -54,8 +60,12 @@ protected:
     float MoveSpeed{50.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float DetectionRadius{500.f};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	float AttackRange{150.f};
 
 	bool bIsPlayerClose{false};
+	UPROPERTY(VisibleAnywhere)
+	EEnemyState EnemyState;
 	
 private:
 	
