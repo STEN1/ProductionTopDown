@@ -19,13 +19,6 @@ ADoorActor::ADoorActor()
 void ADoorActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorTickEnabled(false);
-	if (TriggerVolume)
-	{
-		TriggerVolume->OnActorBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
-		TriggerVolume->OnActorEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
-	}
-	SetActorTickEnabled(true);
 
 	StartLocation = GetActorLocation();
 	StartRotation = GetActorRotation();
@@ -80,15 +73,9 @@ void ADoorActor::Tick(float DeltaTime)
 
 }
 
-void ADoorActor::OpenFromInteract()
+void ADoorActor::Activate(bool On)
 {
-	if (bDoorOpen)
-	{
-		bDoorOpen = false;
-	}else
-	{
-		bDoorOpen = true;
-	}
+	bDoorOpen = !bDoorOpen;
 	ExpoSpeed = 10.f;
 	SetActorTickEnabled(true);
 }
@@ -286,28 +273,3 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 		}
 	}
 }
-
-void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
-{
-	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
-	{
-		bDoorOpen = true;
-		ExpoSpeed = 10.f;
-		SetActorTickEnabled(true);
-		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOtherActor: %s"), *OtherActor->GetHumanReadableName());
-	}
-}
-
-void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
-{
-	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
-	{
-		bDoorOpen = false;
-		ExpoSpeed = 10.f;
-		SetActorTickEnabled(true);
-		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
-	}
-}
-

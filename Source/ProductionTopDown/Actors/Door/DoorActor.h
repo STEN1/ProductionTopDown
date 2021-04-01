@@ -3,12 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "Engine/TriggerVolume.h"
-#include "GameFramework/Actor.h"
-#include "Trace/Detail/LogScope.h"
-
+#include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
 #include "DoorActor.generated.h"
+
 UENUM(BlueprintType)
 enum class EDoorType : uint8
 {
@@ -17,7 +15,7 @@ enum class EDoorType : uint8
     Constant = 2		UMETA(DisplayName = "Constant movement"),
 };
 UCLASS()
-class PRODUCTIONTOPDOWN_API ADoorActor : public AActor
+class PRODUCTIONTOPDOWN_API ADoorActor : public AActivatableBase
 {
 	GENERATED_BODY()
 	
@@ -33,13 +31,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void OpenFromInteract();
+	virtual void Activate(bool On) override;
 	void SetAlwaysMoving(bool AlwaysMoving);
 
 private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Trigger", meta = (AllowPrivateAccess = "true"))
-	ATriggerVolume* TriggerVolume;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
@@ -80,10 +76,6 @@ private:
 	void EaseCloseDoor(float DeltaTime);
 	void AccelOpenDoor(float DeltaTime);
 	void AccelCloseDoor(float DeltaTime);
-	UFUNCTION()
-	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
-	UFUNCTION()
-	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	bool bAlwaysMoving{false};

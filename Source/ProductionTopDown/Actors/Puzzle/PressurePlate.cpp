@@ -2,7 +2,9 @@
 
 
 #include "PressurePlate.h"
-#include "PuzzleController.h"
+
+#include "ProductionTopDown/Actors/Door/DoorActor.h"
+#include "ProductionTopDown/Actors/Interactables/SpikeTrap.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values
@@ -23,18 +25,14 @@ APressurePlate::APressurePlate()
 void APressurePlate::BeginPlay()
 {
 	Super::BeginPlay();
-	if(PlateTrigger2)
+	if(PlateTrigger)
 	{
-		PlateTrigger2->OnActorBeginOverlap.AddDynamic(this, &APressurePlate::BeginOverlap);
-		PlateTrigger2->OnActorEndOverlap.AddDynamic(this, &APressurePlate::EndOverlap);	
+		PlateTrigger->OnActorBeginOverlap.AddDynamic(this, &APressurePlate::BeginOverlap);
+		PlateTrigger->OnActorEndOverlap.AddDynamic(this, &APressurePlate::EndOverlap);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Missing TriggerVolume Reference: %s"), *GetHumanReadableName());
-	}
-	if (!PuzzleController)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Missing PuzzleController Reference: %s"), *GetHumanReadableName());
 	}
 
 	ReleasedPosition = PlateButton->GetRelativeLocation();
@@ -44,21 +42,34 @@ void APressurePlate::BeginPlay()
 void APressurePlate::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	
-	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
 	{
 		bIsPressed = true;
 		PlateButton->SetRelativeLocation(PressedPosition);
+		ActivateLoop(true);
 	}
 }
 
 void APressurePlate::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	
-	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
 	{
 		bIsPressed = false;
 		PlateButton->SetRelativeLocation(ReleasedPosition);
+		ActivateLoop(false);
 	}
+}
+
+void APressurePlate::ActivateLoop(bool On)
+{
+	if (ActivateActors.Num() != 0)
+	{
+		for (int i = 0; i < ActivateActors.Num(); ++i)
+    	{
+    		ActivateActors[i]->Activate(On);
+    	}	
+	}
+
 }
 
 // Called every frame

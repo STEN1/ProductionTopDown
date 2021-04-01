@@ -40,14 +40,14 @@ void AEnemyBase::FollowPlayer()
 		SetActorRotation(MoveDir.Rotation());
 	}
 	
-	MoveDir += GetMoveOffsetFromWall(100.f, ECC_WorldStatic);
+	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
 	Move(0.5f, MoveDir);
 }
 
 FVector AEnemyBase::GetMoveDirFromScent()
 {
 	FHitResult Hit;
-    Hit = GetFirstHitInReach(ECollisionChannel::ECC_WorldStatic, Player->GetActorLocation(), true);
+    Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true);
 
 	if (!Hit.IsValidBlockingHit())
 	{
@@ -60,7 +60,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 	
 	for (int i = ScentComponent->ScentArray.Num()-1; i >= 0 ; --i)
 	{
-		Hit = GetFirstHitInReach(ECollisionChannel::ECC_WorldStatic, ScentComponent->ScentArray[i], true);
+		Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, ScentComponent->ScentArray[i], true);
 		
 		if (!Hit.IsValidBlockingHit())
         {
@@ -92,8 +92,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 			FRotator DirRot{0.f, i * 45.f,0.f};
         	FVector Dir = DirRot.Vector() * InReach;
 		
-			GetWorld()->LineTraceSingleByObjectType(Hit, GetActorLocation(), GetActorLocation() + Dir, CollisionChannel, TraceParams);
-        
+			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), GetActorLocation() + Dir, CollisionChannel, TraceParams);
         	if (Hit.IsValidBlockingHit())
         	{
 					HitArray.Add(Hit);
@@ -126,12 +125,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
 		return (CalcVectorFromPlayerToTarget(ReturnHit.Location) * -1);
 	}
 
-
 	return FVector::ZeroVector;;
-
-	
-
-	
 }
 
 
@@ -155,11 +149,11 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 	FRotator PawnRotation{GetActorRotation()};
 	FHitResult Hit;
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
-	GetWorld()->LineTraceSingleByObjectType(
+	GetWorld()->LineTraceSingleByChannel(
         Hit,
         PawnLocation,
         LineTraceEnd,
-        FCollisionObjectQueryParams(CollisionChannel),
+        CollisionChannel,
         TraceParams
     );
 
