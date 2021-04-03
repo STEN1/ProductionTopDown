@@ -13,5 +13,8 @@ UCLASS()
 class PRODUCTIONTOPDOWN_API AMainMenuGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+protected:
+	UFUNCTION(BlueprintCallable)
+	void ClearPlayerInventory();
 	
 };

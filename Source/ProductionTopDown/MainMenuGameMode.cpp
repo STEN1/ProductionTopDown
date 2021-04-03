@@ -3,3 +3,10 @@
 
 #include "MainMenuGameMode.h"
 
+#include "MyGameInstance.h"
+
+void AMainMenuGameMode::ClearPlayerInventory()
+{
+	UMyGameInstance* GameInstance = GetGameInstance<UMyGameInstance>();
+	GameInstance->SavedInventory.Empty();
+}
