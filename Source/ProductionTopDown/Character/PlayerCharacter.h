@@ -15,7 +15,8 @@ enum class EPlayerState : uint8
     Dashing = 1		UMETA(DisplayName = "Dashing state"),
     Moving = 2		UMETA(DisplayName = "Moving state"),
 	Pushing = 3		UMETA(DisplayName = "Pushing state"),
-	Dragging = 4		UMETA(DisplayName = "Draging state"),
+	Dragging = 4	UMETA(DisplayName = "Draging state"),
+	Dead = 5		UMETA(DisplayName = "Death State"),
 };
 
 class UInventoryComponent;
@@ -40,6 +41,8 @@ public:
 	void SetStateToFalse();
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnDashParticle();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPTriggerDeath();
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(EPlayerState inpPlayerState);
 	

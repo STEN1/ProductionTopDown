@@ -47,6 +47,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::TriggerDeath()
 {
 	Super::TriggerDeath();
+
+	PlayerState = EPlayerState::Dead;
+	Cast<APawn>(this)->DisableInput(CharacterController);
+	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
+	BPTriggerDeath();
 	UE_LOG(LogTemp, Warning, TEXT("Player died"));
 
 }
@@ -85,6 +90,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	
 	if(CheckForPushableActor() && PlayerState == EPlayerState::Moving)
 	{
