@@ -6,13 +6,10 @@
 #include "CharacterBase.h"
 #include "EnemyBase.generated.h"
 
-class APlayerCharacter;
-class UScentComponent;
-
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-	Idle	= 0			UMETA(DisplayName = "Idle"),
+	Idle	= 0			UMETA(DisplayName = "Idle..."),
     Patrol = 1		UMETA(DisplayName = "Following Patrol"),
     Chase = 2		UMETA(DisplayName = "Chasing Target"),
 	Attack = 3		UMETA(DisplayName = "Attacking"),
@@ -49,9 +46,11 @@ protected:
 	FVector CalcVectorFromPlayerToTarget(FVector Target);
 	FHitResult GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const;
 	
-	APlayerCharacter* Player{nullptr};
-	UScentComponent* ScentComponent{nullptr};
+	class APlayerCharacter* Player{nullptr};
+	class UScentComponent* ScentComponent{nullptr};
 	class USphereComponent* DetectionComponent{nullptr};
+	UPROPERTY(EditInstanceOnly)
+	class APatrolHub* PatrolHub{nullptr};
 
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
@@ -62,8 +61,16 @@ protected:
 	float DetectionRadius{500.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float AttackRange{150.f};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	float AttackLenght{1.5f};
+	float AttackTimer{0.f};
 
 	bool bIsPlayerClose{false};
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bPatrolSet{false};
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	float PatrolIndex{0};
+	FVector PatrolPointSelected{0.f, 0.f, 0.f};
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState EnemyState;
 	

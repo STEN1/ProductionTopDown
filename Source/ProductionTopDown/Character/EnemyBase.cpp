@@ -2,10 +2,13 @@
 
 
 #include "EnemyBase.h"
+#include "ProductionTopDown/Actors/Patrol/PatrolHub.h"
+#include "ProductionTopDown/Actors/Spawning/Spawner.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/Actors/Patrol/PatrolPoint.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
 
@@ -32,8 +35,19 @@ void AEnemyBase::BeginPlay()
 	DetectionComponent->SetSphereRadius(DetectionRadius);
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
 
-	EnemyState = EEnemyState::Idle;
-
+	// if (!PatrolHub && Cast<ASpawner>(GetOwner()))
+	// {
+	// 	PatrolHub = Cast<ASpawner>(GetOwner())->PatrolHub;
+	// }
+	
+	if (PatrolHub)
+	{
+		EnemyState = EEnemyState::Patrol;
+	} else
+	{
+		EnemyState = EEnemyState::Idle;
+	}
+	
 }
 
 void AEnemyBase::Tick(float DeltaTime)
@@ -48,13 +62,25 @@ void AEnemyBase::Tick(float DeltaTime)
 	switch (EnemyState)
 	{
 		case EEnemyState::Idle:
+			IdleState();
 			break;
 		case EEnemyState::Patrol:
+			if (PatrolHub)
+			{
+				PatrolState();
+			}
 			break;
 		case EEnemyState::Chase:
 			FollowPlayer();
 		break;
 		case EEnemyState::Attack:
+			AttackTimer += DeltaTime;
+			if (AttackTimer >= AttackLenght)
+			{
+				EnemyState = EEnemyState::Chase;
+				AttackTimer = 0.f;
+			}
+			Attack();
 			break;
 		default:
 			break;
@@ -69,12 +95,14 @@ void AEnemyBase::FollowPlayer()
 	if (MoveDir != FVector::ZeroVector)
 	{
 		SetActorRotation(MoveDir.Rotation());
+	} else
+	{
+		EnemyState = EEnemyState::Idle;
 	}
 	
 	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
 	Move(0.5f, MoveDir);
 }
-
 
 FVector AEnemyBase::GetMoveDirFromScent()
 {
@@ -243,9 +271,61 @@ void AEnemyBase::IsPlayerInView()
 	}
  }
 
+void AEnemyBase::PatrolState()
+{
+	if (!bPatrolSet)
+	{
+		bool ValidPosFound{false};
+		PatrolPointSelected = FVector::ZeroVector;
+		FHitResult Hit;
+		FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
+		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
+		{
+			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
+
+			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
+			if (!Hit.IsValidBlockingHit())
+			{
+				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
+				PatrolIndex = i + 1;
+				ValidPosFound = true;
+			}else if (ValidPosFound)
+			{
+				bPatrolSet = true;
+				return;
+			}
+		}
+		PatrolIndex = 0;
+		bPatrolSet = true;
+		
+	} else
+	{
+		FVector MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
+		MoveDir.Z = 0.f;
+		Move(MoveSpeed, MoveDir);
+		if (MoveDir != FVector::ZeroVector)
+		{
+			SetActorRotation(MoveDir.Rotation());
+		}
+		
+		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
+		{
+			bPatrolSet = false;
+		}
+	}
+}
+
 bool AEnemyBase::Attack()
 {
+	
 	return true;
+}
+
+void AEnemyBase::IdleState()
+{
+	PatrolIndex = 0;
+	bPatrolSet = false;
+	EnemyState = EEnemyState::Patrol;
 }
 
 void AEnemyBase::TriggerDeath()
