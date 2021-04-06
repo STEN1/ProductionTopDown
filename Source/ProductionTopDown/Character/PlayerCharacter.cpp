@@ -109,7 +109,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		TriggerDeath();
 	}
 	
-	switch (PlayerState)
 	switch (GetPlayerState())
 	{
 	case EPlayerState::Attacking:
