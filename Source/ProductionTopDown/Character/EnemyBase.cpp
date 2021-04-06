@@ -62,7 +62,7 @@ void AEnemyBase::Tick(float DeltaTime)
 	switch (EnemyState)
 	{
 		case EEnemyState::Idle:
-			IdleState();
+			IdleState(DeltaTime);
 			break;
 		case EEnemyState::Patrol:
 			if (PatrolHub)
@@ -131,19 +131,12 @@ FVector AEnemyBase::GetMoveDirFromScent()
         	}	
         }
 	}
-
-
 	return FVector::ZeroVector;
 }
 
 FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel)
 {
-
-	
 	TArray<FHitResult> HitArray;
-	
-
-	
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
 
 	for (int i = 1; i < 9; ++i)
@@ -302,7 +295,7 @@ void AEnemyBase::PatrolState()
 	{
 		FVector MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
 		MoveDir.Z = 0.f;
-		Move(MoveSpeed, MoveDir);
+		Move(0.5f, MoveDir);
 		if (MoveDir != FVector::ZeroVector)
 		{
 			SetActorRotation(MoveDir.Rotation());
@@ -311,6 +304,11 @@ void AEnemyBase::PatrolState()
 		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
 		{
 			bPatrolSet = false;
+			if (PatrolIndex == 0 && PatrolHub->PatrolPoints[PatrolHub->PatrolPoints.Num()-1]->bIsIdlePoint || PatrolIndex >= 1 && PatrolHub->PatrolPoints[PatrolIndex-1]->bIsIdlePoint)
+			{
+				EnemyState = EEnemyState::Idle;
+			}
+		
 		}
 	}
 }
@@ -321,11 +319,21 @@ bool AEnemyBase::Attack()
 	return true;
 }
 
-void AEnemyBase::IdleState()
+void AEnemyBase::IdleState(float DeltaTime)
 {
-	PatrolIndex = 0;
-	bPatrolSet = false;
-	EnemyState = EEnemyState::Patrol;
+	IdleTimer += DeltaTime;
+	if (IdleTimer >= IdleTime)
+	{
+		IdleTimer = 0.f;
+		PatrolIndex = 0;
+        bPatrolSet = false;
+		EnemyState = EEnemyState::Patrol;
+	}
+	if (FMath::Rand() % 40 == 1)
+	{
+		FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
+       	SetActorRotation(RandDir.Rotation());
+	}
 }
 
 void AEnemyBase::TriggerDeath()

@@ -37,10 +37,9 @@ protected:
 	void IsPlayerInView();
 	void FollowPlayer();
 	bool Attack();
-	void IdleState();
+	void IdleState(float DeltaTime);
 	void PatrolState();
 
-	
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
 	FVector CalcVectorFromPlayerToTarget(FVector Target);
@@ -70,6 +69,9 @@ protected:
 	bool bPatrolSet{false};
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	float PatrolIndex{0};
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float IdleTime{2.f};
+	float IdleTimer{0.f};
 	FVector PatrolPointSelected{0.f, 0.f, 0.f};
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState EnemyState;
