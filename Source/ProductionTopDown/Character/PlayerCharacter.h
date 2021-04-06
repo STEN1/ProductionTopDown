@@ -53,7 +53,7 @@ public:
 	float GetDashTimer();
 	UFUNCTION(BlueprintCallable)
 	float GetAttackTimer();
-	
+
 	
 	
 	void OnInventoryChange();
@@ -128,6 +128,7 @@ private:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float PushRange{100};
 	EPlayerState PlayerState;
+	FCriticalSection PlayerStateCriticalSection;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DashTimer{0.1f};
