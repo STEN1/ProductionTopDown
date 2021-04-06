@@ -180,7 +180,7 @@ bool APlayerCharacter::Attack()
 	{
 		for (int i = 0; i < OverlappingActors.Num(); ++i)
 		{
-			if(OverlappingActors[i] != this)
+			if(OverlappingActors[i] != this){
 			UGameplayStatics::ApplyDamage(
                             OverlappingActors[i],
                             FMath::RandRange(ItemBase->GetMinDamage(),
@@ -189,6 +189,11 @@ bool APlayerCharacter::Attack()
                             this,
                             DamageType
                             );
+
+				//knockback
+				FVector NewPushBackLocation = OverlappingActors[i]->GetActorLocation().GetSafeNormal2D();
+				OverlappingActors[i]->SetActorLocation(-NewPushBackLocation);
+			}
 		}
 	}
 	
