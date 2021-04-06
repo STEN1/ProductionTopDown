@@ -48,7 +48,7 @@ void APlayerCharacter::TriggerDeath()
 {
 	Super::TriggerDeath();
 
-	PlayerState = EPlayerState::Dead;
+	SetPlayerState(EPlayerState::Dead);
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
 	BPTriggerDeath();
@@ -66,7 +66,7 @@ void APlayerCharacter::BeginPlay()
 	if(HealthComponent)HealthComponent->SetDefaultHealth(DefaultHealth);
 	
 	//start in moving state
-	PlayerState = EPlayerState::Moving;
+	SetPlayerState(EPlayerState::Moving); 
 	LogPlayerState();
 
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
@@ -92,18 +92,18 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	
-	if(CheckForPushableActor() && PlayerState == EPlayerState::Moving)
+	if(CheckForPushableActor() && GetPlayerState() == EPlayerState::Moving)
 	{
-		PlayerState = EPlayerState::Pushing;
+		SetPlayerState(EPlayerState::Pushing);
 		//walks half speed while pushing
 		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->GetMaxSpeed()/2;
 	}
-	else if(!CheckForPushableActor() && PlayerState == EPlayerState::Pushing)
+	else if(!CheckForPushableActor() && GetPlayerState() == EPlayerState::Pushing)
 	{
-		PlayerState = EPlayerState::Moving;
+		SetPlayerState(EPlayerState::Moving);
 		ResetWalkSpeed();
 	}
-	switch (PlayerState)
+	switch (GetPlayerState())
 	{
 	case EPlayerState::Attacking:
 		//attack state
