@@ -52,7 +52,7 @@ void APlayerCharacter::TriggerDeath()
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
 	BPTriggerDeath();
-	UE_LOG(LogTemp, Warning, TEXT("Player died"));
+	//UE_LOG(LogTemp, Warning, TEXT("Player died"));
 
 }
 
@@ -103,6 +103,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerState = EPlayerState::Moving;
 		ResetWalkSpeed();
 	}
+	
 	switch (PlayerState)
 	{
 	case EPlayerState::Attacking:
@@ -191,8 +192,9 @@ bool APlayerCharacter::Attack()
                             );
 
 				//knockback
-				FVector NewPushBackLocation = OverlappingActors[i]->GetActorLocation().GetSafeNormal2D();
-				OverlappingActors[i]->SetActorLocation(-NewPushBackLocation);
+				const FVector PushBackVector = (OverlappingActors[i]->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OverlappingActors[i]);
+				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
 			}
 		}
 	}
@@ -304,7 +306,7 @@ void APlayerCharacter::RotateCharToMouse()
 
 void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to equip Weapon"));
+	//UE_LOG(LogTemp, Warning, TEXT("Trying to equip Weapon"));
 	Weapon->SetStaticMesh(EquipWeapon);
 	//EquipWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 }
@@ -447,7 +449,7 @@ void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(OtherActor == this) return;
-	UE_LOG(LogTemp, Error, TEXT("Other Actor hit : %s"), *OtherActor->GetName())
+	//UE_LOG(LogTemp, Error, TEXT("Other Actor hit : %s"), *OtherActor->GetName())
 	AItemBase* ItemBase = InventoryComponent->GetItemObject();
 	if(ItemBase && OtherActor != this)UGameplayStatics::ApplyDamage(
 							OtherActor, FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
