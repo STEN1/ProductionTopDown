@@ -103,6 +103,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerState = EPlayerState::Moving;
 		ResetWalkSpeed();
 	}
+
+	if(GetActorLocation().Z < -20)
+	{
+		TriggerDeath();
+	}
 	
 	switch (PlayerState)
 	{
