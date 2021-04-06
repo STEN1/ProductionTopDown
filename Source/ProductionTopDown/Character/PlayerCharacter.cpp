@@ -139,6 +139,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 EPlayerState APlayerCharacter::GetPlayerState()
 {
+	FScopeLock Lock(&PlayerStateCriticalSection);
 	return PlayerState;
 }
 
@@ -157,7 +158,7 @@ void APlayerCharacter::AttackEvent()
 	
 	if(InventoryComponent->GetItemObject()
 		&& InventoryComponent->GetItemObject()->IsWeapon()
-		&& PlayerState == EPlayerState::Moving)
+		&& GetPlayerState() == EPlayerState::Moving)
 	{
 		Attack();
 	}
@@ -172,7 +173,7 @@ bool APlayerCharacter::Attack()
 	// Attack code here
 	//rotates char to cursor
 	
-	PlayerState = EPlayerState::Attacking;
+	SetPlayerState(EPlayerState::Attacking);
 	
 	
 	//makes you walk slower while attacking
@@ -208,7 +209,7 @@ bool APlayerCharacter::Attack()
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
-        PlayerState = EPlayerState::Moving;
+        SetPlayerState(EPlayerState::Moving);
         LogPlayerState();
 		ResetWalkSpeed();
     }, AttackTimer, 0);
@@ -218,7 +219,7 @@ bool APlayerCharacter::Attack()
 void APlayerCharacter::DashEvent()
 {
 	//Dash Animation and particles
-	if (PlayerState == EPlayerState::Moving && bCanDash)
+	if (GetPlayerState() == EPlayerState::Moving && bCanDash)
 	{
 		Dash();
 	}
@@ -227,11 +228,11 @@ void APlayerCharacter::DashEvent()
 
 bool APlayerCharacter::Dash()
 {
-	if(PlayerState != EPlayerState::Attacking)
+	if(GetPlayerState() != EPlayerState::Attacking)
 	// returns false if there is not enough stamina
 	if (!Super::Dash()) return false;
 	// Dash code here
-	PlayerState = EPlayerState::Dashing;
+	SetPlayerState(EPlayerState::Dashing);
 	bCanDash = false;
 	//particle and sounds
 	if (DashSound)
@@ -252,7 +253,7 @@ bool APlayerCharacter::Dash()
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
 		//code who runs after delay time
-		PlayerState = EPlayerState::Moving;
+		SetPlayerState(EPlayerState::Moving);
 		LogPlayerState();
 		GetCharacterMovement()->FallingLateralFriction = 0;
     }, DashTimer, 0);
@@ -320,15 +321,15 @@ void APlayerCharacter::StartDrag()
 {
 	if(AbleToDrag()) // able to grab
 	{
-		PlayerState = EPlayerState::Dragging;
+		SetPlayerState(EPlayerState::Dragging);
 	}
 	
 }
 
 void APlayerCharacter::StopDrag()
 {
-	if(PlayerState == EPlayerState::Dragging)
-		PlayerState = EPlayerState::Moving;
+	if(GetPlayerState() == EPlayerState::Dragging)
+		SetPlayerState(EPlayerState::Moving);
 
 	ResetWalkSpeed();
 }
@@ -464,11 +465,12 @@ void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void APlayerCharacter::LogPlayerState()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player state is : %i"), PlayerState);
+	UE_LOG(LogTemp, Warning, TEXT("Player state is : %i"), GetPlayerState());
 }
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
+	FScopeLock Lock(&PlayerStateCriticalSection);
 	PlayerState = inpPlayerState;
 }
 
