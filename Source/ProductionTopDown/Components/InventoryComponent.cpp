@@ -183,7 +183,6 @@ void UInventoryComponent::Load()
 void UInventoryComponent::Interact()
 {
 	UpdateOverlapArray();
-	UE_LOG(LogTemp, Warning, TEXT("OverlappingItems.Num(): %i"), OverlappingItems.Num())
 	if (OverlappingItems.Num() <= 0) return;
 
 	if (FillEmptySlot()) return;
@@ -245,7 +244,6 @@ void UInventoryComponent::ThrowItem()
 {
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Throwing item: %s"), *GameInstance->Inventory[CurrentSlot - 1]->GetName());
 		GetWorld()->SpawnActor<AItemBase>(GameInstance->Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 		GameInstance->Inventory[CurrentSlot - 1]->Destroy();
 		GameInstance->Inventory[CurrentSlot - 1] = nullptr;
@@ -271,6 +269,7 @@ bool UInventoryComponent::FillEmptySlot()
 			// Inventory[i]->AddToRoot();
 			OverlappingItems.Pop()->Destroy();
 			GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
+			Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 			return true;
 		}
 	}

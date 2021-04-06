@@ -53,7 +53,6 @@ void UInteractComponent::Interact()
 	TSubclassOf<AInteractableBase> Base = AInteractableBase::StaticClass();
 	BoxComponent->GetOverlappingActors(ActorArray, Base);
 
-	UE_LOG(LogTemp, Warning, TEXT("ArraySize: %i"), ActorArray.Num());
 
 	if (ActorArray.Num() > 0)
 	{
