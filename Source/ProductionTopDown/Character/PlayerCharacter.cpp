@@ -10,6 +10,7 @@
 #include "DrawDebugHelpers.h"
 #include "kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
@@ -59,6 +60,9 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//input ticks before actor. fix bug ?
+	AddTickPrerequisiteActor(CharacterController);
 	
 	//makes the code and blueprint speed match
 	ResetWalkSpeed();
@@ -234,6 +238,12 @@ bool APlayerCharacter::Dash()
 	// Dash code here
 	SetPlayerState(EPlayerState::Dashing);
 	bCanDash = false;
+
+	//change collison object so it can dash trough enemies
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+	
+	
 	//particle and sounds
 	if (DashSound)
 		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
@@ -241,7 +251,7 @@ bool APlayerCharacter::Dash()
 		UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
 	SpawnDashParticle();
 	
-	LogPlayerState();
+	//LogPlayerState();
 	// fix bug if you dash from ledge.
 	GetCharacterMovement()->FallingLateralFriction = 8;
 	//teleport player towards last direction
@@ -254,8 +264,9 @@ bool APlayerCharacter::Dash()
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
 		//code who runs after delay time
 		SetPlayerState(EPlayerState::Moving);
-		LogPlayerState();
+		//LogPlayerState();
 		GetCharacterMovement()->FallingLateralFriction = 0;
+		GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
     }, DashTimer, 0);
 
 	//delay between dashes.
