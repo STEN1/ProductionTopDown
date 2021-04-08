@@ -59,11 +59,14 @@ void ASpawner::InstantSpawn()
 	{
 		if (SpawnPoint)
 		{
-			GetWorld()->SpawnActor<AActor>(
+			AActor* TempActor = GetWorld()->SpawnActor<AActor>(
 				SpawnPoint->ActorToSpawn,
 				SpawnPoint->GetActorLocation(),
 				SpawnPoint->GetActorRotation());
 			SpawnParticleEffect(SpawnPoint->GetActorLocation());
+			
+			if (TempActor)
+				TempActor->SetOwner(this);
 			OnActorSpawned(SpawnPoint->GetActorLocation());
 		}
 	}
@@ -79,11 +82,13 @@ void ASpawner::SpawnWithTimer()
 
 	if (SpawnPoints[SpawnArrayIndex])
 	{
-		GetWorld()->SpawnActor<AActor>(
+		AActor* TempActor = GetWorld()->SpawnActor<AActor>(
             SpawnPoints[SpawnArrayIndex]->ActorToSpawn,
             SpawnPoints[SpawnArrayIndex]->GetActorLocation(),
             SpawnPoints[SpawnArrayIndex]->GetActorRotation());
 		SpawnParticleEffect(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+		if (TempActor)
+			TempActor->SetOwner(this);
 		OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
 	}
 
