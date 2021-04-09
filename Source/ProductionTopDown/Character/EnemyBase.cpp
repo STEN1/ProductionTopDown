@@ -16,7 +16,6 @@ AEnemyBase::AEnemyBase()
 {
 	DetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionComponent"));
 	DetectionComponent->SetupAttachment(RootComponent);
-	AddInstanceComponent(DetectionComponent);
 }
 
 void AEnemyBase::BeginPlay()
@@ -35,6 +34,7 @@ void AEnemyBase::BeginPlay()
 
 	DetectionComponent->SetSphereRadius(DetectionRadius);
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
+	DetectionComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
 
 	// if (!PatrolHub && Cast<ASpawner>(GetOwner()))
 	// {
