@@ -122,9 +122,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 		ResetWalkSpeed();
 	}
 
-	if(GetActorLocation().Z < -20)
+	if(GetActorLocation().Z < -20 && PlayerState != EPlayerState::Dead)
 	{
-		TriggerDeath();
+		UGameplayStatics::ApplyDamage(this, 99999, GetInstigatorController(), this, DamageType);
 	}
 	
 	switch (GetPlayerState())
@@ -306,6 +306,7 @@ AActor* APlayerCharacter::GetActorToDamage()
 			
 		}
 	}
+	return nullptr;
 }
 
 void APlayerCharacter::StartAttackTimer()
