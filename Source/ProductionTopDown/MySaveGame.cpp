@@ -23,6 +23,7 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 	{
 		SaveGameInstance->PlayerLocation = Player->GetActorLocation();
 		SaveGameInstance->PlayerRotation = Player->GetActorRotation();
+		
 
 		SaveGameInstance->Level = WorldContextObject->GetWorld()->GetMapName();
 		SaveGameInstance->Level.RemoveFromStart(WorldContextObject->GetWorld()->StreamingLevelsPrefix);
@@ -32,6 +33,8 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 		
 		if (InventoryComponent)
 		{
+			SaveGameInstance->NumberOfHealthPots = InventoryComponent->GetNumberOfHealthPots();
+			
 			TArray<class AItemBase*> PlayerInventory = InventoryComponent->GetInventory();
 			int32 InventorySize = InventoryComponent->GetInventorySize();
 			SaveGameInstance->Inventory.Empty();
@@ -47,7 +50,7 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 	}
 	
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SlotName, 0);
-
+	UE_LOG(LogTemp, Warning, TEXT("Slot Name: %s"), *SlotName);
 	UE_LOG(LogTemp, Warning, TEXT("Game Saved."));
 }
 
@@ -61,6 +64,7 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 		GameInstance->SavedInventory = SaveGameInstance->Inventory;
 		GameInstance->PosFromSaveGame = SaveGameInstance->PlayerLocation;
 		GameInstance->RotFromSaveGame = SaveGameInstance->PlayerRotation;
+		GameInstance->NumberOfHealthPots = SaveGameInstance->NumberOfHealthPots;
 		GameInstance->bLoadedGame = true;
 
 		UGameplayStatics::OpenLevel(WorldContextObject, *SaveGameInstance->Level);
