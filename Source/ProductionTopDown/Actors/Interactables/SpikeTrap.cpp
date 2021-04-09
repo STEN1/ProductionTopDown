@@ -3,6 +3,11 @@
 
 #include "SpikeTrap.h"
 
+
+#include "Components/CapsuleComponent.h"
+#include "ProductionTopDown/Character/CharacterBase.h"
+#include "ProductionTopDown/Components/InteractComponent.h"
+
 ASpikeTrap::ASpikeTrap()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -96,10 +101,8 @@ void ASpikeTrap::Activate(bool On)
 void ASpikeTrap::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OVERLAP"));
-	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
+	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
 		Activate(false);
-		UE_LOG(LogTemp, Warning, TEXT("OVERLAP ACTIVATED"));
 	}
 }

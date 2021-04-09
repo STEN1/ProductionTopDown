@@ -2,10 +2,21 @@
 
 
 #include "EnemyBase.h"
+#include "ProductionTopDown/Actors/Patrol/PatrolHub.h"
+#include "ProductionTopDown/Actors/Spawning/Spawner.h"
 #include "DrawDebugHelpers.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/Actors/Patrol/PatrolPoint.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
+
+AEnemyBase::AEnemyBase()
+{
+	DetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionComponent"));
+	DetectionComponent->SetupAttachment(RootComponent);
+}
 
 void AEnemyBase::BeginPlay()
 {
@@ -20,14 +31,60 @@ void AEnemyBase::BeginPlay()
 	{
 		ScentComponent = Cast<UScentComponent>(Player->GetComponentByClass(UScentComponent::StaticClass()));
 	}
-}
 
+	DetectionComponent->SetSphereRadius(DetectionRadius);
+	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
+
+	// if (!PatrolHub && Cast<ASpawner>(GetOwner()))
+	// {
+	// 	PatrolHub = Cast<ASpawner>(GetOwner())->PatrolHub;
+	// }
+	
+	if (PatrolHub)
+	{
+		EnemyState = EEnemyState::Patrol;
+	} else
+	{
+		EnemyState = EEnemyState::Idle;
+	}
+	
+}
 
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FollowPlayer();
+	if (bIsPlayerClose)
+	{
+		IsPlayerInView();
+	}
+	
+	switch (EnemyState)
+	{
+		case EEnemyState::Idle:
+			IdleState(DeltaTime);
+			break;
+		case EEnemyState::Patrol:
+			if (PatrolHub)
+			{
+				PatrolState();
+			}
+			break;
+		case EEnemyState::Chase:
+			FollowPlayer();
+		break;
+		case EEnemyState::Attack:
+			AttackTimer += DeltaTime;
+			if (AttackTimer >= AttackLenght)
+			{
+				EnemyState = EEnemyState::Chase;
+				AttackTimer = 0.f;
+			}
+			Attack();
+			break;
+		default:
+			break;
+	}
 	
 }
 
@@ -38,6 +95,9 @@ void AEnemyBase::FollowPlayer()
 	if (MoveDir != FVector::ZeroVector)
 	{
 		SetActorRotation(MoveDir.Rotation());
+	} else
+	{
+		EnemyState = EEnemyState::Idle;
 	}
 	
 	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
@@ -71,19 +131,12 @@ FVector AEnemyBase::GetMoveDirFromScent()
         	}	
         }
 	}
-
-
 	return FVector::ZeroVector;
 }
 
 FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel)
 {
-
-	
 	TArray<FHitResult> HitArray;
-	
-
-	
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
 
 	for (int i = 1; i < 9; ++i)
@@ -143,15 +196,15 @@ void AEnemyBase::Move(float ScaleSpeed, FVector MoveDir)
 	AddMovementInput(MoveDir, ScaleSpeed);
 }
 
+
 FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const
 {
-	FVector PawnLocation{GetActorLocation()};
-	FRotator PawnRotation{GetActorRotation()};
+	FVector EnemyLocation{GetActorLocation()};
 	FHitResult Hit;
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
 	GetWorld()->LineTraceSingleByChannel(
         Hit,
-        PawnLocation,
+        EnemyLocation,
         LineTraceEnd,
         CollisionChannel,
         TraceParams
@@ -174,7 +227,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 	{
 		DrawDebugLine(
 		GetWorld(),
-		PawnLocation,
+		EnemyLocation,
 		LineTraceEnd,
 		FColor::Blue,
 		false,
@@ -186,9 +239,101 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 		return Hit;
 }
 
+
+void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
+	{
+		bIsPlayerClose = true;
+	}
+}
+
+void AEnemyBase::IsPlayerInView()
+ {
+	FHitResult Hit{GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true)};
+
+	if (!Hit.IsValidBlockingHit() && EnemyState != EEnemyState::Chase && EnemyState != EEnemyState::Attack)
+	{
+		EnemyState = EEnemyState::Chase;
+	}
+
+	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange)
+	{
+		EnemyState = EEnemyState::Attack;
+	}
+ }
+
+void AEnemyBase::PatrolState()
+{
+	if (!bPatrolSet)
+	{
+		bool ValidPosFound{false};
+		PatrolPointSelected = FVector::ZeroVector;
+		FHitResult Hit;
+		FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
+		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
+		{
+			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
+
+			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
+			if (!Hit.IsValidBlockingHit())
+			{
+				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
+				PatrolIndex = i + 1;
+				ValidPosFound = true;
+			}else if (ValidPosFound)
+			{
+				bPatrolSet = true;
+				return;
+			}
+		}
+		PatrolIndex = 0;
+		bPatrolSet = true;
+		
+	} else
+	{
+		FVector MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
+		MoveDir.Z = 0.f;
+		Move(0.5f, MoveDir);
+		if (MoveDir != FVector::ZeroVector)
+		{
+			SetActorRotation(MoveDir.Rotation());
+		}
+		
+		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
+		{
+			bPatrolSet = false;
+			if (PatrolIndex == 0 && PatrolHub->PatrolPoints[PatrolHub->PatrolPoints.Num()-1]->bIsIdlePoint || PatrolIndex >= 1 && PatrolHub->PatrolPoints[PatrolIndex-1]->bIsIdlePoint)
+			{
+				EnemyState = EEnemyState::Idle;
+			}
+		
+		}
+	}
+}
+
 bool AEnemyBase::Attack()
 {
+	
 	return true;
+}
+
+void AEnemyBase::IdleState(float DeltaTime)
+{
+	IdleTimer += DeltaTime;
+	if (IdleTimer >= IdleTime)
+	{
+		IdleTimer = 0.f;
+		PatrolIndex = 0;
+        bPatrolSet = false;
+		EnemyState = EEnemyState::Patrol;
+	}
+	if (FMath::Rand() % 40 == 1)
+	{
+		FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
+       	SetActorRotation(RandDir.Rotation());
+	}
 }
 
 void AEnemyBase::TriggerDeath()

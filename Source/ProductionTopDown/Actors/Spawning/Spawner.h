@@ -22,6 +22,9 @@ public:
 	void StartSpawning();
 	void InstantSpawn();
 	void SpawnWithTimer();
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings")
+	class APatrolHub* PatrolHub{nullptr};
 	
 protected:
 	virtual void BeginPlay() override;
