@@ -16,6 +16,7 @@ AEnemyBase::AEnemyBase()
 {
 	DetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionComponent"));
 	DetectionComponent->SetupAttachment(RootComponent);
+	AddInstanceComponent(DetectionComponent);
 }
 
 void AEnemyBase::BeginPlay()
