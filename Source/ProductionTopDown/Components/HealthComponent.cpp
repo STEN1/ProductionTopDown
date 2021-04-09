@@ -29,6 +29,12 @@ int32 UHealthComponent::GetDefaultHealth() const
 void UHealthComponent::SetDefaultHealth(float NewHealth)
 {
 	DefaultHealth = NewHealth;
+	Health = DefaultHealth;
+	HealthPercentage = Health / DefaultHealth;
+	if (GameModeRef)
+	{
+		GameModeRef->UpdateHealthUI(Health, DefaultHealth);
+	}
 }
 
 
