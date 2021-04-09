@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
+#include "NiagaraSystem.h"
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 
 #include "PlayerCharacter.generated.h"
@@ -46,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(EPlayerState inpPlayerState);
 	
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
 	UFUNCTION(BlueprintCallable)
     EPlayerState GetPlayerState();
 
@@ -63,6 +67,13 @@ protected:
 
 	virtual bool Attack() override;
 	virtual bool Dash() override;
+
+	void StartAttackTimer();
+	void StopAttackTimer();
+	void CalcAttackType();
+	void LightAttack();
+	void HeavyAttack();
+	
 	void AttackEvent();
 	void DashEvent();
 	void MoveForward(float Value);
@@ -82,11 +93,9 @@ protected:
 
 
 
-	UFUNCTION()
-	void OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	
 	//debug functions
 	void LogPlayerState();
+	
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -102,12 +111,19 @@ private:
 	USoundBase* DashSound;
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
 	TSubclassOf<UMatineeCameraShake> DashShake;
-
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* LightAttackParticle;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* HeavyAttackParticle;
 	
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
 	bool bCanDash{true};
+	
+	bool bAttackActive{false};
+	float StartAttackTime;
+	float StopAttackTime;
 	
 	APlayerController* CharacterController;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "DamageType")

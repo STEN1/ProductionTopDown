@@ -8,12 +8,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProductionTopDown/Components/InventoryComponent.h"
 #include "DrawDebugHelpers.h"
+#include "EnemyBase.h"
 #include "kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "ToolContextInterfaces.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
@@ -36,7 +40,8 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::AttackEvent);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::StartAttackTimer);
+	PlayerInputComponent->BindAction("Attack", IE_Released, this, &APlayerCharacter::StopAttackTimer);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -95,6 +100,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(AttackRangeComponent)AttackRangeComponent->OnComponentBeginOverlap;
 	
 	if(CheckForPushableActor() && GetPlayerState() == EPlayerState::Moving)
 	{
@@ -179,7 +185,6 @@ bool APlayerCharacter::Attack()
 	
 	SetPlayerState(EPlayerState::Attacking);
 	
-	
 	//makes you walk slower while attacking
 	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
 	
@@ -191,6 +196,7 @@ bool APlayerCharacter::Attack()
 	{
 		for (int i = 0; i < OverlappingActors.Num(); ++i)
 		{
+			UE_LOG(LogTemp, Error, TEXT("OverlappingActors %S"), *OverlappingActors[i]->GetHumanReadableName())
 			if(OverlappingActors[i] != this){
 			UGameplayStatics::ApplyDamage(
                             OverlappingActors[i],
@@ -200,7 +206,7 @@ bool APlayerCharacter::Attack()
                             this,
                             DamageType
                             );
-
+				
 				//knockback
 				const FVector PushBackVector = (OverlappingActors[i]->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OverlappingActors[i]);
@@ -278,6 +284,102 @@ bool APlayerCharacter::Dash()
 	
 	return true;
 }
+
+void APlayerCharacter::StartAttackTimer()
+{
+	StartAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
+}
+
+void APlayerCharacter::StopAttackTimer()
+{
+	StopAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+	ResetWalkSpeed();
+	RotateCharToMouse();
+	CalcAttackType();
+}
+
+void APlayerCharacter::CalcAttackType()
+{
+	//if attack hold > 1 sec heavy attack
+	const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
+	if(AttackHoldSeconds < 1)
+	{
+		LightAttack();
+	}
+	else
+	{
+		HeavyAttack();
+	}
+
+}
+
+void APlayerCharacter::LightAttack()
+{
+	//light attack particle
+	SetPlayerState(EPlayerState::Attacking);
+	//drain Stamina
+	//Raycast to find enemies (Ucapsulecomponent)
+	//apply damage
+	
+	
+	if(LightAttackParticle)
+	{
+		const FVector SystemLocation = GetMesh()->GetSocketLocation("AttackParticleSocket");
+		const FRotator SystemRotation = GetMesh()->GetSocketRotation("AttackParticleSocket");
+		const FVector SystemScale = GetMesh()->GetSocketTransform("AttackParticleSocket").GetScale3D();
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+        GetWorld(),
+        LightAttackParticle,
+        SystemLocation,
+        SystemRotation,
+        SystemScale,
+        true,
+        true,
+        ENCPoolMethod::AutoRelease,
+        true
+        );
+	}
+	
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+        //code who runs after delay time
+        SetPlayerState(EPlayerState::Moving);
+    }, AttackTimer, 0);
+}
+
+void APlayerCharacter::HeavyAttack()
+{
+	
+	SetPlayerState(EPlayerState::Attacking);
+	
+	if(HeavyAttackParticle)
+	{
+		const FVector SystemLocation = GetMesh()->GetSocketLocation("AttackParticleSocket");
+		const FRotator SystemRotation = GetMesh()->GetSocketRotation("AttackParticleSocket");
+		const FVector SystemScale = GetMesh()->GetSocketTransform("AttackParticleSocket").GetScale3D();
+		
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            HeavyAttackParticle,
+            SystemLocation,
+            SystemRotation,
+            SystemScale,
+            true,
+            true,
+            ENCPoolMethod::AutoRelease,
+            true
+            );
+	}
+	
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+        //code who runs after delay time
+        SetPlayerState(EPlayerState::Moving);
+    }, AttackTimer, 0);
+	
+}
+		
 
 void APlayerCharacter::MoveForward(float Value)
 {
@@ -420,7 +522,7 @@ APushable_ActorBase* APlayerCharacter::GetActorInFront()
 	else bCanPush = false;
 	
 	//set to false to stop drawing debug lines
-	bool BDrawDebugLine{true};
+	bool BDrawDebugLine{false};
 	if(BDrawDebugLine){
 		if(Hit.IsValidBlockingHit())DrawDebugLine(
 				GetWorld(),
@@ -461,18 +563,6 @@ void APlayerCharacter::OnInventoryChange()
 	if(!CurrentItemBase) UE_LOG(LogTemp, Error, TEXT("Item Base not found"))
 }
 
-//is this in use ? dont think so
-void APlayerCharacter::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if(OtherActor == this) return;
-	//UE_LOG(LogTemp, Error, TEXT("Other Actor hit : %s"), *OtherActor->GetName())
-	AItemBase* ItemBase = InventoryComponent->GetItemObject();
-	if(ItemBase && OtherActor != this)UGameplayStatics::ApplyDamage(
-							OtherActor, FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
-                            GetOwner()->GetInstigatorController(),this, DamageType);
-		
-}
 
 void APlayerCharacter::LogPlayerState()
 {
@@ -483,6 +573,12 @@ void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
 	FScopeLock Lock(&PlayerStateCriticalSection);
 	PlayerState = inpPlayerState;
+}
+
+void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	
 }
 
 void APlayerCharacter::ResetWalkSpeed()
