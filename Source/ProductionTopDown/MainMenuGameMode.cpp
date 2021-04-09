@@ -9,4 +9,5 @@ void AMainMenuGameMode::ClearPlayerInventory()
 {
 	UMyGameInstance* GameInstance = GetGameInstance<UMyGameInstance>();
 	GameInstance->SavedInventory.Empty();
+	GameInstance->NumberOfHealthPots = 0;
 }

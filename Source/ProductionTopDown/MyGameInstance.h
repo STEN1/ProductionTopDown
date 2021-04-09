@@ -15,6 +15,8 @@ class PRODUCTIONTOPDOWN_API UMyGameInstance : public UGameInstance
 	GENERATED_BODY()
 public:
 	UPROPERTY()
+	int32 NumberOfHealthPots{0};
+	UPROPERTY()
 	TArray<class AItemBase*> Inventory;
 	UPROPERTY()
 	TArray<TSubclassOf<class AItemBase>> SavedInventory;
