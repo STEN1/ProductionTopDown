@@ -73,6 +73,11 @@ int32 UInventoryComponent::GetInventorySize() const
 	return InventorySize;
 }
 
+int32 UInventoryComponent::GetNumberOfHealthPots() const
+{
+	return GameInstance->NumberOfHealthPots;
+}
+
 
 void UInventoryComponent::BeginPlay()
 {
@@ -87,6 +92,7 @@ void UInventoryComponent::BeginPlay()
 	else
 	{
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &UInventoryComponent::Interact);
+		PlayerInputComponent->BindAction("HealthPot", IE_Pressed, this, &UInventoryComponent::UseHealthPot);
 		PlayerInputComponent->BindAction("InventorySlot1", IE_Pressed, this, &UInventoryComponent::Slot1);
 		PlayerInputComponent->BindAction("InventorySlot2", IE_Pressed, this, &UInventoryComponent::Slot2);
 		PlayerInputComponent->BindAction("InventorySlot3", IE_Pressed, this, &UInventoryComponent::Slot3);
@@ -141,7 +147,9 @@ void UInventoryComponent::BeginPlay()
 			GameInstance->bLoadedGame = false;
 		}
 	}
-
+	if (GameModeRef && GameInstance)
+		GameModeRef->UpdateNumberOfHealthPots(GameInstance->NumberOfHealthPots);
+	
 	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 }
 
@@ -185,8 +193,22 @@ void UInventoryComponent::Interact()
 	UpdateOverlapArray();
 	if (OverlappingItems.Num() <= 0) return;
 
+	if (PickUpHealthPot()) return;
 	if (FillEmptySlot()) return;
 	if (ReplaceCurrentSlot()) return;
+}
+
+void UInventoryComponent::UseHealthPot()
+{
+	if (GameInstance->NumberOfHealthPots > 0)
+	{
+		AHealthPickup::StaticClass()->GetDefaultObject<AHealthPickup>()->UseItem(
+			Cast<APlayerCharacter>(GetOwner()), GetWorld()
+		);
+		GameInstance->NumberOfHealthPots--;
+		GameModeRef->UpdateNumberOfHealthPots(GameInstance->NumberOfHealthPots);
+	}
+
 }
 
 void UInventoryComponent::Slot1()
@@ -251,6 +273,23 @@ void UInventoryComponent::ThrowItem()
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 	}
+}
+
+bool UInventoryComponent::PickUpHealthPot()
+{
+	if (OverlappingItems.Num() <= 0) return false;
+
+	if (OverlappingItems.Last()->IsA(AHealthPickup::StaticClass()))
+	{
+		GameInstance->NumberOfHealthPots++;
+		// update ui
+		GameModeRef->UpdateNumberOfHealthPots(GameInstance->NumberOfHealthPots);
+		
+		OverlappingItems.Pop()->Destroy();
+		return true;
+	}
+	
+	return false;
 }
 
 

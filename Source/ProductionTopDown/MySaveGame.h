@@ -23,6 +23,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<TSubclassOf<class AItemBase>> Inventory;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
+	int32 NumberOfHealthPots;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FString Level;
 
 	UFUNCTION(BlueprintCallable)

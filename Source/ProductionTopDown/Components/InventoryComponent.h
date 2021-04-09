@@ -24,6 +24,7 @@ public:
 	TArray<AItemBase*> GetInventory();
 	void LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory);
 	int32 GetInventorySize() const;
+	int32 GetNumberOfHealthPots() const;
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,12 +34,14 @@ private:
 	UFUNCTION()
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	void Interact();
+	void UseHealthPot();
 	void Slot1();
 	void Slot2();
 	void Slot3();
 	void Slot4();
 	void UseInventoryItem();
 	void ThrowItem();
+	bool PickUpHealthPot();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
 	bool IsInventoryEmpty();
