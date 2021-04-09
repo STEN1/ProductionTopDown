@@ -25,9 +25,9 @@
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 	
-	InteractComponent = CreateDefaultSubobject<UInteractComponent>("InteractComponent");
+	// InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	// InteractComponent = CreateDefaultSubobject<UInteractComponent>("InteractComponent");
 	
 	AttackRangeComponent = CreateDefaultSubobject<UBoxComponent>("Attack Range Component");
 	AttackRangeComponent->SetupAttachment(CharacterMesh, TEXT("Attack Range"));
@@ -65,9 +65,13 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	 
 	//input ticks before actor. fix bug ?
 	AddTickPrerequisiteActor(CharacterController);
+
+	InventoryComponent = FindComponentByClass<UInventoryComponent>();
+	InteractComponent = FindComponentByClass<UInteractComponent>();
+
 	
 	//makes the code and blueprint speed match
 	ResetWalkSpeed();
@@ -572,14 +576,17 @@ APushable_ActorBase* APlayerCharacter::GetActorInFront()
 
 void APlayerCharacter::OnInventoryChange()
 {
-	AItemBase* CurrentItemBase = InventoryComponent->GetItemObject();
-	UStaticMesh* CurrentItemMesh = nullptr;
-	if(CurrentItemBase)CurrentItemMesh = CurrentItemBase->FindComponentByClass<UStaticMeshComponent>()->GetStaticMesh();;
-	//if(CurrentItemBase)GetWorld()->SpawnActor<AItemBase>(CurrentItemBase, GetActorLocation(), GetActorRotation());
-	if(CurrentItemBase)EquipWeaponFromInv(CurrentItemMesh);
-	else EquipWeaponFromInv(nullptr); // equip nothing ? 
-	if(!CurrentItemMesh) UE_LOG(LogTemp, Error, TEXT("Item Mesh not found"));
-	if(!CurrentItemBase) UE_LOG(LogTemp, Error, TEXT("Item Base not found"))
+	if (InventoryComponent)
+	{
+		AItemBase* CurrentItemBase = InventoryComponent->GetItemObject();
+		UStaticMesh* CurrentItemMesh = nullptr;
+		if(CurrentItemBase)CurrentItemMesh = CurrentItemBase->FindComponentByClass<UStaticMeshComponent>()->GetStaticMesh();;
+		//if(CurrentItemBase)GetWorld()->SpawnActor<AItemBase>(CurrentItemBase, GetActorLocation(), GetActorRotation());
+		if(CurrentItemBase)EquipWeaponFromInv(CurrentItemMesh);
+		else EquipWeaponFromInv(nullptr); // equip nothing ? 
+		if(!CurrentItemMesh) UE_LOG(LogTemp, Error, TEXT("Item Mesh not found"));
+		if(!CurrentItemBase) UE_LOG(LogTemp, Error, TEXT("Item Base not found"))
+	}
 }
 
 

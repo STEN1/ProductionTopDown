@@ -47,6 +47,7 @@ protected:
 	
 	class APlayerCharacter* Player{nullptr};
 	class UScentComponent* ScentComponent{nullptr};
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components",  meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* DetectionComponent{nullptr};
 	UPROPERTY(EditInstanceOnly)
 	class APatrolHub* PatrolHub{nullptr};
