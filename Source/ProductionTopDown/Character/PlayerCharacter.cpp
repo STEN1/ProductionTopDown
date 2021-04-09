@@ -81,7 +81,11 @@ void APlayerCharacter::BeginPlay()
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 
 	//Attach AttackRange to Socket
-	if(AttackRangeComponent)AttackRangeComponent->AttachToComponent(CharacterMesh,FAttachmentTransformRules::KeepRelativeTransform, TEXT("AttackRangeSocket"));
+	if(AttackRangeComponent)
+	{
+		AttackRangeComponent->AttachToComponent(CharacterMesh,FAttachmentTransformRules::KeepRelativeTransform, TEXT("AttackRangeSocket"));
+		AttackRangeComponent->SetGenerateOverlapEvents(false);
+	}
 	
 	//attach weapon to socket
 	if(Weapon)
@@ -261,7 +265,7 @@ bool APlayerCharacter::Dash()
 	// fix bug if you dash from ledge.
 	GetCharacterMovement()->FallingLateralFriction = 8;
 	//teleport player towards last direction
-	FVector DashDirection  = LastDirection.GetSafeNormal()*DashDistance;
+	FVector DashDirection = LastDirection.GetSafeNormal()*DashDistance;
 	DashDirection.Z = 0;
 	LaunchCharacter(DashDirection, true , false);
 	
@@ -283,6 +287,21 @@ bool APlayerCharacter::Dash()
 	}, DashDelay, 0);
 	
 	return true;
+}
+
+AActor* APlayerCharacter::GetActorToDamage()
+{
+	TArray<UPrimitiveComponent*> ComponentsArray;
+	AttackRangeComponent->GetOverlappingComponents(ComponentsArray);
+
+	for (auto Component : ComponentsArray)
+	{
+		if(Component->GetOwner() == this) break;
+		else if(Component->IsA(UCapsuleComponent::StaticClass()))
+		{
+			
+		}
+	}
 }
 
 void APlayerCharacter::StartAttackTimer()
@@ -578,7 +597,13 @@ void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	if(OtherActor != this)
+	{
+		if(OtherActor->IsA(ACharacterBase::StaticClass()))
+		{
+			
+		}
+	}
 }
 
 void APlayerCharacter::ResetWalkSpeed()

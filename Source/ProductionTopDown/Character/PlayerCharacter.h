@@ -68,6 +68,7 @@ protected:
 	virtual bool Attack() override;
 	virtual bool Dash() override;
 
+	AActor* GetActorToDamage();
 	void StartAttackTimer();
 	void StopAttackTimer();
 	void CalcAttackType();
