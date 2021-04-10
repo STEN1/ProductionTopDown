@@ -50,7 +50,13 @@ private:
 	FRotator TargetRotation;
 
 	bool bDoorOpen = false;
-
+	
+	FTimerHandle CloseTimerHandle;
+	
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	float CloseDelay{-1.f};
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	ATriggerVolume* OpenTrigger;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	float TargetYaw = 90.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
@@ -79,6 +85,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	bool bAlwaysMoving{false};
-	
+
+	UFUNCTION()
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	UFUNCTION()
+	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 };

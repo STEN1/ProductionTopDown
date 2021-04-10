@@ -19,7 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	APressurePlate();
 
-	UPROPERTY(EditInstanceOnly, Category="Setup")
+	UPROPERTY(EditInstanceOnly, Category="Settings")
 	TArray<class AActivatableBase*> ActivateActors;
 	
 protected:
@@ -29,9 +29,11 @@ protected:
 	bool bIsPressed{false};
 	
 	UFUNCTION()
-	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION()
-    void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void ActivateLoop(bool On);
 
@@ -45,8 +47,8 @@ protected:
 	UStaticMeshComponent* PlateButton;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* PlateFrame;
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	ATriggerVolume* PlateTrigger;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* PlateTrigger;
 
 public:	
 	// Called every frame
