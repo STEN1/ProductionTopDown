@@ -65,6 +65,7 @@ protected:
 	float AttackLenght{1.5f};
 	float AttackTimer{0.f};
 
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bIsPlayerClose{false};
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bPatrolSet{false};

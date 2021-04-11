@@ -34,7 +34,6 @@ void AEnemyBase::BeginPlay()
 
 	DetectionComponent->SetSphereRadius(DetectionRadius);
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
-	DetectionComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
 
 	if (!PatrolHub)
 	{
@@ -51,6 +50,21 @@ void AEnemyBase::BeginPlay()
 	} else
 	{
 		EnemyState = EEnemyState::Idle;
+	}
+
+	TArray<AActor*> OverlappingActors;
+	DetectionComponent->GetOverlappingActors(OverlappingActors);
+
+	if (OverlappingActors.Num() > 0)
+	{
+		for (int i = 0; i < OverlappingActors.Num(); ++i)
+		{
+			if (OverlappingActors[i]->IsA(APlayerCharacter::StaticClass()))
+			{
+				bIsPlayerClose = true;
+				UE_LOG(LogTemp, Warning, TEXT("PLAYER FOUND IN BEGIN PLAY"))
+			}
+		}
 	}
 	
 }
@@ -248,7 +262,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
 		bIsPlayerClose = true;
 	}
@@ -332,7 +346,11 @@ void AEnemyBase::IdleState(float DeltaTime)
 		IdleTimer = 0.f;
 		PatrolIndex = 0;
         bPatrolSet = false;
-		EnemyState = EEnemyState::Patrol;
+		if (PatrolHub)
+		{
+			EnemyState = EEnemyState::Patrol;
+		}
+		
 	}
 	if (FMath::Rand() % 40 == 1)
 	{
