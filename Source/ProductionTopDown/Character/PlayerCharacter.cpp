@@ -80,21 +80,21 @@ void APlayerCharacter::BeginPlay()
 	
 	//start in moving state
 	SetPlayerState(EPlayerState::Moving); 
-	LogPlayerState();
+
 
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
-
+	
+	if(Weapon)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	}
+	
 	//Attach AttackRange to Socket
 	if(AttackRangeComponent)
 	{
 		AttackRangeComponent->AttachToComponent(CharacterMesh,FAttachmentTransformRules::KeepRelativeTransform, TEXT("AttackRangeSocket"));
+		AttackRangeComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::APlayerCharacter::OnComponentBeginOverlap);
 		AttackRangeComponent->SetGenerateOverlapEvents(false);
-	}
-	
-	//attach weapon to socket
-	if(Weapon)
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	}
 
 	CharacterController = GetWorld()->GetFirstPlayerController();
@@ -108,7 +108,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(AttackRangeComponent)AttackRangeComponent->OnComponentBeginOverlap;
+	
 	
 	if(CheckForPushableActor() && GetPlayerState() == EPlayerState::Moving)
 	{
@@ -208,8 +208,7 @@ bool APlayerCharacter::Attack()
 			if(OverlappingActors[i] != this){
 			UGameplayStatics::ApplyDamage(
                             OverlappingActors[i],
-                            FMath::RandRange(ItemBase->GetMinDamage(),
-                            ItemBase->GetMaxDamage()),
+                            FMath::RandRange(ItemBase->GetMinDamage(), ItemBase->GetMaxDamage()),
                             GetOwner()->GetInstigatorController(),
                             this,
                             DamageType
@@ -261,9 +260,24 @@ bool APlayerCharacter::Dash()
 	//particle and sounds
 	if (DashSound)
 		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
-	if (DashParticle)
-		UGameplayStatics::SpawnEmitterAtLocation(this, DashParticle, GetActorLocation());
-	SpawnDashParticle();
+	if(DashParticle)
+	{
+		const FVector SystemLocation = GetMesh()->GetSocketLocation("DashParticleSocket");
+		const FRotator SystemRotation = GetMesh()->GetSocketRotation("DashParticleSocket");
+		const FVector SystemScale = GetMesh()->GetSocketTransform("DashParticleSocket").GetScale3D();
+		
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            DashParticle,
+            SystemLocation,
+            SystemRotation,
+            SystemScale,
+            true,
+            true,
+            ENCPoolMethod::AutoRelease,
+            true
+            );
+	}
 	
 	//LogPlayerState();
 	// fix bug if you dash from ledge.
@@ -311,16 +325,34 @@ AActor* APlayerCharacter::GetActorToDamage()
 
 void APlayerCharacter::StartAttackTimer()
 {
-	StartAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
+	//need weapon to attack
+
+	if (InventoryComponent)
+	{
+		AItemBase* Item = InventoryComponent->GetItemObject();
+		if(Item && Item->IsWeapon())
+		{
+			StartAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+			GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
+		}
+	}
+	
+	
 }
 
 void APlayerCharacter::StopAttackTimer()
 {
-	StopAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
-	ResetWalkSpeed();
-	RotateCharToMouse();
-	CalcAttackType();
+	if (InventoryComponent)
+	{
+		AItemBase* Item = InventoryComponent->GetItemObject();
+		if(Item && Item->IsWeapon())
+		{
+			StopAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+			ResetWalkSpeed();
+			CalcAttackType();
+		}
+	}
+	
 }
 
 void APlayerCharacter::CalcAttackType()
@@ -329,11 +361,17 @@ void APlayerCharacter::CalcAttackType()
 	const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
 	if(AttackHoldSeconds < 1)
 	{
+		if(!Super::Attack()) return;
+		RotateCharToMouse();
 		LightAttack();
+		
 	}
 	else
 	{
+		if(!Super::Attack()) return;
+		RotateCharToMouse();
 		HeavyAttack();
+		
 	}
 
 }
@@ -342,10 +380,14 @@ void APlayerCharacter::LightAttack()
 {
 	//light attack particle
 	SetPlayerState(EPlayerState::Attacking);
-	//drain Stamina
-	//Raycast to find enemies (Ucapsulecomponent)
-	//apply damage
+
+	const FVector BoxSize{60,60,50};
+	AttackRangeComponent->SetBoxExtent(BoxSize,true);
+	//SetBoxSize
 	
+	bHeavyAttack = false;
+	
+	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
 	
 	if(LightAttackParticle)
 	{
@@ -369,13 +411,22 @@ void APlayerCharacter::LightAttack()
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
+		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, AttackTimer, 0);
 }
 
 void APlayerCharacter::HeavyAttack()
 {
-	
+
 	SetPlayerState(EPlayerState::Attacking);
+
+	const FVector BoxSize{120,80,50};
+	AttackRangeComponent->SetBoxExtent(BoxSize,true);
+	//SetBoxRange
+	
+	bHeavyAttack = true;
+	
+	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
 	
 	if(HeavyAttackParticle)
 	{
@@ -400,10 +451,35 @@ void APlayerCharacter::HeavyAttack()
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
+		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, AttackTimer, 0);
 	
 }
-		
+
+float APlayerCharacter::GetAttackDamage()
+{
+	float Damage{0};
+	
+	if (bHeavyAttack && InventoryComponent->GetItemObject()->IsWeapon())
+	{
+		//heavy attack damage
+		Damage = FMath::RandRange(
+        InventoryComponent->GetItemObject()->GetMinDamage(),
+        InventoryComponent->GetItemObject()->GetMaxDamage()
+        );
+		Damage *= 2;
+	}
+	else if(InventoryComponent->GetItemObject()->IsWeapon())
+	{
+		//light attack damage, make this fancy some time
+		Damage = FMath::RandRange(
+        InventoryComponent->GetItemObject()->GetMinDamage(),
+        InventoryComponent->GetItemObject()->GetMaxDamage()
+        );
+	}
+	return Damage;
+}
+
 
 void APlayerCharacter::MoveForward(float Value)
 {
@@ -422,7 +498,7 @@ void APlayerCharacter::RotateCharacter()
 	FRotator MeshRotation = GetVelocity().Rotation();
 	MeshRotation.Yaw -= 90; //rotates the char så den blir rett vei
 	MeshRotation.Pitch = 0;
-	//SetActorRotation(ActorRotation);
+	
 	if (CharacterMesh && VLen != 0)
 	{
 		LastDirection = GetVelocity();
@@ -571,7 +647,6 @@ APushable_ActorBase* APlayerCharacter::GetActorInFront()
 	}
 		ActorInFront = Cast<APushable_ActorBase>(Hit.Actor);
 
-	
 	return ActorInFront;
 }
 
@@ -607,9 +682,15 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 {
 	if(OtherActor != this)
 	{
-		if(OtherActor->IsA(ACharacterBase::StaticClass()))
+		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(ACharacterBase::StaticClass()))
 		{
-			
+			UGameplayStatics::ApplyDamage(
+                    OtherComp->GetOwner(),
+                    GetAttackDamage(),
+                    GetInstigatorController(),
+                    this,
+                    DamageType
+                    );
 		}
 	}
 }

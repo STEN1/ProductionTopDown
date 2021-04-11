@@ -58,8 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetAttackTimer();
 
-	
-	
+
 	void OnInventoryChange();
 	
 protected:
@@ -74,6 +73,8 @@ protected:
 	void CalcAttackType();
 	void LightAttack();
 	void HeavyAttack();
+
+	float GetAttackDamage();
 	
 	void AttackEvent();
 	void DashEvent();
@@ -106,8 +107,6 @@ private:
 	UInteractComponent* InteractComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* AttackRangeComponent;
-	UPROPERTY(EditAnywhere, Category="Particle Effects")
-	UParticleSystem* DashParticle;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DashSound;
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
@@ -116,6 +115,8 @@ private:
 	UNiagaraSystem* LightAttackParticle;
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UNiagaraSystem* HeavyAttackParticle;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* DashParticle;
 	
 	//variables
 	FVector LastDirection;
@@ -123,6 +124,7 @@ private:
 	bool bCanDash{true};
 	
 	bool bAttackActive{false};
+	bool bHeavyAttack{false};
 	float StartAttackTime;
 	float StopAttackTime;
 	
