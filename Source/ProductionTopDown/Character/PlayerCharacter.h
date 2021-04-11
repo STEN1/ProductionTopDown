@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
+#include "NiagaraSystem.h"
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 
 #include "PlayerCharacter.generated.h"
@@ -46,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(EPlayerState inpPlayerState);
 	
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
 	UFUNCTION(BlueprintCallable)
     EPlayerState GetPlayerState();
 
@@ -54,8 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetAttackTimer();
 
-	
-	
+
 	void OnInventoryChange();
 	
 protected:
@@ -63,6 +66,16 @@ protected:
 
 	virtual bool Attack() override;
 	virtual bool Dash() override;
+
+	AActor* GetActorToDamage();
+	void StartAttackTimer();
+	void StopAttackTimer();
+	void CalcAttackType();
+	void LightAttack();
+	void HeavyAttack();
+
+	float GetAttackDamage();
+	
 	void AttackEvent();
 	void DashEvent();
 	void MoveForward(float Value);
@@ -82,11 +95,9 @@ protected:
 
 
 
-	UFUNCTION()
-	void OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	
 	//debug functions
 	void LogPlayerState();
+	
 private:
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -96,18 +107,26 @@ private:
 	UInteractComponent* InteractComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* AttackRangeComponent;
-	UPROPERTY(EditAnywhere, Category="Particle Effects")
-	UParticleSystem* DashParticle;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DashSound;
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
 	TSubclassOf<UMatineeCameraShake> DashShake;
-
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* LightAttackParticle;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* HeavyAttackParticle;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* DashParticle;
 	
 	//variables
 	FVector LastDirection;
 	FRotator LastRotation;
 	bool bCanDash{true};
+	
+	bool bAttackActive{false};
+	bool bHeavyAttack{false};
+	float StartAttackTime;
+	float StopAttackTime;
 	
 	APlayerController* CharacterController;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "DamageType")
