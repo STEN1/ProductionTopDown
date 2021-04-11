@@ -20,6 +20,8 @@ class PRODUCTIONTOPDOWN_API AProductionTopDownGameModeBase : public AGameModeBas
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintImplementableEvent)
+	void Pause();
+	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateNumberOfHealthPots(int32 NumberOfHealthPots);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateHealthUI(float Health, float DefaultHealth);

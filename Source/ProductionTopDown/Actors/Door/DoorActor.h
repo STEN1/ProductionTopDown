@@ -52,7 +52,9 @@ private:
 	bool bDoorOpen = false;
 	
 	FTimerHandle CloseTimerHandle;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	bool bStayOpen{false};
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 	float CloseDelay{-1.f};
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
