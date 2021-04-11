@@ -52,6 +52,20 @@ void AEnemyBase::BeginPlay()
 	{
 		EnemyState = EEnemyState::Idle;
 	}
+
+	TArray<AActor*> OverlappingActors;
+	DetectionComponent->GetOverlappingActors(OverlappingActors);
+	if (OverlappingActors.Num() > 0)
+	{
+		for (int i = 0; i < OverlappingActors.Num(); ++i)
+		{
+			if (OverlappingActors[i]->IsA(APlayerCharacter::StaticClass()))
+			{
+				bIsPlayerClose = true;
+				i = OverlappingActors.Num();
+			}
+		}
+	}
 	
 }
 
@@ -248,7 +262,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
 		bIsPlayerClose = true;
 	}
