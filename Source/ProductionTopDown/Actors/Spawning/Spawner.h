@@ -23,6 +23,8 @@ public:
 	void InstantSpawn();
 	void SpawnWithTimer();
 
+	void ActorDied(AActor* DeadActor);
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings")
 	class APatrolHub* PatrolHub{nullptr};
 
@@ -43,7 +45,7 @@ private:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	bool StartSpawningFromBeginPlay{false};
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	bool SpawnOnTriggerOverlap{false};
+	bool SpawnOnTriggerOverlap{true};
 	// if this is zero the spawner will spawn all actors on the same frame.
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	float DelayBetweenSpawn{0.f};
@@ -64,7 +66,7 @@ private:
 	void SpawnParticleEffect(FVector EffectSpawnLocationVector);
 	void OnClear();
 	void ActivateActivatableArray();
-	void ActorDied(AActor* DeadActor);
+	
 
 
 	int32 AliveActors{0};

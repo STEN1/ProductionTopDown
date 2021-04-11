@@ -358,6 +358,11 @@ void AEnemyBase::IdleState(float DeltaTime)
 void AEnemyBase::TriggerDeath()
 {
 	Super::TriggerDeath();
+	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
+	if (Spawner)
+	{
+		Spawner->ActorDied(this);
+	}
 	Destroy();
 	
 }

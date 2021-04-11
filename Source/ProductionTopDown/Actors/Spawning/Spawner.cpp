@@ -65,8 +65,9 @@ void ASpawner::SpawnParticleEffect(FVector EffectSpawnLocationVector)
 
 void ASpawner::OnClear()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Room Clear! %s"), *GetHumanReadableName())
 	ActivateActivatableArray();
-
+	
 	// play sound?
 }
 
@@ -84,6 +85,8 @@ void ASpawner::ActivateActivatableArray()
 
 void ASpawner::ActorDied(AActor* DeadActor)
 {
+	AliveActors--;
+	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 	if (AliveActors == 0)
 	{
 		OnClear();

@@ -17,7 +17,7 @@
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
-#include "ToolContextInterfaces.h"
+//#include "ToolContextInterfaces.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
@@ -682,7 +682,8 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 {
 	if(OtherActor != this)
 	{
-		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(ACharacterBase::StaticClass()))
+		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(ACharacterBase::StaticClass())
+			|| !OtherActor->IsA(ACharacterBase::StaticClass()))
 		{
 			UGameplayStatics::ApplyDamage(
                     OtherComp->GetOwner(),
