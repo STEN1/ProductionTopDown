@@ -94,6 +94,10 @@ void ADoorActor::Activate(bool On)
 		}
 		else
 		{
+			if (bStayOpen)
+			{
+				return;
+			}
 			GetWorld()->GetTimerManager().ClearTimer(CloseTimerHandle);
 			GetWorld()->GetTimerManager().SetTimer(CloseTimerHandle, [this, On]()
 			{
@@ -105,6 +109,10 @@ void ADoorActor::Activate(bool On)
 	}
 	else
 	{
+		if (!On && bStayOpen)
+		{
+			return;
+		}
 		bDoorOpen = On;
 		ExpoSpeed = 10.f;
 		SetActorTickEnabled(true);

@@ -101,6 +101,7 @@ void UInventoryComponent::BeginPlay()
 		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &UInventoryComponent::Save);
 		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &UInventoryComponent::Load);
 		PlayerInputComponent->BindAction("ThrowItem", IE_Pressed, this, &UInventoryComponent::ThrowItem);
+		PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &UInventoryComponent::Pause);
 	}
 	GameModeRef = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!GameModeRef)
@@ -186,6 +187,11 @@ void UInventoryComponent::Save()
 void UInventoryComponent::Load()
 {
 	UMySaveGame::LoadGame(GetWorld(), "Slot1");
+}
+
+void UInventoryComponent::Pause()
+{
+	GameModeRef->Pause();
 }
 
 void UInventoryComponent::Interact()

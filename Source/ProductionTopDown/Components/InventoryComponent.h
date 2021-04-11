@@ -66,4 +66,6 @@ private:
 
 	void Save();
 	void Load();
+
+	void Pause();
 };
