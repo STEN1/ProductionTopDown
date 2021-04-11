@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
 
 
 // Sets default values
@@ -20,6 +21,10 @@ ASpawner::ASpawner()
 
 void ASpawner::StartSpawning()
 {
+	if (!bCanSpawn)
+	{
+		return;
+	}
 	if (DelayBetweenSpawn == 0.f)
 	{
 		InstantSpawn();
@@ -29,6 +34,11 @@ void ASpawner::StartSpawning()
 		SpawnArrayIndex = 0;
 		bSpawningActors = true;
 		SpawnWithTimer();
+	}
+	AliveActors = SpawnPoints.Num();
+	if (bSpawnOnce)
+	{
+		bCanSpawn = false;
 	}
 }
 
@@ -53,6 +63,33 @@ void ASpawner::SpawnParticleEffect(FVector EffectSpawnLocationVector)
 	}
 }
 
+void ASpawner::OnClear()
+{
+	ActivateActivatableArray();
+
+	// play sound?
+}
+
+void ASpawner::ActivateActivatableArray()
+{
+	// Activatable is on a word :)
+	for (auto& ActivatableActor : ActorsToActivateOnClear)
+	{
+		if (ActivatableActor)
+		{
+			ActivatableActor->Activate(true);
+		}
+	}
+}
+
+void ASpawner::ActorDied(AActor* DeadActor)
+{
+	if (AliveActors == 0)
+	{
+		OnClear();
+	}
+}
+
 void ASpawner::InstantSpawn()
 {
 	for (auto& SpawnPoint : SpawnPoints)
@@ -66,8 +103,15 @@ void ASpawner::InstantSpawn()
 			SpawnParticleEffect(SpawnPoint->GetActorLocation());
 			
 			if (TempActor)
+			{
 				TempActor->SetOwner(this);
-			OnActorSpawned(SpawnPoint->GetActorLocation());
+				OnActorSpawned(SpawnPoint->GetActorLocation());
+			}
+			else
+			{
+				AliveActors--;
+			}
+			
 		}
 	}
 }
@@ -87,9 +131,16 @@ void ASpawner::SpawnWithTimer()
             SpawnPoints[SpawnArrayIndex]->GetActorLocation(),
             SpawnPoints[SpawnArrayIndex]->GetActorRotation());
 		SpawnParticleEffect(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+
 		if (TempActor)
+		{
 			TempActor->SetOwner(this);
-		OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+			OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+		}
+		else
+		{
+			AliveActors--;
+		}
 	}
 
 	SpawnArrayIndex++;

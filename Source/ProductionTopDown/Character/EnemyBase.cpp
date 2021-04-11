@@ -36,10 +36,14 @@ void AEnemyBase::BeginPlay()
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
 	DetectionComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
 
-	// if (!PatrolHub && Cast<ASpawner>(GetOwner()))
-	// {
-	// 	PatrolHub = Cast<ASpawner>(GetOwner())->PatrolHub;
-	// }
+	if (!PatrolHub)
+	{
+		ASpawner* Spawner = Cast<ASpawner>(GetOwner());
+		if (Spawner)
+		{
+			PatrolHub = Spawner->PatrolHub;
+		}
+	}
 	
 	if (PatrolHub)
 	{

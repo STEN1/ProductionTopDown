@@ -3,6 +3,8 @@
 
 #include "DoorActor.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BrushComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values
@@ -13,6 +15,7 @@ ADoorActor::ADoorActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +34,12 @@ void ADoorActor::BeginPlay()
         StartRotation.Pitch,
         StartRotation.Yaw + TargetYaw,
         StartRotation.Roll);
-	
+
+	if (OpenTrigger)
+	{
+		OpenTrigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
+		OpenTrigger->GetBrushComponent()->OnComponentEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
+	}
 }
 
 // Called every frame
@@ -75,9 +83,33 @@ void ADoorActor::Tick(float DeltaTime)
 
 void ADoorActor::Activate(bool On)
 {
-	bDoorOpen = !bDoorOpen;
-	ExpoSpeed = 10.f;
-	SetActorTickEnabled(true);
+	if (CloseDelay > 0.f)
+	{
+		if (On)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CloseTimerHandle);
+			bDoorOpen = On;
+			ExpoSpeed = 10.f;
+			SetActorTickEnabled(true);
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CloseTimerHandle);
+			GetWorld()->GetTimerManager().SetTimer(CloseTimerHandle, [this, On]()
+			{
+				bDoorOpen = On;
+				ExpoSpeed = 10.f;
+				SetActorTickEnabled(true);
+			}, CloseDelay, false);
+		}
+	}
+	else
+	{
+		bDoorOpen = On;
+		ExpoSpeed = 10.f;
+		SetActorTickEnabled(true);
+	}
+
 }
 
 void ADoorActor::SetAlwaysMoving(bool AlwaysMoving)
@@ -271,5 +303,23 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 		{
 			SetActorTickEnabled(false);
 		}
+	}
+}
+
+void ADoorActor::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		Activate(true);
+	}
+}
+
+void ADoorActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		Activate(false);
 	}
 }

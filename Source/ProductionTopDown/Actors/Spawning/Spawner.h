@@ -25,7 +25,8 @@ public:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings")
 	class APatrolHub* PatrolHub{nullptr};
-	
+
+	bool bCanSpawn{true};
 protected:
 	virtual void BeginPlay() override;
 	
@@ -33,6 +34,10 @@ protected:
     void OnActorSpawned(FVector SpawnLocationVector);
 	
 private:
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	bool bSpawnOnce{true};
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	TArray<class AActivatableBase*> ActorsToActivateOnClear;
     UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
     TArray<class ASpawnpoint*> SpawnPoints;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
@@ -57,7 +62,12 @@ private:
 	class UNiagaraSystem* NSTemplate;
 
 	void SpawnParticleEffect(FVector EffectSpawnLocationVector);
-	
+	void OnClear();
+	void ActivateActivatableArray();
+	void ActorDied(AActor* DeadActor);
+
+
+	int32 AliveActors{0};
 	bool bSpawningActors{false};
 	int32 SpawnArrayIndex{0};
 	FTimerHandle SpawnTimerTimerHandle;

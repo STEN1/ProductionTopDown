@@ -3,6 +3,8 @@
 
 #include "PressurePlate.h"
 
+
+#include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Actors/Door/DoorActor.h"
 #include "ProductionTopDown/Actors/Interactables/SpikeTrap.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
@@ -18,6 +20,8 @@ APressurePlate::APressurePlate()
 	PlateFrame->SetupAttachment(RootComponent);
 	PlateButton = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ButtonMesh"));
 	PlateButton->SetupAttachment(RootComponent);
+	PlateTrigger = CreateDefaultSubobject<UBoxComponent>("PlateTrigger");
+	PlateTrigger->SetupAttachment(RootComponent);
 	
 }
 
@@ -27,8 +31,8 @@ void APressurePlate::BeginPlay()
 	Super::BeginPlay();
 	if(PlateTrigger)
 	{
-		PlateTrigger->OnActorBeginOverlap.AddDynamic(this, &APressurePlate::BeginOverlap);
-		PlateTrigger->OnActorEndOverlap.AddDynamic(this, &APressurePlate::EndOverlap);
+		PlateTrigger->OnComponentBeginOverlap.AddDynamic(this, &APressurePlate::BeginOverlap);
+		PlateTrigger->OnComponentEndOverlap.AddDynamic(this, &APressurePlate::EndOverlap);
 	}
 	else
 	{
@@ -39,10 +43,11 @@ void APressurePlate::BeginPlay()
 	
 }
 
-void APressurePlate::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void APressurePlate::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	
-	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		bIsPressed = true;
 		PlateButton->SetRelativeLocation(PressedPosition);
@@ -50,9 +55,10 @@ void APressurePlate::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 	}
 }
 
-void APressurePlate::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void APressurePlate::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->FindComponentByClass<USkeletalMeshComponent>())
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		bIsPressed = false;
 		PlateButton->SetRelativeLocation(ReleasedPosition);
