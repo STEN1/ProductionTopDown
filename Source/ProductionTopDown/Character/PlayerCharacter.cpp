@@ -254,7 +254,7 @@ bool APlayerCharacter::Dash()
 
 	//change collison object so it can dash trough enemies
 
-	GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+	//GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
 	
 	
 	//particle and sounds
@@ -294,7 +294,7 @@ bool APlayerCharacter::Dash()
 		SetPlayerState(EPlayerState::Moving);
 		//LogPlayerState();
 		GetCharacterMovement()->FallingLateralFriction = 0;
-		GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+		//GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
     }, DashTimer, 0);
 
 	//delay between dashes.
