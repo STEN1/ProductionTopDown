@@ -53,7 +53,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::TriggerDeath()
 {
 	Super::TriggerDeath();
-
+	
 	SetPlayerState(EPlayerState::Dead);
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
@@ -65,7 +65,7 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	 
+	
 	//input ticks before actor. fix bug ?
 	AddTickPrerequisiteActor(CharacterController);
 
@@ -232,6 +232,7 @@ bool APlayerCharacter::Attack()
     }, AttackTimer, 0);
 	return true;
 }
+
 
 void APlayerCharacter::DashEvent()
 {
@@ -406,11 +407,16 @@ void APlayerCharacter::LightAttack()
         );
 	}
 	
+	FTimerHandle handle2;
+	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
+        //code who runs after delay time
+        if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+    }, 0.2, 0);
+	
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
-		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, AttackTimer, 0);
 }
 
@@ -419,7 +425,7 @@ void APlayerCharacter::HeavyAttack()
 
 	SetPlayerState(EPlayerState::Attacking);
 
-	const FVector BoxSize{120,80,50};
+	const FVector BoxSize{140,100,50};
 	AttackRangeComponent->SetBoxExtent(BoxSize,true);
 	//SetBoxRange
 	
@@ -446,11 +452,16 @@ void APlayerCharacter::HeavyAttack()
             );
 	}
 	
+	FTimerHandle handle2;
+	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
+        //code who runs after delay time
+        if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+    }, 0.2, 0);
+	
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
-		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, AttackTimer, 0);
 	
 }
