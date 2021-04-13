@@ -6,9 +6,11 @@
 
 
 #include "MySaveGame.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Character/PlayerCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASavePoint::ASavePoint()
@@ -34,6 +36,29 @@ void ASavePoint::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
 		UMySaveGame::SaveGame(this, "Slot1");
+		SpawnSaveParticle(OtherActor->GetActorLocation());
+		OnSaved();
+	}
+}
+
+void ASavePoint::SpawnSaveParticle(FVector EffectSpawnLocationVector)
+{
+	EffectSpawnLocationVector.Z += 200.f;
+	if (PSTemplate && !PSTemplate->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSTemplate, EffectSpawnLocationVector);
+	}
+	if (PSTemplate && PSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetHumanReadableName());
+	}
+	if (NSTemplate && !NSTemplate->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSTemplate, EffectSpawnLocationVector);
+	}
+	if (NSTemplate && NSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetHumanReadableName());
 	}
 }
 
