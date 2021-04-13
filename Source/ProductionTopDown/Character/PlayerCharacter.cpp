@@ -281,6 +281,7 @@ bool APlayerCharacter::Dash()
 	
 	//LogPlayerState();
 	// fix bug if you dash from ledge.
+	
 	GetCharacterMovement()->FallingLateralFriction = 8;
 	//teleport player towards last direction
 	FVector DashDirection = LastDirection.GetSafeNormal()*DashDistance;
@@ -336,8 +337,6 @@ void APlayerCharacter::StartAttackTimer()
 			GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
 		}
 	}
-	
-	
 }
 
 void APlayerCharacter::StopAttackTimer()
@@ -352,13 +351,13 @@ void APlayerCharacter::StopAttackTimer()
 			CalcAttackType();
 		}
 	}
-	
 }
 
 void APlayerCharacter::CalcAttackType()
 {
 	//if attack hold > 1 sec heavy attack
 	const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
+	if(PlayerState != EPlayerState::Moving) return;
 	if(AttackHoldSeconds < 1)
 	{
 		if(!Super::Attack()) return;
@@ -381,7 +380,7 @@ void APlayerCharacter::LightAttack()
 	//light attack particle
 	SetPlayerState(EPlayerState::Attacking);
 
-	const FVector BoxSize{60,60,50};
+	const FVector BoxSize{60,80,50};
 	AttackRangeComponent->SetBoxExtent(BoxSize,true);
 	//SetBoxSize
 	
@@ -692,6 +691,20 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
                     this,
                     DamageType
                     );
+
+			if(bHeavyAttack)
+			{
+				FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				PushBackVector *=2;				
+				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
+				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
+			}
+			else
+			{
+				const FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
+				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
+			}
 		}
 	}
 }
