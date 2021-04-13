@@ -5,6 +5,7 @@
 
 
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Actors/Door/DoorActor.h"
 #include "ProductionTopDown/Actors/Interactables/SpikeTrap.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
@@ -47,23 +48,63 @@ void APressurePlate::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	
-	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	if (IsValidOtherActor(OtherActor, OtherComp))
 	{
+		if (!bIsPressed)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ActivateSound, GetActorLocation(), GetActorRotation());
+		}
 		bIsPressed = true;
 		PlateButton->SetRelativeLocation(PressedPosition);
 		ActivateLoop(true);
+
+		for (auto && OverlappingActor : OverlappingActors)
+		{
+			if (OverlappingActor == OtherActor)
+			{
+				return;
+			}
+		}
+		
+		OverlappingActors.Push(OtherActor);
 	}
 }
 
 void APressurePlate::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	if (IsValidOtherActor(OtherActor, OtherComp))
 	{
-		bIsPressed = false;
-		PlateButton->SetRelativeLocation(ReleasedPosition);
-		ActivateLoop(false);
+		// look for actors that match OtherActor in overlapping array and remove them
+
+		for (int i = 0; i < OverlappingActors.Num(); ++i)
+		{
+			if (OverlappingActors[i] == OtherActor)
+			{
+				OverlappingActors.RemoveAt(i);
+			}
+		}
+		
+		if (OverlappingActors.Num() == 0)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DeactivateSound, GetActorLocation(), GetActorRotation());
+			bIsPressed = false; 
+			PlateButton->SetRelativeLocation(ReleasedPosition);
+			ActivateLoop(false);
+		}
 	}
+}
+
+bool APressurePlate::IsValidOtherActor(AActor* OtherActor, UPrimitiveComponent* OtherComp)
+{
+	
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass())
+		|| OtherActor->IsA(APushable_ActorBase::StaticClass()))
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 void APressurePlate::ActivateLoop(bool On)

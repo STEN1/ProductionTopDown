@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Components/AudioComponent.h"
 #include "Engine/TriggerVolume.h"
 #include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
 #include "DoorActor.generated.h"
@@ -35,7 +37,8 @@ public:
 	void SetAlwaysMoving(bool AlwaysMoving);
 
 private:
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* AudioComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
@@ -53,25 +56,25 @@ private:
 	
 	FTimerHandle CloseTimerHandle;
 
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	bool bStayOpen{false};
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float CloseDelay{-1.f};
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	ATriggerVolume* OpenTrigger;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetYaw = 90.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetXPos = 0.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetYPos = 0.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetZPos = 200.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float OpenSpeed = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float CloseSpeed = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float MaxExpoSpeed = 1200.f;
 	float ExpoSpeed{10.f};
 	float DoorSpeed{0.f};
@@ -84,8 +87,16 @@ private:
 	void EaseCloseDoor(float DeltaTime);
 	void AccelOpenDoor(float DeltaTime);
 	void AccelCloseDoor(float DeltaTime);
+	
+	void OnDoorOpened();
+	void OnDoorClosed();
 
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* ClosedSound;
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	bool bAlwaysMoving{false};
 
 	UFUNCTION()

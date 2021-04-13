@@ -21,6 +21,10 @@ public:
 
 	UPROPERTY(EditInstanceOnly, Category="Settings")
 	TArray<class AActivatableBase*> ActivateActors;
+	UPROPERTY(EditAnywhere, Category="Settings")
+	USoundBase* ActivateSound;
+	UPROPERTY(EditAnywhere, Category="Settings")
+	USoundBase* DeactivateSound;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -36,6 +40,11 @@ protected:
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void ActivateLoop(bool On);
+
+	UPROPERTY()
+	TArray<AActor*> OverlappingActors;
+
+	bool IsValidOtherActor(AActor* OtherActor, UPrimitiveComponent* OtherComp);
 
 	FVector PressedPosition{0.f, 0.f, -5.f};
 	FVector ReleasedPosition{FVector::ZeroVector};

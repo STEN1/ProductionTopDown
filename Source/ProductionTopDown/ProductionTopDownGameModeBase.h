@@ -33,8 +33,14 @@ public:
 	void UpdateInventoryUICurrentSlot(int32 CurrentSlot);
 	UFUNCTION(BlueprintImplementableEvent)
 	void GameOver(bool PlayerWon);
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayTextBox();
 
+	UPROPERTY(BlueprintReadOnly)
+	FString TextBoxString{""};
+	
 	void ActorDied(AActor* DeadActor);
+
 protected:
 	virtual void BeginPlay() override;
 

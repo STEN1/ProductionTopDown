@@ -25,13 +25,16 @@ AItemBase::AItemBase()
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-	WidgetComponent->SetVisibility(false, true);
-	OnActorBeginOverlap.AddDynamic(this, &AItemBase::BeginOverlap);
-	OnActorEndOverlap.AddDynamic(this, &AItemBase::EndOverlap);
-	StaticMeshComponent->SetGenerateOverlapEvents(false);
-	BoxComponent->SetGenerateOverlapEvents(true);
-	WidgetComponent->SetGenerateOverlapEvents(false);
-	
+
+	if (WidgetComponent && StaticMeshComponent && BoxComponent)
+	{
+		WidgetComponent->SetVisibility(false, true);
+		OnActorBeginOverlap.AddDynamic(this, &AItemBase::BeginOverlap);
+		OnActorEndOverlap.AddDynamic(this, &AItemBase::EndOverlap);
+		StaticMeshComponent->SetGenerateOverlapEvents(false);
+		BoxComponent->SetGenerateOverlapEvents(true);
+		WidgetComponent->SetGenerateOverlapEvents(false);
+	}
 }
 
 void AItemBase::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
