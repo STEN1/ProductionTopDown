@@ -3,6 +3,8 @@
 
 #include "HealthComponent.h"
 
+
+#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 
@@ -68,11 +70,33 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 		// check if the damaged actor is not a character
 		if (!DamagedActor->IsA(ACharacterBase::StaticClass()))
 		{
+			SpawnDeathParticle();
 			DamagedActor->Destroy();
 		}
 		// probably just call some kind of "HandleDeath()" function on the damaged actor.
 		// we need to have a virtual function in the characterbase class that the playerclass and the enemy class can override.
 		// This should play effects and Destroy enemies but have some kind of menu popup for player death with options to
 		// restart from last save etc etc
+	}
+}
+
+void UHealthComponent::SpawnDeathParticle()
+{
+	const FVector EffectSpawnLocationVector = GetOwner()->GetActorLocation();
+	if (ActorDeathParticle && !ActorDeathParticle->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ActorDeathParticle, EffectSpawnLocationVector);
+	}
+	if (ActorDeathParticle && ActorDeathParticle->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+	if (ActorDeathNiagaraParticle && !ActorDeathNiagaraParticle->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ActorDeathNiagaraParticle, EffectSpawnLocationVector);
+	}
+	if (ActorDeathNiagaraParticle && ActorDeathNiagaraParticle->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
 }
