@@ -7,6 +7,9 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "ItemBase.generated.h"
+
+class UNiagaraSystem;
+
 enum ItemClass
 {
 	Empty,
@@ -33,6 +36,9 @@ public:
 	UFUNCTION(BlueprintCallable)
     float GetCritChance() const;
 	float GetKnockbackAmount() const;
+
+	UNiagaraSystem* GetLightAttackEffect() const;
+	UNiagaraSystem* GetHeavyAttackEffect() const;
 	
 	ItemClass GetItemClass() const;
 	UTexture2D* GetItemImage() const;
@@ -50,7 +56,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
 	UParticleSystem* ItemParticleSystem;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
-	class UNiagaraSystem* ItemNiagaraSystem;
+	UNiagaraSystem* LightAttackEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
+	UNiagaraSystem* HeavyAttackEffect;
 	
 protected:
 	virtual void BeginPlay() override;
