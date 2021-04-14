@@ -107,20 +107,30 @@ private:
 	UInteractComponent* InteractComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* AttackRangeComponent;
+	
+	//sounds
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DashSound;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* LightAttackSound;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* HeavyAttackSound;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* AttackChargeTimerSound;
+	
+	//CameraShake
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
 	TSubclassOf<UMatineeCameraShake> DashShake;
+	
+	//particles
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UNiagaraSystem* LightAttackParticle;
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UNiagaraSystem* HeavyAttackParticle;
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UNiagaraSystem* DashParticle;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	UNiagaraSystem* AttackChargeTimerParticle;
 	
 	//variables
 	FVector LastDirection;
@@ -165,4 +175,6 @@ private:
 	bool bDrawAttackRangeBox{false};
 	
 	bool bCanPush{false};
+
+	FTimerHandle AttackChargeTimerHandle;
 };

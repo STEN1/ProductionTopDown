@@ -328,7 +328,6 @@ AActor* APlayerCharacter::GetActorToDamage()
 void APlayerCharacter::StartAttackTimer()
 {
 	//need weapon to attack
-
 	if (InventoryComponent)
 	{
 		AItemBase* Item = InventoryComponent->GetItemObject();
@@ -336,6 +335,31 @@ void APlayerCharacter::StartAttackTimer()
 		{
 			StartAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
 			GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed*0.2f;
+
+			
+			//spawn particle when charge done
+			GetWorld()->GetTimerManager().SetTimer(AttackChargeTimerHandle, [this]()
+            {
+			if(AttackRangeComponent){
+			const FVector SystemLocation = GetMesh()->GetSocketLocation("WeaponSocket");
+	        const FRotator SystemRotation = GetMesh()->GetSocketRotation("WeaponSocket");
+	        const FVector SystemScale = GetMesh()->GetSocketTransform("WeaponSocket").GetScale3D();
+	        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	        GetWorld(),
+	        AttackChargeTimerParticle,
+	        SystemLocation,
+	        SystemRotation,
+	        SystemScale,
+	        true,
+	        true,
+	        ENCPoolMethod::AutoRelease,
+	        true
+			);}
+				
+			if(AttackChargeTimerSound)UGameplayStatics::SpawnSoundAtLocation(GetWorld(),AttackChargeTimerSound, GetActorLocation(),GetActorRotation());
+				
+            }, 0.6f, 0);
+		
 		}
 	}
 }
@@ -350,17 +374,26 @@ void APlayerCharacter::StopAttackTimer()
 			StopAttackTime = UGameplayStatics::GetTimeSeconds(GetWorld());
 			ResetWalkSpeed();
 			CalcAttackType();
+
+			//stops timer
+			GetWorld()->GetTimerManager().ClearTimer(AttackChargeTimerHandle);
 		}
 	}
 }
 
 void APlayerCharacter::CalcAttackType()
 {
+
+	
+	
 	//if attack hold > 1 sec heavy attack
 	const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
 	if(PlayerState != EPlayerState::Moving) return;
 	if(AttackHoldSeconds < 0.6f)
 	{
+		//makes the yeeter not use light attack
+		if(InventoryComponent && InventoryComponent->GetItemObject() && InventoryComponent->GetItemObject()->GetItemName() == "The YEEEETEEER!") return;
+		
 		if(!Super::Attack()) return;
 		RotateCharToMouse();
 		LightAttack();
@@ -378,7 +411,7 @@ void APlayerCharacter::CalcAttackType()
 
 void APlayerCharacter::LightAttack()
 {
-	//light attack particle
+	
 	SetPlayerState(EPlayerState::Attacking);
 
 	const FVector BoxSize{60,80,50};
@@ -393,6 +426,7 @@ void APlayerCharacter::LightAttack()
 	
 	if(InventoryComponent && InventoryComponent->GetItemObject()->LightAttackEffect)
 	{
+		
 		const FVector SystemLocation = GetMesh()->GetSocketLocation("AttackParticleSocket");
 		const FRotator SystemRotation = GetMesh()->GetSocketRotation("AttackParticleSocket");
 		const FVector SystemScale = GetMesh()->GetSocketTransform("AttackParticleSocket").GetScale3D();
@@ -407,6 +441,8 @@ void APlayerCharacter::LightAttack()
         ENCPoolMethod::AutoRelease,
         true
         );
+
+		
 	}
 	
 	FTimerHandle handle2;
