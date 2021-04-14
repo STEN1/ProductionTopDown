@@ -102,7 +102,7 @@ void APlayerCharacter::BeginPlay()
 	{
 		CharacterController->bShowMouseCursor = true;
 	}
-	
+	OnInventoryChange();
 }
 void APlayerCharacter::Tick(float DeltaTime)
 {
