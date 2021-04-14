@@ -39,7 +39,14 @@ private:
 	UParticleSystem* ActorDeathParticle;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	class UNiagaraSystem* ActorDeathNiagaraParticle;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ActorHitParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* ActorHitNiagaraParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* DeathSound;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* HitSound;
 
 	
 	UFUNCTION()
@@ -49,4 +56,5 @@ private:
 	AProductionTopDownGameModeBase* GameModeRef;
 
 	void SpawnDeathParticle();
+	void SpawnHitParticle();
 };

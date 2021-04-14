@@ -94,6 +94,16 @@ float AItemBase::GetKnockbackAmount() const
 	return KnockbackAmount;
 }
 
+UNiagaraSystem* AItemBase::GetLightAttackEffect() const
+{
+	return LightAttackEffect;
+}
+
+UNiagaraSystem* AItemBase::GetHeavyAttackEffect() const
+{
+	return HeavyAttackEffect;
+}
+
 ItemClass AItemBase::GetItemClass() const
 {
 	return ThisItemClass;

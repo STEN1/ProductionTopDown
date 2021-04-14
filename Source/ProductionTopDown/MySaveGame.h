@@ -21,6 +21,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FRotator PlayerRotation;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
+	TArray<int32> ItemsDurability;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<TSubclassOf<class AItemBase>> Inventory;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	int32 NumberOfHealthPots;

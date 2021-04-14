@@ -39,11 +39,18 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 			int32 InventorySize = InventoryComponent->GetInventorySize();
 			SaveGameInstance->Inventory.Empty();
 			SaveGameInstance->Inventory.SetNum(InventorySize);
+			SaveGameInstance->ItemsDurability.Empty();
+			SaveGameInstance->ItemsDurability.SetNum(InventorySize);
 			for (int32 i = 0; i < InventorySize; i++)
 			{
 				if (PlayerInventory[i])
 				{
 					SaveGameInstance->Inventory[i] = PlayerInventory[i]->GetClass();
+					SaveGameInstance->ItemsDurability[i] = PlayerInventory[i]->Durability;
+				}
+				else
+				{
+					SaveGameInstance->ItemsDurability[i] = 0;
 				}
 			}
 		}
@@ -67,6 +74,13 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 		GameInstance->NumberOfHealthPots = SaveGameInstance->NumberOfHealthPots;
 		GameInstance->bLoadedGame = true;
 
+		GameInstance->ItemsDurability.Empty();
+		GameInstance->ItemsDurability.SetNum(SaveGameInstance->ItemsDurability.Num());
+		for (int i = 0; i < SaveGameInstance->ItemsDurability.Num(); ++i)
+		{
+			GameInstance->ItemsDurability[i] = SaveGameInstance->ItemsDurability[i];
+		}
+		
 		UGameplayStatics::OpenLevel(WorldContextObject, *SaveGameInstance->Level);
 		
 		UE_LOG(LogTemp, Warning, TEXT("Game Loaded."));

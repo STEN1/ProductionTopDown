@@ -62,15 +62,20 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 		GameModeRef->UpdateHealthUI(Health, DefaultHealth);
 		TakingDamage();
 	}
+	if (HitSound)
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	SpawnHitParticle();
 	if (Health <= 0)
 	{
+		SpawnDeathParticle();
+		if (DeathSound)
+			UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 		ACharacterBase* Character = Cast<ACharacterBase>(GetOwner());
 		if(Character)Character->TriggerDeath();
 
 		// check if the damaged actor is not a character
 		if (!DamagedActor->IsA(ACharacterBase::StaticClass()))
 		{
-			SpawnDeathParticle();
 			DamagedActor->Destroy();
 		}
 		// probably just call some kind of "HandleDeath()" function on the damaged actor.
@@ -96,6 +101,27 @@ void UHealthComponent::SpawnDeathParticle()
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ActorDeathNiagaraParticle, EffectSpawnLocationVector);
 	}
 	if (ActorDeathNiagaraParticle && ActorDeathNiagaraParticle->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+}
+
+void UHealthComponent::SpawnHitParticle()
+{
+	const FVector EffectSpawnLocationVector = GetOwner()->GetActorLocation();
+	if (ActorHitParticle && !ActorHitParticle->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ActorHitParticle, EffectSpawnLocationVector);
+	}
+	if (ActorHitParticle && ActorHitParticle->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+	if (ActorHitNiagaraParticle && !ActorHitNiagaraParticle->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ActorHitNiagaraParticle, EffectSpawnLocationVector);
+	}
+	if (ActorHitNiagaraParticle && ActorHitNiagaraParticle->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
