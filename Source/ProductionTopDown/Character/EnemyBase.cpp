@@ -76,11 +76,6 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (bIsPlayerClose)
-	{
-		IsPlayerInView();
-	}
 	
 	switch (EnemyState)
 	{
@@ -121,6 +116,11 @@ void AEnemyBase::Tick(float DeltaTime)
 		break;
 		default:
 			break;
+	}
+
+	if (bIsPlayerClose)
+	{
+		IsPlayerInView();
 	}
 	
 }
