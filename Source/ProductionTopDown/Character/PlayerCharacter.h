@@ -109,6 +109,10 @@ private:
 	UBoxComponent* AttackRangeComponent;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DashSound;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* LightAttackSound;
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+	USoundBase* HeavyAttackSound;
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
 	TSubclassOf<UMatineeCameraShake> DashShake;
 	UPROPERTY(EditAnywhere, Category="Particle Effects")

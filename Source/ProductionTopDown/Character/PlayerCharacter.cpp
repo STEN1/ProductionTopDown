@@ -359,7 +359,7 @@ void APlayerCharacter::CalcAttackType()
 	//if attack hold > 1 sec heavy attack
 	const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
 	if(PlayerState != EPlayerState::Moving) return;
-	if(AttackHoldSeconds < 1)
+	if(AttackHoldSeconds < 0.6f)
 	{
 		if(!Super::Attack()) return;
 		RotateCharToMouse();
@@ -388,15 +388,17 @@ void APlayerCharacter::LightAttack()
 	bHeavyAttack = false;
 	
 	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
+
+	if(LightAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), LightAttackSound, GetActorLocation(), GetActorRotation());
 	
-	if(LightAttackParticle)
+	if(InventoryComponent && InventoryComponent->GetItemObject()->LightAttackEffect)
 	{
 		const FVector SystemLocation = GetMesh()->GetSocketLocation("AttackParticleSocket");
 		const FRotator SystemRotation = GetMesh()->GetSocketRotation("AttackParticleSocket");
 		const FVector SystemScale = GetMesh()->GetSocketTransform("AttackParticleSocket").GetScale3D();
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
         GetWorld(),
-        LightAttackParticle,
+		InventoryComponent->GetItemObject()->LightAttackEffect,
         SystemLocation,
         SystemRotation,
         SystemScale,
@@ -432,8 +434,10 @@ void APlayerCharacter::HeavyAttack()
 	bHeavyAttack = true;
 	
 	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
+
+	if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
 	
-	if(HeavyAttackParticle)
+	if(InventoryComponent && InventoryComponent->GetItemObject()->HeavyAttackEffect)
 	{
 		const FVector SystemLocation = GetMesh()->GetSocketLocation("AttackParticleSocket");
 		const FRotator SystemRotation = GetMesh()->GetSocketRotation("AttackParticleSocket");
@@ -441,7 +445,7 @@ void APlayerCharacter::HeavyAttack()
 		
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
             GetWorld(),
-            HeavyAttackParticle,
+            InventoryComponent->GetItemObject()->HeavyAttackEffect,
             SystemLocation,
             SystemRotation,
             SystemScale,
@@ -704,6 +708,7 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
                     this,
                     DamageType
                     );
+				
 			}
 			
 			if(bHeavyAttack)
@@ -712,14 +717,16 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 				PushBackVector *=2;				
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
+				if(InventoryComponent)InventoryComponent->GetItemObject()->Durability -=2;
 			}
 			else
 			{
 				const FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
+				if(InventoryComponent)InventoryComponent->GetItemObject()->Durability -=1;
 			}
-			
+			if(InventoryComponent && InventoryComponent->GetItemObject()->Durability <= 0) InventoryComponent->DestroyWeapon();
 		}
 	}
 }
