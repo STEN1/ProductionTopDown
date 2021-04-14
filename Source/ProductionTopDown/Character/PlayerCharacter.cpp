@@ -474,7 +474,7 @@ float APlayerCharacter::GetAttackDamage()
 {
 	float Damage{0};
 	
-	if (bHeavyAttack && InventoryComponent->GetItemObject()->IsWeapon())
+	if (bHeavyAttack && InventoryComponent && InventoryComponent->GetItemObject() &&  InventoryComponent->GetItemObject()->IsWeapon())
 	{
 		//heavy attack damage
 		Damage = FMath::RandRange(
@@ -483,7 +483,7 @@ float APlayerCharacter::GetAttackDamage()
         );
 		Damage *= 2;
 	}
-	else if(InventoryComponent->GetItemObject()->IsWeapon())
+	else if(InventoryComponent && InventoryComponent->GetItemObject() && InventoryComponent->GetItemObject()->IsWeapon())
 	{
 		//light attack damage, make this fancy some time
 		Damage = FMath::RandRange(
