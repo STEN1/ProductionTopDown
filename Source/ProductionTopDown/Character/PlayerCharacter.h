@@ -122,6 +122,7 @@ private:
 	FVector LastDirection;
 	FRotator LastRotation;
 	bool bCanDash{true};
+
 	
 	bool bAttackActive{false};
 	bool bHeavyAttack{false};

@@ -411,7 +411,7 @@ void APlayerCharacter::LightAttack()
 	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
         //code who runs after delay time
         if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
-    }, 0.2, 0);
+    }, 0.05f, 0);
 	
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
@@ -456,7 +456,7 @@ void APlayerCharacter::HeavyAttack()
 	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
         //code who runs after delay time
         if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
-    }, 0.2, 0);
+    }, 0.05f, 0);
 	
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
@@ -690,19 +690,22 @@ void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	
 	if(OtherActor != this)
 	{
 		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(ACharacterBase::StaticClass())
 			|| !OtherActor->IsA(ACharacterBase::StaticClass()))
 		{
-			UGameplayStatics::ApplyDamage(
+			{
+				UGameplayStatics::ApplyDamage(
                     OtherComp->GetOwner(),
                     GetAttackDamage(),
                     GetInstigatorController(),
                     this,
                     DamageType
                     );
-
+			}
+			
 			if(bHeavyAttack)
 			{
 				FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
@@ -716,6 +719,7 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
 			}
+			
 		}
 	}
 }
