@@ -118,6 +118,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* AttackChargeTimerSound;
 	
+	UPROPERTY(EditAnywhere, Category="Sound Effects")
+    TArray<USoundBase*> AttackSounds;
+	
 	//CameraShake
 	UPROPERTY(EditAnywhere, Category="Camera Effects")
 	TSubclassOf<UMatineeCameraShake> DashShake;

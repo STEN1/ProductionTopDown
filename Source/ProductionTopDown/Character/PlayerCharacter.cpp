@@ -422,7 +422,13 @@ void APlayerCharacter::LightAttack()
 	
 	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
 
-	if(LightAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), LightAttackSound, GetActorLocation(), GetActorRotation());
+	if (AttackSounds.Num() > 0)
+	{
+		int32 randIndex = FMath::Rand() % AttackSounds.Num();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSounds[randIndex], GetActorLocation(), GetActorRotation());
+	}
+	
+	//if(LightAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), LightAttackSound, GetActorLocation(), GetActorRotation());
 	
 	if(InventoryComponent && InventoryComponent->GetItemObject()->LightAttackEffect)
 	{
