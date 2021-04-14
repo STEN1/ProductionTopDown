@@ -5,6 +5,7 @@
 
 
 
+#include "NiagaraFunctionLibrary.h"
 #include "Chaos/AABBTree.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/MyGameInstance.h"
@@ -17,6 +18,33 @@ UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+}
+
+void UInventoryComponent::DestroyWeapon()
+{
+	if (GameInstance->Inventory.Num() == 0)
+	{
+		return;
+	}
+	if (GameInstance->Inventory[CurrentSlot - 1])
+	{
+		if (!GameInstance->Inventory[CurrentSlot - 1]->IsWeapon())
+		{
+			return;
+		}
+		GameInstance->Inventory[CurrentSlot - 1]->Destroy();
+		GameInstance->Inventory[CurrentSlot - 1] = nullptr;
+		if (EmptySlotImage)
+			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
+		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
+
+		SpawnParticleEffect(GetOwner()->GetActorLocation());
+
+		if (WeaponBreakSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, WeaponBreakSound, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		}
+	}
 }
 
 AItemBase* UInventoryComponent::GetItemObject() const
@@ -192,6 +220,26 @@ void UInventoryComponent::Load()
 void UInventoryComponent::Pause()
 {
 	GameModeRef->Pause();
+}
+
+void UInventoryComponent::SpawnParticleEffect(FVector EffectSpawnLocationVector)
+{
+	if (PSTemplate && !PSTemplate->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSTemplate, EffectSpawnLocationVector);
+	}
+	if (PSTemplate && PSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+	if (NSTemplate && !NSTemplate->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSTemplate, EffectSpawnLocationVector);
+	}
+	if (NSTemplate && NSTemplate->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
 }
 
 void UInventoryComponent::Interact()

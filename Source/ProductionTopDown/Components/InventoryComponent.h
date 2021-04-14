@@ -19,7 +19,8 @@ class PRODUCTIONTOPDOWN_API UInventoryComponent : public UActorComponent
 
 public:	
 	UInventoryComponent();
-	
+
+	void DestroyWeapon();
 	AItemBase* GetItemObject() const;
 	TArray<AItemBase*> GetInventory();
 	void LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory);
@@ -68,4 +69,13 @@ private:
 	void Load();
 
 	void Pause();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* WeaponBreakSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSTemplate;
+	void SpawnParticleEffect(FVector EffectSpawnLocationVector);
 };

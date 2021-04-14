@@ -45,6 +45,12 @@ public:
 	
 	static void SpawnItemOfItemClass(ItemClass Item, AActor* Actor, FVector Location, FRotator Rotation);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
+	int32 Durability{50};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
+	UParticleSystem* ItemParticleSystem;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings")
+	class UNiagaraSystem* ItemNiagaraSystem;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -54,14 +60,21 @@ protected:
 
 	ItemClass ThisItemClass{ Empty };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	FString ItemName{TEXT("")};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	FString ItemLore{TEXT("")};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float MinDamage{8.f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float MaxDamage{13.f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float CritChance{30.f}; // Percentage
+	
 
 	float KnockbackAmount{200.f};
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	bool bIsWeapon{false};
 	
 private:
