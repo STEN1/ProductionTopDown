@@ -694,6 +694,9 @@ void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(InventoryComponent && InventoryComponent->GetItemObject())
+	{
+		
 	
 	if(OtherActor != this)
 	{
@@ -717,16 +720,17 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 				PushBackVector *=2;				
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
-				if(InventoryComponent)InventoryComponent->GetItemObject()->Durability -=2;
+				InventoryComponent->GetItemObject()->Durability -=2;
 			}
 			else
 			{
 				const FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
-				if(InventoryComponent)InventoryComponent->GetItemObject()->Durability -=1;
+				InventoryComponent->GetItemObject()->Durability -=1;
 			}
-			if(InventoryComponent && InventoryComponent->GetItemObject()->Durability <= 0) InventoryComponent->DestroyWeapon();
+			if(InventoryComponent->GetItemObject()->Durability <= 0) InventoryComponent->DestroyWeapon();
+		}
 		}
 	}
 }
