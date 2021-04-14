@@ -153,9 +153,12 @@ void UInventoryComponent::BeginPlay()
 			if (GameInstance->SavedInventory[i])
 			{
 				GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), GameInstance->SavedInventory[i]);
-				GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
+				if (GameModeRef && GameInstance->Inventory[i])
+				{
+					GameInstance->Inventory[i]->Durability = GameInstance->ItemsDurability[i];
+					GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
+				}
 			}
-			
 		}
 	}
 	else if (IsInventoryEmpty()) // if the inventory is empty -> set the inventory to the correct size.
@@ -320,13 +323,19 @@ void UInventoryComponent::ThrowItem()
 {
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		GetWorld()->SpawnActor<AItemBase>(GameInstance->Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		AItemBase* SpawnedItem = GetWorld()->SpawnActor<AItemBase>(GameInstance->Inventory[CurrentSlot - 1]->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		if (SpawnedItem)
+		{
+			SpawnedItem->Durability = GameInstance->Inventory[CurrentSlot - 1]->Durability; 
+		}
 		GameInstance->Inventory[CurrentSlot - 1]->Destroy();
 		GameInstance->Inventory[CurrentSlot - 1] = nullptr;
 		if (EmptySlotImage)
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 	}
+	if (EmptySlotImage)
+		GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 }
 
 bool UInventoryComponent::PickUpHealthPot()
@@ -358,8 +367,10 @@ bool UInventoryComponent::FillEmptySlot()
 		if (!GameInstance->Inventory[i])
 		{
 			GameInstance->Inventory[i] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
-			// prevent GC
-			// Inventory[i]->AddToRoot();
+			if (GameInstance->Inventory[i])
+			{
+				GameInstance->Inventory[i]->Durability = OverlappingItems.Last()->Durability;
+			}
 			OverlappingItems.Pop()->Destroy();
 			GameModeRef->UpdateInventoryUI(i + 1, GameInstance->Inventory[i]->GetItemImage());
 			Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
@@ -375,15 +386,19 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 
 	// check if there is already an item in the inventory. Then save that to a TempValue to spawn in the world.
 	AItemBase* TempItem{ nullptr };
+	int32 TempDurability{50};
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
 		TempItem = GameInstance->Inventory[CurrentSlot - 1];
+		TempDurability = GameInstance->Inventory[CurrentSlot - 1]->Durability;
 	}
 	
 	// Add item to inventory and Destroy it from the world. Then update ui if it is valid.
 	GameInstance->Inventory[CurrentSlot - 1] = NewObject<AItemBase>(GetWorld(), OverlappingItems.Last()->GetClass());
-	// prevent GC
-	//Inventory[CurrentSlot - 1]->AddToRoot();
+	if (GameInstance->Inventory[CurrentSlot - 1])
+	{
+		GameInstance->Inventory[CurrentSlot - 1]->Durability = OverlappingItems.Last()->Durability;
+	}
 	OverlappingItems.Pop()->Destroy();
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
@@ -393,7 +408,12 @@ bool UInventoryComponent::ReplaceCurrentSlot()
 	// Now spawn item from inventory if there was an item there.
 	if (TempItem)
 	{
-		GetWorld()->SpawnActor<AItemBase>(TempItem->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		AItemBase* SpawnedItem = GetWorld()->SpawnActor<AItemBase>(TempItem->GetClass(), GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		if (SpawnedItem)
+		{
+			SpawnedItem->Durability = TempDurability; 
+		}
+		TempItem->Destroy();
 	}
 	
 	Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();

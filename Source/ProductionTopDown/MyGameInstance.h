@@ -17,6 +17,8 @@ public:
 	UPROPERTY()
 	int32 NumberOfHealthPots{0};
 	UPROPERTY()
+	TArray<int32> ItemsDurability{0, 0, 0, 0};
+	UPROPERTY()
 	TArray<class AItemBase*> Inventory;
 	UPROPERTY()
 	TArray<TSubclassOf<class AItemBase>> SavedInventory;
