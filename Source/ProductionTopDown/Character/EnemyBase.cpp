@@ -9,6 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "ProductionTopDown/Actors/Patrol/PatrolPoint.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
@@ -24,6 +26,8 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CapsuleComponent = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
 	
 	Player = Cast<APlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass()));
 	if (!Player)
@@ -105,13 +109,16 @@ void AEnemyBase::Tick(float DeltaTime)
             			EnemyState = EEnemyState::Chase;
             			bAttacking = false;
 					UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents FALSE"));
-AttackBox->SetGenerateOverlapEvents(false);
+					AttackBox->SetGenerateOverlapEvents(false);
             		}, AttackLenght, 0);	
 			}
 
 		
 			Attack();
 			break;
+	case EEnemyState::Dead:
+		bIsPlayerClose = false;
+		break;
 		default:
 			break;
 	}
@@ -294,6 +301,18 @@ void AEnemyBase::OnComponentBeginOverlapAttackBox(UPrimitiveComponent* Overlappe
                     this,
                     DamageType
                     );
+
+			FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+			APlayerCharacter* PlayerCharacterTemp = Cast<APlayerCharacter>(OtherComp->GetOwner());
+			if (PlayerCharacterTemp)
+				PlayerCharacterTemp->LaunchCharacter(PushBackVector*AttackKnockback, true, false);
+
+			if (AttackParticle && !AttackParticle->IsLooping())
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), AttackParticle, AttackBox->GetComponentLocation(), AttackBox->GetComponentRotation() + FRotator{0.f, -90.f, 0.f});	
+			}
+			
+			AttackBox->SetGenerateOverlapEvents(false);
 		}
 	}
 }
@@ -411,6 +430,9 @@ void AEnemyBase::IdleState(float DeltaTime)
 
 void AEnemyBase::TriggerDeath()
 {
+	EnemyState = EEnemyState::Dead;
+	AttackBox->SetGenerateOverlapEvents(false);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Super::TriggerDeath();
 	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
 	if (Spawner)

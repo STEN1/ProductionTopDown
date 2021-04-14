@@ -13,6 +13,7 @@ enum class EEnemyState : uint8
     Patrol = 1		UMETA(DisplayName = "Following Patrol"),
     Chase = 2		UMETA(DisplayName = "Chasing Target"),
 	Attack = 3		UMETA(DisplayName = "Attacking"),
+	Dead = 4		UMETA(DisplayName = "Dead"),
 };
 
 UCLASS()
@@ -50,6 +51,7 @@ protected:
 	FHitResult GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const;
 	
 	class APlayerCharacter* Player{nullptr};
+	class UCapsuleComponent* CapsuleComponent{nullptr};
 	class UScentComponent* ScentComponent{nullptr};
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components",  meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* DetectionComponent{nullptr};
@@ -58,7 +60,7 @@ protected:
 	class APatrolHub* PatrolHub{nullptr};
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UDamageType> DamageType;
-
+	
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 	UFUNCTION()
@@ -80,7 +82,13 @@ protected:
 	float AttackTimer{0.f};
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	float AttackDamage{10.f};
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float AttackKnockback{100.f};
 	bool bAttacking{false};
+
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	class UNiagaraSystem* AttackParticle;
+
 	
 	bool bIsPlayerClose{false};
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
