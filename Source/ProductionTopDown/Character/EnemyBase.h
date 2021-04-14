@@ -33,6 +33,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Reach{500.f};
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void RemoveHealthBar();
+	
 protected:
 	virtual void BeginPlay() override;
 	
