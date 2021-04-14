@@ -24,6 +24,8 @@ void ACharacterBase::BeginPlay()
 	
 	HealthComponent = FindComponentByClass<UHealthComponent>();
 	StaminaComponent = FindComponentByClass<UStaminaComponent>();
+
+	if(GetMesh())GetMesh()->SetSimulatePhysics(false);
 	
 }
 
@@ -47,6 +49,8 @@ void ACharacterBase::TriggerDeath()
 	if(DeathParticle)UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticle, GetActorLocation());
 	if(DeathSound)UGameplayStatics::SpawnSoundAtLocation(this, DeathSound, GetActorLocation());
 	SpawnDeathParticle();
+
+	if(GetMesh())GetMesh()->SetSimulatePhysics(true);
 }
 
 bool ACharacterBase::Attack()

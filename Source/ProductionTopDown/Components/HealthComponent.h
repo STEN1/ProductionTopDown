@@ -35,6 +35,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	float HealthPercentage{1.f};
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ActorDeathParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* ActorDeathNiagaraParticle;
+
 
 	
 	UFUNCTION()
@@ -43,4 +48,5 @@ private:
 	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
 
+	void SpawnDeathParticle();
 };

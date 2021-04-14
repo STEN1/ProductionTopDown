@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ASavePoint();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSaved();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -25,5 +28,12 @@ protected:
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSTemplate;
+	
+	void SpawnSaveParticle(FVector ParticleLocation);
 
 };

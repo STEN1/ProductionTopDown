@@ -58,6 +58,7 @@ void UInteractComponent::Interact()
 	{
 		Cast<AInteractableBase>(ActorArray.Last())->Interact();
 	}
+
 }
 
 void UInteractComponent::CreateBoxComponent()

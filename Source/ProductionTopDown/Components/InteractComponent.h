@@ -17,6 +17,9 @@ public:
 	// Sets default values for this component's properties
 	UInteractComponent();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInteract();
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
