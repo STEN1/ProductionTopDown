@@ -78,14 +78,18 @@ void ALever::Interact(bool Condition)
 	bIsActivated = !bIsActivated;
 	ActivateTimer = 0.f;
 	
-	if (ActivateActors.Num() > 0)
+	if (ActivateActors.Num() > 0 && !bDontActivate)
 	{
 		for (int i = 0; i < ActivateActors.Num(); ++i)
 		{
 			if (ActivateActors[i])
 			{
-				ActivateActors[i]->Activate(true);
+				ActivateActors[i]->Activate(bIsActivated);
 			}
+		}
+		if (bActivateOnlyOnce)
+		{
+			bDontActivate = !bDontActivate;
 		}
 	}
 }
