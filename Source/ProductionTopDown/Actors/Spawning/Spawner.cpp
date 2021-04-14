@@ -9,6 +9,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
+#include "ProductionTopDown/Character/EnemyBase.h"
 
 
 // Sets default values
@@ -109,6 +110,8 @@ void ASpawner::InstantSpawn()
 			{
 				TempActor->SetOwner(this);
 				OnActorSpawned(SpawnPoint->GetActorLocation());
+				if(AEnemyBase* TempEnemy = Cast<AEnemyBase>(TempActor))
+					TempEnemy->InitializeEnemyFromSpawner();
 			}
 			else
 			{
@@ -139,6 +142,8 @@ void ASpawner::SpawnWithTimer()
 		{
 			TempActor->SetOwner(this);
 			OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+			if(AEnemyBase* TempEnemy = Cast<AEnemyBase>(TempActor))
+				TempEnemy->InitializeEnemyFromSpawner();
 		}
 		else
 		{

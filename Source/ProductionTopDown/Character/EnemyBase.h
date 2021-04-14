@@ -13,6 +13,7 @@ enum class EEnemyState : uint8
     Patrol = 1		UMETA(DisplayName = "Following Patrol"),
     Chase = 2		UMETA(DisplayName = "Chasing Target"),
 	Attack = 3		UMETA(DisplayName = "Attacking"),
+	Dead = 4		UMETA(DisplayName = "Dead"),
 };
 
 UCLASS()
@@ -26,7 +27,9 @@ public:
 	virtual void TriggerDeath() override;
 
 	virtual void Tick(float DeltaTime) override;
-
+	
+	void InitializeEnemyFromSpawner();
+	
 	UPROPERTY(EditAnywhere)
 	float Reach{500.f};
 
@@ -40,31 +43,53 @@ protected:
 	void IdleState(float DeltaTime);
 	void PatrolState();
 
+	FTimerHandle AttackTimerHandle;
+	
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
 	FVector CalcVectorFromPlayerToTarget(FVector Target);
 	FHitResult GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const;
 	
 	class APlayerCharacter* Player{nullptr};
+	class UCapsuleComponent* CapsuleComponent{nullptr};
 	class UScentComponent* ScentComponent{nullptr};
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components",  meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* DetectionComponent{nullptr};
+	class UBoxComponent* AttackBox{nullptr};
 	UPROPERTY(EditInstanceOnly)
 	class APatrolHub* PatrolHub{nullptr};
-
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UDamageType> DamageType;
+	
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	UFUNCTION()
+	void OnComponentBeginOverlapAttackBox(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     float MoveSpeed{50.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float DetectionRadius{500.f};
+	FVector PatrolPointSelected{0.f, 0.f, 0.f};
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    FVector AttackBoxScale{200.f, 100.f, 100.f};
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+   	FVector AttackBoxOffset{100.f, 0.f, 0.f,};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float AttackRange{150.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float AttackLenght{1.5f};
 	float AttackTimer{0.f};
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float AttackDamage{10.f};
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float AttackKnockback{100.f};
+	bool bAttacking{false};
 
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	class UNiagaraSystem* AttackParticle;
+
+	
 	bool bIsPlayerClose{false};
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bPatrolSet{false};
@@ -73,7 +98,7 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	float IdleTime{2.f};
 	float IdleTimer{0.f};
-	FVector PatrolPointSelected{0.f, 0.f, 0.f};
+	
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState EnemyState;
 	

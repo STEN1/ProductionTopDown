@@ -36,7 +36,6 @@ void UHurtBoxComponent::BeginPlay()
 		HurtBox->SetRelativeScale3D(BoxScale);
 		HurtBox->SetRelativeLocation(MeshAttachedTo->GetRelativeLocation() + BoxOffset);
 		HurtBox->RegisterComponent();
-		UE_LOG(LogTemp, Warning, TEXT("HurtBoxComponent attached to: %s"), *MeshAttachedTo->GetName());
 
 		SetComponentTickEnabled(bDrawDebugBox);
 	}

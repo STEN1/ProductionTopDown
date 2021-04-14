@@ -7,7 +7,10 @@
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "ProductionTopDown/Actors/Patrol/PatrolPoint.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
@@ -16,11 +19,15 @@ AEnemyBase::AEnemyBase()
 {
 	DetectionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionComponent"));
 	DetectionComponent->SetupAttachment(RootComponent);
+	AttackBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox1"));
+	AttackBox->SetupAttachment(RootComponent);
 }
 
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CapsuleComponent = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
 	
 	Player = Cast<APlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass()));
 	if (!Player)
@@ -35,15 +42,6 @@ void AEnemyBase::BeginPlay()
 	DetectionComponent->SetSphereRadius(DetectionRadius);
 	DetectionComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlap);
 	DetectionComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
-
-	if (!PatrolHub)
-	{
-		ASpawner* Spawner = Cast<ASpawner>(GetOwner());
-		if (Spawner)
-		{
-			PatrolHub = Spawner->PatrolHub;
-		}
-	}
 	
 	if (PatrolHub)
 	{
@@ -66,6 +64,12 @@ void AEnemyBase::BeginPlay()
 			}
 		}
 	}
+
+	AttackBox->SetRelativeLocation(AttackBoxOffset);
+	AttackBox->SetBoxExtent(AttackBoxScale);
+	AttackBox->SetCollisionObjectType(ECC_EngineTraceChannel2);
+	AttackBox->SetGenerateOverlapEvents(false);
+	AttackBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnComponentBeginOverlapAttackBox);
 	
 }
 
@@ -93,14 +97,28 @@ void AEnemyBase::Tick(float DeltaTime)
 			FollowPlayer();
 		break;
 		case EEnemyState::Attack:
-			AttackTimer += DeltaTime;
-			if (AttackTimer >= AttackLenght)
+
+			if (!bAttacking)
 			{
-				EnemyState = EEnemyState::Chase;
-				AttackTimer = 0.f;
+				bAttacking = true;
+				UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents TRUE"));
+				AttackBox->SetGenerateOverlapEvents(true);
+				GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, [this]()
+            		{
+            			UE_LOG(LogTemp, Error, TEXT("Attack Over"))
+            			EnemyState = EEnemyState::Chase;
+            			bAttacking = false;
+					UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents FALSE"));
+					AttackBox->SetGenerateOverlapEvents(false);
+            		}, AttackLenght, 0);	
 			}
+
+		
 			Attack();
 			break;
+	case EEnemyState::Dead:
+		bIsPlayerClose = false;
+		break;
 		default:
 			break;
 	}
@@ -268,6 +286,37 @@ void AEnemyBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	}
 }
 
+void AEnemyBase::OnComponentBeginOverlapAttackBox(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(OtherActor != this)
+	{
+		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(APlayerCharacter::StaticClass()))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Overlap with PLAYER!"));
+			UGameplayStatics::ApplyDamage(
+                    OtherComp->GetOwner(),
+                    AttackDamage,
+                    GetInstigatorController(),
+                    this,
+                    DamageType
+                    );
+
+			FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+			APlayerCharacter* PlayerCharacterTemp = Cast<APlayerCharacter>(OtherComp->GetOwner());
+			if (PlayerCharacterTemp)
+				PlayerCharacterTemp->LaunchCharacter(PushBackVector*AttackKnockback, true, false);
+
+			if (AttackParticle && !AttackParticle->IsLooping())
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), AttackParticle, AttackBox->GetComponentLocation(), AttackBox->GetComponentRotation() + FRotator{0.f, -90.f, 0.f});	
+			}
+			
+			AttackBox->SetGenerateOverlapEvents(false);
+		}
+	}
+}
+
 void AEnemyBase::IsPlayerInView()
  {
 	FHitResult Hit{GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true)};
@@ -332,8 +381,32 @@ void AEnemyBase::PatrolState()
 	}
 }
 
-bool AEnemyBase::Attack()
+void AEnemyBase::InitializeEnemyFromSpawner()
 {
+	if (!PatrolHub)
+	{
+		ASpawner* Spawner = Cast<ASpawner>(GetOwner());
+		if (Spawner)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SPAWNER FOUND"));
+			PatrolHub = Spawner->PatrolHub;
+		} else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SPAWNER NOT FOUND"));
+		}
+	}
+	
+	if (PatrolHub)
+	{
+		EnemyState = EEnemyState::Patrol;
+	} else
+	{
+		EnemyState = EEnemyState::Idle;
+	}
+}
+
+bool AEnemyBase::Attack()
+{	
 	
 	return true;
 }
@@ -357,6 +430,9 @@ void AEnemyBase::IdleState(float DeltaTime)
 
 void AEnemyBase::TriggerDeath()
 {
+	EnemyState = EEnemyState::Dead;
+	AttackBox->SetGenerateOverlapEvents(false);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Super::TriggerDeath();
 	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
 	if (Spawner)
