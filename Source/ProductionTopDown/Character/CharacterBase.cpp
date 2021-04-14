@@ -2,11 +2,13 @@
 
 
 #include "CharacterBase.h"
-
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/StaminaComponent.h"
-#include "NiagaraComponent.h"
+
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -46,6 +48,11 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void ACharacterBase::TriggerDeath()
 {
+	if (DeathParticleNiagra && !DeathParticleNiagra->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DeathParticleNiagra, GetActorLocation());	
+	}
+	
 	if(DeathParticle)UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticle, GetActorLocation());
 	if(DeathSound)UGameplayStatics::SpawnSoundAtLocation(this, DeathSound, GetActorLocation());
 	SpawnDeathParticle();

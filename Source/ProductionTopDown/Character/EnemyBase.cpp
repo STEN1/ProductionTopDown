@@ -9,8 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "ProductionTopDown/Actors/Patrol/PatrolPoint.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 #include "ProductionTopDown/Components/ScentComponent.h"
@@ -92,23 +92,6 @@ void AEnemyBase::Tick(float DeltaTime)
 			FollowPlayer();
 		break;
 		case EEnemyState::Attack:
-
-			if (!bAttacking)
-			{
-				bAttacking = true;
-				UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents TRUE"));
-				AttackBox->SetGenerateOverlapEvents(true);
-				GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, [this]()
-            		{
-            			UE_LOG(LogTemp, Error, TEXT("Attack Over"))
-            			EnemyState = EEnemyState::Chase;
-            			bAttacking = false;
-					UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents FALSE"));
-					AttackBox->SetGenerateOverlapEvents(false);
-            		}, AttackLenght, 0);	
-			}
-
-		
 			Attack();
 			break;
 	case EEnemyState::Dead:
@@ -407,6 +390,20 @@ void AEnemyBase::InitializeEnemyFromSpawner()
 
 bool AEnemyBase::Attack()
 {	
+	if (!bAttacking)
+	{
+		bAttacking = true;
+		UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents TRUE"));
+		AttackBox->SetGenerateOverlapEvents(true);
+		GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, [this]()
+            {
+                UE_LOG(LogTemp, Error, TEXT("Attack Over"))
+			EnemyState = EEnemyState::Chase;
+            bAttacking = false;
+        UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents FALSE"));
+        AttackBox->SetGenerateOverlapEvents(false);
+        }, AttackLenght, 0);	
+	}
 	
 	return true;
 }

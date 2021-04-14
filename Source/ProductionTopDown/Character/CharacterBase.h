@@ -47,6 +47,8 @@ protected:
 private:
 	//variables
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	class UNiagaraSystem* DeathParticleNiagra;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UParticleSystem* DeathParticle;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DeathSound;
