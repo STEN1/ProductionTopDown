@@ -76,6 +76,10 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	//Die when fall of the map
+	if(GetActorLocation().Z < -20 && EnemyState != EEnemyState::Dead) TriggerDeath();
 	
 	switch (EnemyState)
 	{
@@ -127,7 +131,7 @@ void AEnemyBase::FollowPlayer()
 FVector AEnemyBase::GetMoveDirFromScent()
 {
 	FHitResult Hit;
-    Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true);
+    Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), false);
 
 	if (!Hit.IsValidBlockingHit())
 	{
@@ -140,7 +144,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
 	
 	for (int i = ScentComponent->ScentArray.Num()-1; i >= 0 ; --i)
 	{
-		Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, ScentComponent->ScentArray[i], true);
+		Hit = GetFirstHitInReach(ECollisionChannel::ECC_Visibility, ScentComponent->ScentArray[i], false);
 		
 		if (!Hit.IsValidBlockingHit())
         {
@@ -302,7 +306,7 @@ void AEnemyBase::OnComponentBeginOverlapAttackBox(UPrimitiveComponent* Overlappe
 
 void AEnemyBase::IsPlayerInView()
  {
-	FHitResult Hit{GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), true)};
+	FHitResult Hit{GetFirstHitInReach(ECollisionChannel::ECC_Visibility, Player->GetActorLocation(), false)};
 
 	if (!Hit.IsValidBlockingHit() && EnemyState != EEnemyState::Chase && EnemyState != EEnemyState::Attack)
 	{
@@ -327,8 +331,11 @@ void AEnemyBase::PatrolState()
 		{
 			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
 
+			//DrawDebugline bool
+			bool bDrawDebugLine{false};
+			
 			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
-			if (!Hit.IsValidBlockingHit())
+			if (!Hit.IsValidBlockingHit() && bDrawDebugLine)
 			{
 				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
 				PatrolIndex = i + 1;
@@ -420,7 +427,7 @@ void AEnemyBase::IdleState(float DeltaTime)
 	}
 	if (FMath::Rand() % 40 == 1)
 	{
-		FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
+		const FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
        	SetActorRotation(RandDir.Rotation());
 	}
 }
@@ -430,6 +437,10 @@ void AEnemyBase::TriggerDeath()
 	EnemyState = EEnemyState::Dead;
 	AttackBox->SetGenerateOverlapEvents(false);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//Blueprint Event Remove HealthBar
+	RemoveHealthBar();
+	
 	Super::TriggerDeath();
 	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
 	if (Spawner)

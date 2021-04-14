@@ -57,7 +57,14 @@ void ACharacterBase::TriggerDeath()
 	if(DeathSound)UGameplayStatics::SpawnSoundAtLocation(this, DeathSound, GetActorLocation());
 	SpawnDeathParticle();
 
-	if(GetMesh())GetMesh()->SetSimulatePhysics(true);
+
+    //Ragdoll
+    FTimerHandle Handle;
+    	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
+            //code who runs after delay time
+    		if(GetMesh())GetMesh()->SetSimulatePhysics(true);
+        }, 0.1f, 0);
+	
 }
 
 bool ACharacterBase::Attack()

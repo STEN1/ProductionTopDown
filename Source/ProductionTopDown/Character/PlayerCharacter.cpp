@@ -424,8 +424,8 @@ void APlayerCharacter::LightAttack()
 
 	if (AttackSounds.Num() > 0)
 	{
-		int32 randIndex = FMath::Rand() % AttackSounds.Num();
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSounds[randIndex], GetActorLocation(), GetActorRotation());
+		const int32 RandSoundNum = FMath::RandRange(0, AttackSounds.Num()-1);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSounds[RandSoundNum], GetActorLocation(), GetActorRotation());
 	}
 	
 	//if(LightAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), LightAttackSound, GetActorLocation(), GetActorRotation());
