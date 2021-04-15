@@ -57,7 +57,7 @@ void APlayerCharacter::TriggerDeath()
 	SetPlayerState(EPlayerState::Dead);
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
-	BPTriggerDeath();
+	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
 	//UE_LOG(LogTemp, Warning, TEXT("Player died"));
 
 }
