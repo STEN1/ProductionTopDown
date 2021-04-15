@@ -109,6 +109,7 @@ void ADoorActor::Activate(bool On)
 				bDoorOpen = On;
 				ExpoSpeed = 10.f;
 				SetActorTickEnabled(true);
+				AudioComponent->Stop();
 			}, CloseDelay, false);
 		}
 	}
