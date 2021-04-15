@@ -53,11 +53,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::TriggerDeath()
 {
 	Super::TriggerDeath();
-	
+	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
 	SetPlayerState(EPlayerState::Dead);
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
-	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
+	
 	//UE_LOG(LogTemp, Warning, TEXT("Player died"));
 
 }

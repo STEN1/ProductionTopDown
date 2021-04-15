@@ -68,6 +68,7 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 	
 	if (SaveGameInstance && GameInstance)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Loaded. location %s"), *SaveGameInstance->PlayerLocation.ToCompactString());
 		GameInstance->SavedInventory = SaveGameInstance->Inventory;
 		GameInstance->PosFromSaveGame = SaveGameInstance->PlayerLocation;
 		GameInstance->RotFromSaveGame = SaveGameInstance->PlayerRotation;
@@ -83,7 +84,7 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 		
 		UGameplayStatics::OpenLevel(WorldContextObject, *SaveGameInstance->Level);
 		
-		UE_LOG(LogTemp, Warning, TEXT("Game Loaded."));
+		
 	}
 	
 }

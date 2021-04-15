@@ -148,6 +148,7 @@ void UInventoryComponent::BeginPlay()
 	else if (GameInstance->SavedInventory.Num() == InventorySize)
 	{
 		GameInstance->Inventory.SetNum(InventorySize);
+		GameInstance->ItemsDurability.SetNum(InventorySize);
 		for (int32 i = 0; i < InventorySize; ++i)
 		{
 			if (GameInstance->SavedInventory[i])
@@ -174,8 +175,11 @@ void UInventoryComponent::BeginPlay()
 	{
 		if (GameInstance->bLoadedGame)
 		{
-			GetOwner()->SetActorLocation(GameInstance->PosFromSaveGame);
-			GetOwner()->SetActorRotation(GameInstance->RotFromSaveGame);
+			if (GameInstance->PosFromSaveGame != FVector::ZeroVector)
+			{
+				GetOwner()->SetActorLocation(GameInstance->PosFromSaveGame);
+				GetOwner()->SetActorRotation(GameInstance->RotFromSaveGame);
+			}
 			GameInstance->bLoadedGame = false;
 		}
 	}
