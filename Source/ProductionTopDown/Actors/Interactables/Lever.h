@@ -30,6 +30,8 @@ public:
 	float TimeBeforeClose{1.0f};
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	bool bTimer{false};
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	bool bActivateOnlyOnce{false};
 	
 	virtual void Interact(bool Condition = true) override;
 	
@@ -44,6 +46,7 @@ private:
 	
 	float ActivateTimer{0.f};
 	bool bIsActivated{false};
+	bool bDontActivate{false};
 
 	protected:
 	virtual void BeginPlay() override;
