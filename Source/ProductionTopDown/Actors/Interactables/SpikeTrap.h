@@ -33,6 +33,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Setup")
 	FVector Stage2Offset{20.f, 20.f, 20.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
+	float StartDelay{-1.f};
+	UPROPERTY(EditAnywhere, Category="Setup")
 	float Stage1Timer{1.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	float Stage2Timer{2.f};
@@ -61,6 +63,8 @@ private:
 	FVector TargetLocationStage2;
 
 	float TickTimer{0.f};
+
+	bool bActivated{false};
 
 	int32 SpikeState{0};	// 0 == Peaking out, 1 == Fully out, 2 == Reset/Hidden
 };

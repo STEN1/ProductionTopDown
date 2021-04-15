@@ -43,6 +43,11 @@ void ASpikeTrap::BeginPlay()
 		TickTimer = Stage2Timer;
 		SpikeState = 2;
 	}
+
+	if (StartDelay <= 0)
+	{
+		bActivated = true;
+	}
 }
 
 void ASpikeTrap::Tick(float DeltaSeconds)
@@ -50,41 +55,50 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	
 	TickTimer += DeltaSeconds;
-	if (TickTimer >= Stage1Timer && SpikeState == 0)
+	if (TickTimer >= StartDelay || bActivated)
 	{
-		FVector NewLocation;
-		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage1.Z, DeltaSeconds, SpikeMoveSpeed);
-		SpikeMesh->SetRelativeLocation(NewLocation);
-		if (NewLocation.Z == TargetLocationStage1.Z)
+		if (!bActivated)
 		{
-			++SpikeState;
-		}
-
-	} else if (TickTimer >= Stage2Timer && SpikeState == 1)
-	{
-		FVector NewLocation;
-		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage2.Z, DeltaSeconds, SpikeMoveSpeed);
-		SpikeMesh->SetRelativeLocation(NewLocation);
-		if (NewLocation.Z == TargetLocationStage2.Z)
-		{
-			++SpikeState;
-			if (bStartSpikeOut)
-			{
-				SetActorTickEnabled(bLoop);
-			}
-		}
-
-	} else if (TickTimer >= Stage0Timer && SpikeState == 2)
-	{
-		FVector NewLocation;
-		NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, StartLocation.Z, DeltaSeconds, SpikeMoveSpeed);
-		SpikeMesh->SetRelativeLocation(NewLocation);
-		if (NewLocation.Z == StartLocation.Z)
-		{
+			bActivated = true;
 			TickTimer = 0.f;
-           	SpikeState = 0;
-			SetActorTickEnabled(bLoop);
-			//SoundFX can go here!
+		}
+		
+		if (TickTimer >= Stage1Timer && SpikeState == 0)
+		{
+			FVector NewLocation;
+			NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage1.Z, DeltaSeconds, SpikeMoveSpeed);
+			SpikeMesh->SetRelativeLocation(NewLocation);
+			if (NewLocation.Z == TargetLocationStage1.Z)
+			{
+				++SpikeState;
+			}
+
+		} else if (TickTimer >= Stage2Timer && SpikeState == 1)
+		{
+			FVector NewLocation;
+			NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, TargetLocationStage2.Z, DeltaSeconds, SpikeMoveSpeed);
+			SpikeMesh->SetRelativeLocation(NewLocation);
+			if (NewLocation.Z == TargetLocationStage2.Z)
+			{
+				++SpikeState;
+				if (bStartSpikeOut)
+				{
+					SetActorTickEnabled(bLoop);
+				}
+			}
+
+		} else if (TickTimer >= Stage0Timer && SpikeState == 2)
+		{
+			FVector NewLocation;
+			NewLocation.Z = FMath::FInterpConstantTo(SpikeMesh->GetRelativeLocation().Z, StartLocation.Z, DeltaSeconds, SpikeMoveSpeed);
+			SpikeMesh->SetRelativeLocation(NewLocation);
+			if (NewLocation.Z == StartLocation.Z)
+			{
+				TickTimer = 0.f;
+				SpikeState = 0;
+				SetActorTickEnabled(bLoop);
+				//SoundFX can go here!
+			}
 		}
 	}
 }
