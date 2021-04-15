@@ -79,7 +79,10 @@ void AEnemyBase::Tick(float DeltaTime)
 
 
 	//Die when fall of the map
-	if(GetActorLocation().Z < -20 && EnemyState != EEnemyState::Dead) TriggerDeath();
+	if(GetActorLocation().Z < -20 && EnemyState != EEnemyState::Dead)
+	{
+		UGameplayStatics::ApplyDamage(this, 99999, GetInstigatorController(), this, DamageType);
+	}
 	
 	switch (EnemyState)
 	{

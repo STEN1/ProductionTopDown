@@ -36,6 +36,13 @@ private:
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	void Interact();
 	void UseHealthPot();
+	void PlayHealthPotUseEffects();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSHealthPotUseEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSHealthPotUseEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* HealthPotUseSound;
 	void Slot1();
 	void Slot2();
 	void Slot3();
@@ -74,8 +81,8 @@ private:
 	USoundBase* WeaponBreakSound;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* PSTemplate;
+	UParticleSystem* PSWeaponBreakEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	class UNiagaraSystem* NSTemplate;
-	void SpawnParticleEffect(FVector EffectSpawnLocationVector);
+	class UNiagaraSystem* NSWeaponBreakEffect;
+	void SpawnBreakParticleEffect(FVector EffectSpawnLocationVector);
 };

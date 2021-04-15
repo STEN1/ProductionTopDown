@@ -47,7 +47,8 @@ private:
 	USoundBase* DeathSound;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	USoundBase* HitSound;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> ActorToSpawn;
 	
 	UFUNCTION()
 	void TakeDmg(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
@@ -57,4 +58,7 @@ private:
 
 	void SpawnDeathParticle();
 	void SpawnHitParticle();
+	void SpawnActorOnDeath();
+
+	bool bDead{false};
 };

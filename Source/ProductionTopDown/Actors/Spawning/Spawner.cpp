@@ -37,6 +37,7 @@ void ASpawner::StartSpawning()
 		SpawnWithTimer();
 	}
 	AliveActors = SpawnPoints.Num();
+	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 	if (bSpawnOnce)
 	{
 		bCanSpawn = false;
@@ -116,6 +117,7 @@ void ASpawner::InstantSpawn()
 			else
 			{
 				AliveActors--;
+				UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 			}
 			
 		}
@@ -148,6 +150,7 @@ void ASpawner::SpawnWithTimer()
 		else
 		{
 			AliveActors--;
+			UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 		}
 	}
 
