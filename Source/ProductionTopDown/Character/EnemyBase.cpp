@@ -437,6 +437,9 @@ void AEnemyBase::IdleState(float DeltaTime)
 
 void AEnemyBase::TriggerDeath()
 {
+	// Never call this function direcly. Let the healthcomponent call it.
+	// If something needs to kill instantly use applydmg with a really big number :)
+	
 	EnemyState = EEnemyState::Dead;
 	AttackBox->SetGenerateOverlapEvents(false);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);

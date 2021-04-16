@@ -52,6 +52,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::TriggerDeath()
 {
+	// Never call this function direcly. Let the healthcomponent call it.
+	// If something needs to kill instantly use applydmg with a really big number :)
+	
 	Super::TriggerDeath();
 	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
 	SetPlayerState(EPlayerState::Dead);
