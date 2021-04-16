@@ -37,7 +37,6 @@ void ALever::Tick(float DeltaSeconds)
 
         if (NewRotation.Pitch == TargetRotation.Pitch)
         {
-        	UE_LOG(LogTemp, Error, TEXT("Lever Down"));
             if (!bTimer)
             {
 	            SetActorTickEnabled(false);
@@ -53,7 +52,6 @@ void ALever::Tick(float DeltaSeconds)
 
 		if (NewRotation.Pitch == StartRotation.Pitch)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Lever Up"));
 			SetActorTickEnabled(false);
 		}
 	}
