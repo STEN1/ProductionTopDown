@@ -343,6 +343,10 @@ void ADoorActor::OnDoorClosed()
 {
 	if (ClosedSound)
 	{
+		if (ClosedParticle && !ClosedParticle->IsLooping())
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ClosedParticle, GetActorLocation() + FVector{0.f, 0.f, 40.f}, GetActorRotation() + FRotator{0.f, 90.f, 0.f});
+		}
 		UGameplayStatics::PlaySoundAtLocation(this, ClosedSound, GetActorLocation(), GetActorRotation());
 	}
 }

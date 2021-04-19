@@ -45,6 +45,9 @@ private:
 	EDoorType DoorTypeOpen;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	EDoorType DoorTypeClose;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ClosedParticle;
 	
 	FVector StartLocation;
 	FRotator StartRotation;
