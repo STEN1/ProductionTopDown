@@ -453,12 +453,13 @@ void AEnemyBase::TriggerDeath()
 	{
 		Spawner->ActorDied(this);
 	}
+	
 	//ragdoll before it dies
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
         //code who runs after delay time
 		Destroy();
-    }, 2.f, 0);
+    }, 120.f, 0);
 	
 	
 }
