@@ -67,9 +67,18 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 	SpawnHitParticle();
 	if (Health <= 0)
 	{
+		if (bDead)
+		{
+			return;
+		}
+		bDead = true;
+		
+		SpawnActorOnDeath();
 		SpawnDeathParticle();
+		
 		if (DeathSound)
 			UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+			
 		ACharacterBase* Character = Cast<ACharacterBase>(GetOwner());
 		if(Character)Character->TriggerDeath();
 
@@ -78,10 +87,6 @@ void UHealthComponent::TakeDmg(AActor* DamagedActor, float Damage, const UDamage
 		{
 			DamagedActor->Destroy();
 		}
-		// probably just call some kind of "HandleDeath()" function on the damaged actor.
-		// we need to have a virtual function in the characterbase class that the playerclass and the enemy class can override.
-		// This should play effects and Destroy enemies but have some kind of menu popup for player death with options to
-		// restart from last save etc etc
 	}
 }
 
@@ -124,5 +129,13 @@ void UHealthComponent::SpawnHitParticle()
 	if (ActorHitNiagaraParticle && ActorHitNiagaraParticle->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+}
+
+void UHealthComponent::SpawnActorOnDeath()
+{
+	if (ActorToSpawn)
+	{
+		GetWorld()->SpawnActor<AActor>(ActorToSpawn, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	}
 }

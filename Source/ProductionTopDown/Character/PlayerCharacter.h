@@ -64,7 +64,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual bool Attack() override;
+	//virtual bool Attack() override;
 	virtual bool Dash() override;
 
 	AActor* GetActorToDamage();
@@ -137,12 +137,18 @@ private:
 	
 	//variables
 	FVector LastDirection;
-	FRotator LastRotation;
-	bool bCanDash{true};
 
+	//InputVector
+	float ForwardFloat;
+	float SideWaysFloat;
+	FVector InputVector;
 	
+	FRotator LastRotation;
+	
+	bool bCanDash{true};
 	bool bAttackActive{false};
 	bool bHeavyAttack{false};
+
 	float StartAttackTime;
 	float StopAttackTime;
 	
@@ -179,5 +185,16 @@ private:
 	
 	bool bCanPush{false};
 
+
+	//Timer Handles
+
+	
 	FTimerHandle AttackChargeTimerHandle;
+	FTimerHandle DashCooldownHandle;
+	FTimerHandle DashTimerHandle;
+	FTimerHandle LightOverLapEventHandle;
+	FTimerHandle LightMovingHandle;
+	FTimerHandle HeavyOverLapEventHandle;
+	FTimerHandle HeavyMovingHandle;
+	
 };

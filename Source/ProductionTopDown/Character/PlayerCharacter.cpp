@@ -52,6 +52,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::TriggerDeath()
 {
+	// Never call this function direcly. Let the healthcomponent call it.
+	// If something needs to kill instantly use applydmg with a really big number :)
+	
 	Super::TriggerDeath();
 	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
 	SetPlayerState(EPlayerState::Dead);
@@ -65,6 +68,8 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InputVector = FVector(0,0,0);
 	
 	//input ticks before actor. fix bug ?
 	AddTickPrerequisiteActor(CharacterController);
@@ -108,7 +113,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	InputVector = ((GetActorForwardVector()*ForwardFloat)+(GetActorRightVector()*SideWaysFloat)).GetSafeNormal2D();
 	
 	if(CheckForPushableActor() && GetPlayerState() == EPlayerState::Moving)
 	{
@@ -183,6 +188,7 @@ void APlayerCharacter::AttackEvent()
 	
 }
 
+/*
 bool APlayerCharacter::Attack()
 {
 	RotateCharToMouse();
@@ -230,9 +236,10 @@ bool APlayerCharacter::Attack()
         LogPlayerState();
 		ResetWalkSpeed();
     }, AttackTimer, 0);
+    
 	return true;
 }
-
+*/
 
 void APlayerCharacter::DashEvent()
 {
@@ -257,14 +264,35 @@ bool APlayerCharacter::Dash()
 
 	//GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
 	
+	//LogPlayerState();
+	// fix bug if you dash from ledge.
 	
+	GetCharacterMovement()->FallingLateralFriction = 8;
+	//teleport player towards last direction
+	//FVector DashDirection = LastDirection.GetSafeNormal()*DashDistance;	
+
+	LaunchCharacter(InputVector*DashDistance, true , false);
+	
+	//delay until dash is finish
+	GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, [this]() {
+		//code who runs after delay time
+		SetPlayerState(EPlayerState::Moving);
+		//LogPlayerState();
+		GetCharacterMovement()->FallingLateralFriction = 0;
+		//GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+    }, DashTimer, 0);
+
+
 	//particle and sounds
 	if (DashSound)
 		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
 	if(DashParticle)
 	{
-		const FVector SystemLocation = GetMesh()->GetSocketLocation("DashParticleSocket");
-		const FRotator SystemRotation = GetMesh()->GetSocketRotation("DashParticleSocket");
+	
+		//const FVector SystemLocation = GetMesh()->GetSocketLocation("DashParticleSocket");
+		const FVector SystemLocation = GetActorLocation() + (InputVector * 200);
+		//const FRotator SystemRotation = GetMesh()->GetSocketRotation("DashParticleSocket");
+		const FRotator SystemRotation = InputVector.Rotation();
 		const FVector SystemScale = GetMesh()->GetSocketTransform("DashParticleSocket").GetScale3D();
 		
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
@@ -280,28 +308,8 @@ bool APlayerCharacter::Dash()
             );
 	}
 	
-	//LogPlayerState();
-	// fix bug if you dash from ledge.
-	
-	GetCharacterMovement()->FallingLateralFriction = 8;
-	//teleport player towards last direction
-	FVector DashDirection = LastDirection.GetSafeNormal()*DashDistance;
-	DashDirection.Z = 0;
-	LaunchCharacter(DashDirection, true , false);
-	
-	//delay until dash is finish
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
-		//code who runs after delay time
-		SetPlayerState(EPlayerState::Moving);
-		//LogPlayerState();
-		GetCharacterMovement()->FallingLateralFriction = 0;
-		//GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
-    }, DashTimer, 0);
-
 	//delay between dashes.
-	FTimerHandle handle2;
-	GetWorld()->GetTimerManager().SetTimer(handle2, [this]()
+	GetWorld()->GetTimerManager().SetTimer(DashCooldownHandle, [this]()
 	{
 		bCanDash = true;
 	}, DashDelay, 0);
@@ -451,14 +459,12 @@ void APlayerCharacter::LightAttack()
 		
 	}
 	
-	FTimerHandle handle2;
-	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
+	GetWorld()->GetTimerManager().SetTimer(LightOverLapEventHandle, [this]() {
         //code who runs after delay time
         if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, 0.05f, 0);
 	
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+	GetWorld()->GetTimerManager().SetTimer(LightMovingHandle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
     }, AttackTimer, 0);
@@ -498,14 +504,12 @@ void APlayerCharacter::HeavyAttack()
             );
 	}
 	
-	FTimerHandle handle2;
-	GetWorld()->GetTimerManager().SetTimer(handle2, [this]() {
+	GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle, [this]() {
         //code who runs after delay time
         if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
     }, 0.05f, 0);
 	
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {
+	GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
     }, AttackTimer, 0);
@@ -540,11 +544,15 @@ float APlayerCharacter::GetAttackDamage()
 void APlayerCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value);
+
+	ForwardFloat = Value;
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
 	AddMovementInput(GetActorRightVector() * Value);
+	
+	SideWaysFloat = Value;
 }
 
 void APlayerCharacter::RotateCharacter()

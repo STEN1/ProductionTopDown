@@ -79,7 +79,10 @@ void AEnemyBase::Tick(float DeltaTime)
 
 
 	//Die when fall of the map
-	if(GetActorLocation().Z < -20 && EnemyState != EEnemyState::Dead) TriggerDeath();
+	if(GetActorLocation().Z < -20 && EnemyState != EEnemyState::Dead)
+	{
+		UGameplayStatics::ApplyDamage(this, 99999, GetInstigatorController(), this, DamageType);
+	}
 	
 	switch (EnemyState)
 	{
@@ -434,6 +437,9 @@ void AEnemyBase::IdleState(float DeltaTime)
 
 void AEnemyBase::TriggerDeath()
 {
+	// Never call this function direcly. Let the healthcomponent call it.
+	// If something needs to kill instantly use applydmg with a really big number :)
+	
 	EnemyState = EEnemyState::Dead;
 	AttackBox->SetGenerateOverlapEvents(false);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -447,12 +453,13 @@ void AEnemyBase::TriggerDeath()
 	{
 		Spawner->ActorDied(this);
 	}
+	
 	//ragdoll before it dies
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
         //code who runs after delay time
 		Destroy();
-    }, 2.f, 0);
+    }, 120.f, 0);
 	
 	
 }

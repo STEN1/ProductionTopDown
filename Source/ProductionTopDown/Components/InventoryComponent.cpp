@@ -38,7 +38,7 @@ void UInventoryComponent::DestroyWeapon()
 			GameModeRef->UpdateInventoryUI(CurrentSlot, EmptySlotImage);
 		Cast<APlayerCharacter>(GetOwner())->OnInventoryChange();
 
-		SpawnParticleEffect(GetOwner()->GetActorLocation());
+		SpawnBreakParticleEffect(GetOwner()->GetActorLocation());
 
 		if (WeaponBreakSound)
 		{
@@ -229,21 +229,21 @@ void UInventoryComponent::Pause()
 	GameModeRef->Pause();
 }
 
-void UInventoryComponent::SpawnParticleEffect(FVector EffectSpawnLocationVector)
+void UInventoryComponent::SpawnBreakParticleEffect(FVector EffectSpawnLocationVector)
 {
-	if (PSTemplate && !PSTemplate->IsLooping())
+	if (PSWeaponBreakEffect && !PSWeaponBreakEffect->IsLooping())
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSTemplate, EffectSpawnLocationVector);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSWeaponBreakEffect, EffectSpawnLocationVector);
 	}
-	if (PSTemplate && PSTemplate->IsLooping())
+	if (PSWeaponBreakEffect && PSWeaponBreakEffect->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
-	if (NSTemplate && !NSTemplate->IsLooping())
+	if (NSWeaponBreakEffect && !NSWeaponBreakEffect->IsLooping())
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSTemplate, EffectSpawnLocationVector);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSWeaponBreakEffect, EffectSpawnLocationVector);
 	}
-	if (NSTemplate && NSTemplate->IsLooping())
+	if (NSWeaponBreakEffect && NSWeaponBreakEffect->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
@@ -266,10 +266,38 @@ void UInventoryComponent::UseHealthPot()
 		AHealthPickup::StaticClass()->GetDefaultObject<AHealthPickup>()->UseItem(
 			Cast<APlayerCharacter>(GetOwner()), GetWorld()
 		);
+
+		PlayHealthPotUseEffects();
+		
 		GameInstance->NumberOfHealthPots--;
 		GameModeRef->UpdateNumberOfHealthPots(GameInstance->NumberOfHealthPots);
 	}
 
+}
+
+void UInventoryComponent::PlayHealthPotUseEffects()
+{
+	if (PSWeaponBreakEffect && !PSWeaponBreakEffect->IsLooping())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSWeaponBreakEffect, GetOwner()->GetActorLocation());
+	}
+	if (PSWeaponBreakEffect && PSWeaponBreakEffect->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+	if (NSWeaponBreakEffect && !NSWeaponBreakEffect->IsLooping())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSWeaponBreakEffect, GetOwner()->GetActorLocation());
+	}
+	if (NSWeaponBreakEffect && NSWeaponBreakEffect->IsLooping())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
+	}
+
+	if (HealthPotUseSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HealthPotUseSound, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	}
 }
 
 void UInventoryComponent::Slot1()
