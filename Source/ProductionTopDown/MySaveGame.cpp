@@ -14,7 +14,7 @@ UMySaveGame::UMySaveGame()
 {
 }
 
-void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
+bool UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName, FString SavePointName)
 {
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
@@ -23,6 +23,17 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 	{
 		SaveGameInstance->PlayerLocation = Player->GetActorLocation();
 		SaveGameInstance->PlayerRotation = Player->GetActorRotation();
+		SaveGameInstance->SavePoint = SavePointName;
+
+		UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+		if (LoadGameInstance)
+		{
+			if (LoadGameInstance->SavePoint == SaveGameInstance->SavePoint)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Already saved at point: %s"), *SaveGameInstance->SavePoint);
+				return false;
+			}
+		}
 		
 
 		SaveGameInstance->Level = WorldContextObject->GetWorld()->GetMapName();
@@ -59,6 +70,7 @@ void UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName)
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SlotName, 0);
 	UE_LOG(LogTemp, Warning, TEXT("Slot Name: %s"), *SlotName);
 	UE_LOG(LogTemp, Warning, TEXT("Game Saved."));
+	return true;
 }
 
 void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)

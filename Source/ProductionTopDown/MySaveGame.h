@@ -28,9 +28,11 @@ public:
 	int32 NumberOfHealthPots;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FString Level;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString SavePoint;
 
 	UFUNCTION(BlueprintCallable)
-	static void SaveGame(const UObject* WorldContextObject, FString SlotName);
+	static bool SaveGame(const UObject* WorldContextObject, FString SlotName, FString SavePointName = "");
 	UFUNCTION(BlueprintCallable)
 	static void LoadGame(const UObject* WorldContextObject, FString SlotName);
 };

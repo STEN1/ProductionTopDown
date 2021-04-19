@@ -35,7 +35,10 @@ void ASavePoint::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
-		UMySaveGame::SaveGame(this, "Slot1");
+		if (!UMySaveGame::SaveGame(this, "Slot1", GetName()))
+		{
+			return;
+		}
 		SpawnSaveParticle(OtherActor->GetActorLocation());
 		OnSaved();
 	}
