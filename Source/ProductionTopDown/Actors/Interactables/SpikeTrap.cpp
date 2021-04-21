@@ -5,6 +5,7 @@
 
 
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Character/CharacterBase.h"
 #include "ProductionTopDown/Components/InteractComponent.h"
 
@@ -71,6 +72,8 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 			if (NewLocation.Z == TargetLocationStage1.Z)
 			{
 				++SpikeState;
+				//play sound
+				if(HalfSpikeSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HalfSpikeSound, GetActorLocation(), GetActorRotation());
 			}
 
 		} else if (TickTimer >= Stage2Timer && SpikeState == 1)
@@ -81,9 +84,14 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 			if (NewLocation.Z == TargetLocationStage2.Z)
 			{
 				++SpikeState;
+				
+				//play sound
+				if(FullExtendSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), FullExtendSound, GetActorLocation(), GetActorRotation());
+				
 				if (bStartSpikeOut)
 				{
 					SetActorTickEnabled(bLoop);
+					
 				}
 			}
 
@@ -97,7 +105,8 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 				TickTimer = 0.f;
 				SpikeState = 0;
 				SetActorTickEnabled(bLoop);
-				//SoundFX can go here!
+				//play sound
+				if(RedrawSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), RedrawSound, GetActorLocation(), GetActorRotation());
 			}
 		}
 	}
