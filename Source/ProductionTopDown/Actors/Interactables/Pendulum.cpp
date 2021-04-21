@@ -118,9 +118,9 @@ void APendulum::AddSwingDelay()
 
 void APendulum::PlaySwooshSound() const
 {
-	if (SwooshSound)
+	if (SwooshSound && SoundAttenuation)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, SwooshSound, GetActorLocation(), GetActorRotation());
+		UGameplayStatics::PlaySoundAtLocation(this, SwooshSound, GetActorLocation(), GetActorRotation(), 0.5f, 1 ,0, SoundAttenuation);
 	}
 }
 

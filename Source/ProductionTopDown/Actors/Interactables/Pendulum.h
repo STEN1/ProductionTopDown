@@ -33,6 +33,9 @@ public:
 	float RotationSpeed{500.f};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	USoundBase* SwooshSound;
+
+	UPROPERTY(EditAnywhere, Category="Sound")
+	class USoundAttenuation* SoundAttenuation;
 	
 protected:
 	virtual void BeginPlay() override;

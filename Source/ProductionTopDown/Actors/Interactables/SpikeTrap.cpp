@@ -4,6 +4,8 @@
 #include "SpikeTrap.h"
 
 
+
+#include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Character/CharacterBase.h"
@@ -20,7 +22,6 @@ ASpikeTrap::ASpikeTrap()
 	BaseMesh->SetupAttachment(RootComponent);
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponent->SetupAttachment(RootComponent);
-	
 }
 
 
@@ -73,7 +74,7 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 			{
 				++SpikeState;
 				//play sound
-				if(HalfSpikeSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HalfSpikeSound, GetActorLocation(), GetActorRotation());
+				if(HalfSpikeSound && SoundAttenuation)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HalfSpikeSound, GetActorLocation(), GetActorRotation(), 1,1, 0, SoundAttenuation);
 			}
 
 		} else if (TickTimer >= Stage2Timer && SpikeState == 1)
@@ -86,7 +87,7 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 				++SpikeState;
 				
 				//play sound
-				if(FullExtendSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), FullExtendSound, GetActorLocation(), GetActorRotation());
+				if(FullExtendSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), FullExtendSound, GetActorLocation(), GetActorRotation(), 1,1, 0, SoundAttenuation);
 				
 				if (bStartSpikeOut)
 				{
@@ -106,7 +107,7 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 				SpikeState = 0;
 				SetActorTickEnabled(bLoop);
 				//play sound
-				if(RedrawSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), RedrawSound, GetActorLocation(), GetActorRotation());
+				if(RedrawSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), RedrawSound, GetActorLocation(), GetActorRotation(), 1,1, 0, SoundAttenuation);
 			}
 		}
 	}
