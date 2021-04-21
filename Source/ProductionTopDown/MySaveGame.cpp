@@ -6,6 +6,7 @@
 
 
 #include "MyGameInstance.h"
+#include "ToolBuilderUtil.h"
 #include "Character/PlayerCharacter.h"
 #include "Components/InventoryComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -25,10 +26,14 @@ bool UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName, 
 		SaveGameInstance->PlayerRotation = Player->GetActorRotation();
 		SaveGameInstance->SavePoint = SavePointName;
 
+		SaveGameInstance->Level = WorldContextObject->GetWorld()->GetMapName();
+		SaveGameInstance->Level.RemoveFromStart(WorldContextObject->GetWorld()->StreamingLevelsPrefix);
+
 		UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 		if (LoadGameInstance)
 		{
-			if (LoadGameInstance->SavePoint == SaveGameInstance->SavePoint)
+			if (LoadGameInstance->SavePoint == SaveGameInstance->SavePoint
+				&& LoadGameInstance->Level == SaveGameInstance->Level)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Already saved at point: %s"), *SaveGameInstance->SavePoint);
 				return false;
@@ -36,8 +41,7 @@ bool UMySaveGame::SaveGame(const UObject* WorldContextObject, FString SlotName, 
 		}
 		
 
-		SaveGameInstance->Level = WorldContextObject->GetWorld()->GetMapName();
-		SaveGameInstance->Level.RemoveFromStart(WorldContextObject->GetWorld()->StreamingLevelsPrefix);
+		
 		UE_LOG(LogTemp, Warning, TEXT("Saved Level: %s"), *SaveGameInstance->Level);
 
 		UInventoryComponent* InventoryComponent = Player->FindComponentByClass<UInventoryComponent>();
@@ -93,7 +97,13 @@ void UMySaveGame::LoadGame(const UObject* WorldContextObject, FString SlotName)
 		{
 			GameInstance->ItemsDurability[i] = SaveGameInstance->ItemsDurability[i];
 		}
-		
+
+		TArray<AActor*> ActorArray;
+		UGameplayStatics::GetAllActorsOfClass(WorldContextObject, AActor::StaticClass(),ActorArray);
+		for (auto Actor : ActorArray)
+		{
+			WorldContextObject->GetWorld()->GetTimerManager().ClearAllTimersForObject(Actor);
+		}
 		UGameplayStatics::OpenLevel(WorldContextObject, *SaveGameInstance->Level);
 		
 		
