@@ -46,6 +46,12 @@ void ADoorActor::BeginPlay()
 	SetActorTickEnabled(false);
 }
 
+void ADoorActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(CloseTimerHandle);
+	AudioComponent->Stop();
+}
+
 // Called every frame
 void ADoorActor::Tick(float DeltaTime)
 {
