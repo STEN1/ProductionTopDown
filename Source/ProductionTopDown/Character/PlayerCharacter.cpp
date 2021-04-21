@@ -271,8 +271,15 @@ bool APlayerCharacter::Dash()
 	//teleport player towards last direction
 	//FVector DashDirection = LastDirection.GetSafeNormal()*DashDistance;	
 
-	LaunchCharacter(InputVector*DashDistance, true , false);
-	
+	if(InputVector != FVector::ZeroVector)
+		LaunchCharacter(InputVector*DashDistance, true , false);
+	/*
+	else
+	{
+		const FVector DashVector = NullRotation.Vector();
+		LaunchCharacter(DashVector.GetSafeNormal2D()*DashDistance,true ,false);
+	}
+	*/
 	//delay until dash is finish
 	GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, [this]() {
 		//code who runs after delay time
@@ -558,6 +565,7 @@ void APlayerCharacter::MoveRight(float Value)
 void APlayerCharacter::RotateCharacter()
 {
 	
+	
 	float VLen = GetVelocity().Size();
 	FRotator MeshRotation = GetVelocity().Rotation();
 	MeshRotation.Yaw -= 90; //rotates the char så den blir rett vei
@@ -567,8 +575,20 @@ void APlayerCharacter::RotateCharacter()
 	{
 		LastDirection = GetVelocity();
 		LastRotation = MeshRotation;
+		
+		NullRotation = InputVector.Rotation();
+		NullRotation.Yaw -= 90;
+		NullRotation.Pitch = 0;
+		
 		CharacterMesh->SetWorldRotation(MeshRotation);
 	}
+	/*
+	else if(CharacterMesh)
+	{
+		
+		CharacterMesh->SetWorldRotation(NullRotation);
+	}
+	*/
 }
 
 void APlayerCharacter::RotateCharToMouse()

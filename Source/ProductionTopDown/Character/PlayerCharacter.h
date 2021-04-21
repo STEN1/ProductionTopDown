@@ -137,13 +137,14 @@ private:
 	
 	//variables
 	FVector LastDirection;
-
+	
 	//InputVector
 	float ForwardFloat;
 	float SideWaysFloat;
 	FVector InputVector;
 	
 	FRotator LastRotation;
+	FRotator NullRotation;
 	
 	bool bCanDash{true};
 	bool bAttackActive{false};
