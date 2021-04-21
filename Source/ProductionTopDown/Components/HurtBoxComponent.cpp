@@ -36,6 +36,7 @@ void UHurtBoxComponent::BeginPlay()
 		HurtBox->SetRelativeScale3D(BoxScale);
 		HurtBox->SetRelativeLocation(MeshAttachedTo->GetRelativeLocation() + BoxOffset);
 		HurtBox->RegisterComponent();
+		HurtBox->SetCollisionObjectType(ECC_GameTraceChannel2);
 
 		SetComponentTickEnabled(bDrawDebugBox);
 	}
