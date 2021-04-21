@@ -107,7 +107,7 @@ void ASpikeTrap::Tick(float DeltaSeconds)
 				SpikeState = 0;
 				SetActorTickEnabled(bLoop);
 				//play sound
-				if(RedrawSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), RedrawSound, GetActorLocation(), GetActorRotation(), 1,1, 0, SoundAttenuation);
+				if(RedrawSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), RedrawSound, GetActorLocation(), GetActorRotation(), 0.5f ,1, 0, SoundAttenuation);
 			}
 		}
 	}
