@@ -757,6 +757,8 @@ void APlayerCharacter::LogPlayerState()
 
 void APlayerCharacter::SetPlayerState(EPlayerState inpPlayerState)
 {
+	// lock guard because playercontroller and playercharacter is in the same tick group
+	// so that they both can change the state with thread safety.
 	FScopeLock Lock(&PlayerStateCriticalSection);
 	PlayerState = inpPlayerState;
 }

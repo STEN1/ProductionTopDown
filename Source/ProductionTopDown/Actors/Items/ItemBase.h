@@ -25,18 +25,17 @@ public:
 	AItemBase();
 	
 	virtual void Tick(float DeltaTime) override;
-	UFUNCTION(BlueprintCallable)
 	FString GetItemName() const;
-	UFUNCTION(BlueprintCallable)
 	FString GetItemLore() const;
-	UFUNCTION(BlueprintCallable)
 	float GetMinDamage() const;
-	UFUNCTION(BlueprintCallable)
     float GetMaxDamage() const;
-	UFUNCTION(BlueprintCallable)
     float GetCritChance() const;
 	float GetKnockbackAmount() const;
-
+	float GetAttackDelay() const;
+	float GetAttackHeavyChargeTime() const;
+	float GetAttackSpeed() const;
+	bool IsHeavy() const;
+	
 	UNiagaraSystem* GetLightAttackEffect() const;
 	UNiagaraSystem* GetHeavyAttackEffect() const;
 	
@@ -70,7 +69,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	FString ItemName{TEXT("")};
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true", Multiline = "true"))
 	FString ItemLore{TEXT("")};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float MinDamage{8.f};
@@ -78,12 +77,20 @@ protected:
 	float MaxDamage{13.f};
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float CritChance{30.f}; // Percentage
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	float KnockbackAmount{200.f};
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
 	bool bIsWeapon{false};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	float AttackDelay{0.6f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	float AttackHeavyChargeTime{0.6f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	float AttackSpeed{1.f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemSettings", meta = (AllowPrivateAccess = "true"))
+	bool bIsHeavy{false};
+
+
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

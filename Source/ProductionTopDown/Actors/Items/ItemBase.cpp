@@ -94,6 +94,26 @@ float AItemBase::GetKnockbackAmount() const
 	return KnockbackAmount;
 }
 
+float AItemBase::GetAttackDelay() const
+{
+	return AttackDelay;
+}
+
+float AItemBase::GetAttackHeavyChargeTime() const
+{
+	return AttackHeavyChargeTime;
+}
+
+float AItemBase::GetAttackSpeed() const
+{
+	return AttackSpeed;
+}
+
+bool AItemBase::IsHeavy() const
+{
+	return bIsHeavy;
+}
+
 UNiagaraSystem* AItemBase::GetLightAttackEffect() const
 {
 	return LightAttackEffect;
