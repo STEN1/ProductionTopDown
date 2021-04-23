@@ -82,7 +82,10 @@ void APendulum::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APendulum::OnOverlap);
+	if (BoxComponent)
+	{
+		BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APendulum::OnOverlap);
+	}
 	
 	SetActorTickEnabled(false);
 
