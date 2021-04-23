@@ -58,8 +58,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetAttackTimer();
 
-
 	void OnInventoryChange();
+
+	UPROPERTY(BlueprintReadOnly)
+	float WalkSpeedFloat;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -142,6 +144,7 @@ private:
 	float ForwardFloat;
 	float SideWaysFloat;
 	FVector InputVector;
+	FVector LastInput;
 	
 	FRotator LastRotation;
 	FRotator NullRotation;
@@ -186,7 +189,6 @@ private:
 	
 	bool bCanPush{false};
 
-
 	//Timer Handles
 
 	
@@ -197,5 +199,4 @@ private:
 	FTimerHandle LightMovingHandle;
 	FTimerHandle HeavyOverLapEventHandle;
 	FTimerHandle HeavyMovingHandle;
-	
 };
