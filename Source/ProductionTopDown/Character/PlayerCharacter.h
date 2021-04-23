@@ -18,6 +18,7 @@ enum class EPlayerState : uint8
 	Pushing = 3		UMETA(DisplayName = "Pushing state"),
 	Dragging = 4	UMETA(DisplayName = "Draging state"),
 	Dead = 5		UMETA(DisplayName = "Death State"),
+	Charge = 6		UMETA(DisplayName = "Charge State")
 };
 
 class UInventoryComponent;

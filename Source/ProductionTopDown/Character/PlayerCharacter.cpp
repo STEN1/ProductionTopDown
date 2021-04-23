@@ -289,7 +289,7 @@ bool APlayerCharacter::Dash()
 		//LogPlayerState();
 		GetCharacterMovement()->FallingLateralFriction = 0;
 		//GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
-    }, DashTimer, 0);
+    }, DashTimer, 0.f);
 
 
 	//particle and sounds
@@ -345,8 +345,11 @@ AActor* APlayerCharacter::GetActorToDamage()
 void APlayerCharacter::StartAttackTimer()
 {
 	//need weapon to attack
-	if (InventoryComponent && InventoryComponent->GetItemObject())
+	if (InventoryComponent && InventoryComponent->GetItemObject() && PlayerState == EPlayerState::Moving)
 	{
+		//Charge animation
+		PlayerState = EPlayerState::Charge;
+		
 		AItemBase* Item = InventoryComponent->GetItemObject();
 		if(Item && Item->IsWeapon())
 		{
@@ -382,8 +385,11 @@ void APlayerCharacter::StartAttackTimer()
 
 void APlayerCharacter::StopAttackTimer()
 {
-	if (InventoryComponent)
+	if (InventoryComponent && InventoryComponent->GetItemObject() && PlayerState == EPlayerState::Charge)
 	{
+		//stop Charge Animation
+		PlayerState = EPlayerState::Moving;
+		
 		AItemBase* Item = InventoryComponent->GetItemObject();
 		if(Item && Item->IsWeapon())
 		{
