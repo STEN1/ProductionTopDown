@@ -16,7 +16,7 @@ class PRODUCTIONTOPDOWN_API AWeaponBase : public AItemBase
 public:
 	AWeaponBase();
 	
-	virtual void UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
+	virtual bool UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
 	protected:
 	virtual void BeginPlay() override;
 	

@@ -86,7 +86,5 @@ private:
 	class UNiagaraSystem* NSWeaponBreakEffect;
 	void SpawnBreakParticleEffect(FVector EffectSpawnLocationVector);
 
-	FTimerHandle UseCooldownHandle;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-		float UseCooldown{0.2f};
+
 };
