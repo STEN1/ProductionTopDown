@@ -336,7 +336,15 @@ void UInventoryComponent::UseInventoryItem()
 {
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
-		Cast<APlayerCharacter>(GetOwner())->RotateCharToMouse();
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+		if (PlayerCharacter->GetPlayerState() != EPlayerState::Moving) return;
+		PlayerCharacter->SetPlayerState(EPlayerState::Attacking);
+		PlayerCharacter->RotateCharToMouse();
+		GetWorld()->GetTimerManager().SetTimer(UseCooldownHandle, [PlayerCharacter]()
+		{
+			PlayerCharacter->SetPlayerState(EPlayerState::Moving);
+		}, UseCooldown, false);
+		
 		AItemBase* InventoryItem = GameInstance->Inventory[CurrentSlot - 1];
 		InventoryItem->UseItem(Cast<APlayerCharacter>(GetOwner()), GetWorld());
 		InventoryItem->OnUseItem(Cast<APlayerCharacter>(GetOwner()));

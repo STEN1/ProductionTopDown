@@ -27,6 +27,7 @@ void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 		SpawnRotation.Yaw += 90.f;
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.Owner = PlayerCharacter;
+		SpawnParameters.Instigator = PlayerCharacter;
 		AActor* Projectile = World->SpawnActor<AActor>(ProjectileSpell, SpawnLocation, SpawnRotation, SpawnParameters);
 		if (Projectile)
 		{

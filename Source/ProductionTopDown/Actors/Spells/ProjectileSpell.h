@@ -37,6 +37,9 @@ private:
 	UFUNCTION()
 		void OnHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	float SpellDamage{30.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 		float MoveSpeed{ 400.f };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))

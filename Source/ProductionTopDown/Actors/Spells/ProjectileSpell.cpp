@@ -96,6 +96,7 @@ void AProjectileSpell::OnHitBoxOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass())
 		|| !OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UStaticMeshComponent::StaticClass()))
 	{
+		UGameplayStatics::ApplyDamage(OtherActor, SpellDamage, GetInstigatorController(), GetOwner(), UDamageType::StaticClass());
 		Destroy();
 	}
 
