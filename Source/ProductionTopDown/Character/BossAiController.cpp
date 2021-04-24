@@ -21,7 +21,12 @@ void ABossAiController::BeginPlay()
 	if(BossBehaviorTree)
 	{
 		RunBehaviorTree(BossBehaviorTree);
-	};
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Behaviour tree not found"))
+	}
+	
 	BossBlackBoard = GetBlackboardComponent();
 	if(PlayerPawn && BossBlackBoard) BossBlackBoard->SetValueAsObject(TEXT("Player"), PlayerPawn->GetOwner());
 }
@@ -31,4 +36,6 @@ void ABossAiController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	if(PlayerPawn && BossBlackBoard)BossBlackBoard->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+
+	
 }

@@ -18,6 +18,7 @@ void AFirstBoss::BeginPlay()
 	Super::BeginPlay();
 	
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
+	if(WeaponMesh) WeaponMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("WeaponSocket"));
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 

@@ -33,7 +33,7 @@ APlayerCharacter::APlayerCharacter()
 	AttackRangeComponent->SetupAttachment(CharacterMesh, TEXT("Attack Range"));
 	
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
+	//Weapon->SetupAttachment(CharacterMesh, TEXT("WeaponSocket"));
 	
 }
 
@@ -152,6 +152,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 		break;
 	case EPlayerState::Dragging:
 		DragObject(GetActorInFront());
+	case EPlayerState::Charge:
+		RotateCharacter();
+		break;
 	default:
 		
 		break;
@@ -411,10 +414,10 @@ void APlayerCharacter::CalcAttackType()
 	if(InventoryComponent && InventoryComponent->GetItemObject())
 	{
 		
-		//if attack hold > 1 sec heavy attack
+		//hold attack to heavy attack
 		const float AttackHoldSeconds = StopAttackTime-StartAttackTime;
 		if(PlayerState != EPlayerState::Moving) return;
-		if(AttackHoldSeconds <= InventoryComponent->GetItemObject()->GetAttackHeavyChargeTime())
+		if(AttackHoldSeconds + 0.02f <= InventoryComponent->GetItemObject()->GetAttackHeavyChargeTime())
 		{
 			//makes Heavy weapon cant use light attack
 			//if(InventoryComponent && InventoryComponent->GetItemObject() && InventoryComponent->GetItemObject()->GetItemName() == "The YEEEETEEER!") return;
@@ -429,8 +432,8 @@ void APlayerCharacter::CalcAttackType()
 		{
 			if(!Super::Attack()) return;
 			RotateCharToMouse();
-			HeavyAttack();
-			
+			//HeavyAttack();
+			DoubleHeavyAttack();
 		}
 	}
 }
@@ -546,6 +549,91 @@ void APlayerCharacter::HeavyAttack()
 	}
 }
 
+void APlayerCharacter::DoubleHeavyAttack()
+{
+	SetPlayerState(EPlayerState::HeavyAttack);
+
+
+	const FVector BoxSize{140,100,50};
+	AttackRangeComponent->SetBoxExtent(BoxSize,true);
+	//SetBoxRange
+		
+	bHeavyAttack = true;
+		
+	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
+
+	if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
+
+	
+	if(InventoryComponent->GetItemObject()->HeavyAttackEffect)
+	{
+				
+		
+		const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle1");
+		const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle1");
+		const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle1").GetScale3D();
+			
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            InventoryComponent->GetItemObject()->HeavyAttackEffect,
+            SystemLocation,
+            SystemRotation,
+            SystemScale,
+            true,
+            true,
+            ENCPoolMethod::AutoRelease,
+            true
+            );
+	}
+	
+	GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle, [this]() {
+                //code who runs after delay time
+                if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+            }, 0.05f, 0);
+	
+	GetWorld()->GetTimerManager().SetTimer(HeavyParticle2, [this]() {
+		
+		
+		if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
+		
+		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
+		
+		if(InventoryComponent->GetItemObject()->HeavyAttackEffect)
+		{
+
+            const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle2");
+            const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle2");
+            const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle2").GetScale3D();
+			
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                GetWorld(),
+                InventoryComponent->GetItemObject()->HeavyAttackEffect,
+                SystemLocation,
+                SystemRotation,
+                SystemScale,
+                true,
+                true,
+                ENCPoolMethod::AutoRelease,
+                true
+                );
+        }
+		
+		if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
+		
+        }, 0.2f, 0);
+	
+	GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle, [this]() {
+            //code who runs after delay time
+            if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+        }, 0.05f, 0);
+		
+	GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
+        //code who runs after delay time
+        SetPlayerState(EPlayerState::Moving);
+    }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
+	
+}
+
 float APlayerCharacter::GetAttackDamage()
 {
 	float Damage{0};
@@ -557,7 +645,7 @@ float APlayerCharacter::GetAttackDamage()
         InventoryComponent->GetItemObject()->GetMinDamage(),
         InventoryComponent->GetItemObject()->GetMaxDamage()
         );
-		Damage *= 2;
+		Damage *= 1,5.f;
 	}
 	else if(InventoryComponent && InventoryComponent->GetItemObject() && InventoryComponent->GetItemObject()->IsWeapon())
 	{
@@ -791,7 +879,6 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 	if(InventoryComponent && InventoryComponent->GetItemObject())
 	{
 		
-	
 	if(OtherActor != this)
 	{
 		if(OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherComp->GetOwner()->IsA(ACharacterBase::StaticClass())
