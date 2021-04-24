@@ -7,6 +7,7 @@
 #include "Components/StaminaComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/PlayerCharacter.h"
+#include "Engine/StaticMeshActor.h"
 
 void AProductionTopDownGameModeBase::ActorDied(AActor* DeadActor)
 {
@@ -22,6 +23,13 @@ void AProductionTopDownGameModeBase::BeginPlay()
 	Super::BeginPlay();
 	Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
+	// Enable overlap events for every StaticMeshActor so that spells can explode on overlap with env.
+	// Might be a better way to do this? but this gives nice controll :)
+	TArray<AActor*> StaticMeshActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
+	for (auto && StaticMeshActor : StaticMeshActors)
+		StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
+	
 	// Blueprint Event
 	StartGame();
 }

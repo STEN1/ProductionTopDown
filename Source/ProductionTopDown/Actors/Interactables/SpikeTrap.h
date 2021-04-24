@@ -8,6 +8,8 @@
 
 #include "SpikeTrap.generated.h"
 
+
+
 UCLASS()
 class PRODUCTIONTOPDOWN_API ASpikeTrap : public AActivatableBase
 {
@@ -22,6 +24,16 @@ public:
 
 	virtual void Activate(bool On) override;
 
+    UPROPERTY(EditAnywhere, Category="Sound")
+	class USoundAttenuation* SoundAttenuation;
+	
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* HalfSpikeSound;
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* FullExtendSound;
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* RedrawSound;
+	
 	UPROPERTY(VisibleAnywhere, Category="Setup")
 	UStaticMeshComponent* BaseMesh{nullptr};
 	UPROPERTY(VisibleAnywhere, Category="Setup")

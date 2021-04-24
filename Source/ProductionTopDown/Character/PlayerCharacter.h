@@ -18,6 +18,7 @@ enum class EPlayerState : uint8
 	Pushing = 3		UMETA(DisplayName = "Pushing state"),
 	Dragging = 4	UMETA(DisplayName = "Draging state"),
 	Dead = 5		UMETA(DisplayName = "Death State"),
+	Charge = 6		UMETA(DisplayName = "Charge State")
 };
 
 class UInventoryComponent;
@@ -58,9 +59,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetAttackTimer();
 
-
 	void OnInventoryChange();
-	
+
+	UPROPERTY(BlueprintReadOnly)
+	float WalkSpeedFloat;
+
+
+	void RotateCharToMouse();
 protected:
 	virtual void BeginPlay() override;
 
@@ -81,7 +86,7 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter();
-	void RotateCharToMouse();
+	
 	void EquipWeaponFromInv(UStaticMesh* EquipWeapon);
 	void StartDrag();
 	void StopDrag();
@@ -142,6 +147,7 @@ private:
 	float ForwardFloat;
 	float SideWaysFloat;
 	FVector InputVector;
+	FVector LastInput;
 	
 	FRotator LastRotation;
 	FRotator NullRotation;
@@ -186,7 +192,6 @@ private:
 	
 	bool bCanPush{false};
 
-
 	//Timer Handles
 
 	
@@ -197,5 +202,4 @@ private:
 	FTimerHandle LightMovingHandle;
 	FTimerHandle HeavyOverLapEventHandle;
 	FTimerHandle HeavyMovingHandle;
-	
 };

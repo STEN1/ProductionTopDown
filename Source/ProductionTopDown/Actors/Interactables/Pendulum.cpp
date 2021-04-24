@@ -16,7 +16,7 @@ APendulum::APendulum()
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("BoxComponent");
-	BoxComponent->SetupAttachment(RootComponent);
+	BoxComponent->SetupAttachment(StaticMeshComponent);
 }
 
 void APendulum::Activate(bool On)
@@ -28,12 +28,14 @@ void APendulum::Activate(bool On)
 			GetWorld()->GetTimerManager().SetTimer(StartTimerHandle, [this]()
 			{
 				bWantToStop = false;
+				PlaySwooshSound();
 				SetActorTickEnabled(true);
 			}, StartDelay, false);
 		}
 		else
 		{
 			bWantToStop = false;
+			PlaySwooshSound();
 			SetActorTickEnabled(true);
 		}
 	}
@@ -80,8 +82,10 @@ void APendulum::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StaticMeshComponent->OnComponentHit.AddDynamic(this, &APendulum::OnHit);
-	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APendulum::OnOverlap);
+	if (BoxComponent)
+	{
+		BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APendulum::OnOverlap);
+	}
 	
 	SetActorTickEnabled(false);
 
@@ -91,21 +95,20 @@ void APendulum::BeginPlay()
 	}
 }
 
-void APendulum::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+void APendulum::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (OtherActor->IsA(ACharacterBase::StaticClass()))
-	{
-		UGameplayStatics::ApplyDamage(OtherActor, 9999.f, GetInstigatorController(), this, UDamageType::StaticClass());
-	}
+	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(StartTimerHandle);
 }
 
+
 void APendulum::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(ACharacterBase::StaticClass()))
 	{
-		Activate(true);
+		UGameplayStatics::ApplyDamage(OtherActor, 9999, GetInstigatorController(), this, UDamageType::StaticClass());
 	}
 }
 
@@ -117,8 +120,17 @@ void APendulum::AddSwingDelay()
 		GetWorld()->GetTimerManager().ClearTimer(StartTimerHandle);
 		GetWorld()->GetTimerManager().SetTimer(StartTimerHandle, [this]()
         {
+			PlaySwooshSound();
             SetActorTickEnabled(true);
         }, DelayBetweenSwing, false);
+	}
+}
+
+void APendulum::PlaySwooshSound() const
+{
+	if (SwooshSound && SoundAttenuation)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SwooshSound, GetActorLocation(), GetActorRotation(), 0.5f, 1 ,0, SoundAttenuation);
 	}
 }
 

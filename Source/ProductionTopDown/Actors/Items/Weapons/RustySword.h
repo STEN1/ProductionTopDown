@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "ProductionTopDown/Actors/Items/ItemBase.h"
+#include "ProductionTopDown/Actors/Spells/ProjectileSpell.h"
+
 #include "RustySword.generated.h"
 
 /**
@@ -19,5 +21,8 @@ public:
 	virtual void UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AProjectileSpell> ProjectileSpell;
 	
 };
