@@ -40,6 +40,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::StartAttackTimer);
 	PlayerInputComponent->BindAction("Attack", IE_Released, this, &APlayerCharacter::StopAttackTimer);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::DashEvent);
