@@ -459,7 +459,7 @@ void AEnemyBase::TriggerDeath()
 	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
         //code who runs after delay time
 		Destroy();
-    }, 120.f, 0);
+    }, 5.f, 0);
 	
 	
 }
