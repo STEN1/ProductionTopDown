@@ -2,6 +2,7 @@
 
 
 #include "EnemyBase.h"
+#include "AIController.h"
 #include "ProductionTopDown/Actors/Patrol/PatrolHub.h"
 #include "ProductionTopDown/Actors/Spawning/Spawner.h"
 #include "DrawDebugHelpers.h"
@@ -27,7 +28,9 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CapsuleComponent = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
+	EnemyAIController = Cast<AAIController>(GetController());
+
+	EnemyCapsuleComponent = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
 	
 	Player = Cast<APlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass()));
 	if (!Player)
@@ -128,7 +131,13 @@ void AEnemyBase::FollowPlayer()
 	}
 	
 	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
-	Move(0.5f, MoveDir);
+	
+	if (bUseNavMesh)
+	{
+		EnemyAIController->MoveTo(MoveDir);
+	}
+	else
+		Move(0.5f, MoveDir);
 }
 
 FVector AEnemyBase::GetMoveDirFromScent()
@@ -138,6 +147,11 @@ FVector AEnemyBase::GetMoveDirFromScent()
 
 	if (!Hit.IsValidBlockingHit())
 	{
+		if (bUseNavMesh)
+		{
+			return Player->GetActorLocation();
+		}
+		
 		FVector MoveDir = CalcVectorFromPlayerToTarget(Player->GetActorLocation()).GetSafeNormal2D();
 		if (MoveDir != FVector::ZeroVector)
 		{
@@ -151,6 +165,11 @@ FVector AEnemyBase::GetMoveDirFromScent()
 		
 		if (!Hit.IsValidBlockingHit())
         {
+			if (bUseNavMesh)
+			{
+				return ScentComponent->ScentArray[i].GetSafeNormal2D();
+			}
+			
 			FVector MoveDir = CalcVectorFromPlayerToTarget(ScentComponent->ScentArray[i]).GetSafeNormal2D();
         	if (MoveDir != FVector::ZeroVector)
         	{
@@ -333,12 +352,9 @@ void AEnemyBase::PatrolState()
 		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
 		{
 			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
-
-			//DrawDebugline bool
-			bool bDrawDebugLine{false};
 			
 			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
-			if (!Hit.IsValidBlockingHit() && bDrawDebugLine)
+			if (!Hit.IsValidBlockingHit())
 			{
 				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
 				PatrolIndex = i + 1;
@@ -354,9 +370,19 @@ void AEnemyBase::PatrolState()
 		
 	} else
 	{
-		FVector MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
-		MoveDir.Z = 0.f;
-		Move(0.5f, MoveDir);
+		FVector MoveDir;
+		
+		if (bUseNavMesh)
+     	{
+			MoveDir = PatrolPointSelected.GetSafeNormal2D();
+     		EnemyAIController->MoveTo(MoveDir);
+     	} else
+     	{
+     		MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
+            MoveDir.Z = 0.f;
+            Move(0.5f, MoveDir);
+     	}
+
 		if (MoveDir != FVector::ZeroVector)
 		{
 			SetActorRotation(MoveDir.Rotation());
@@ -442,7 +468,7 @@ void AEnemyBase::TriggerDeath()
 	
 	EnemyState = EEnemyState::Dead;
 	AttackBox->SetGenerateOverlapEvents(false);
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	EnemyCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//Blueprint Event Remove HealthBar
 	RemoveHealthBar();

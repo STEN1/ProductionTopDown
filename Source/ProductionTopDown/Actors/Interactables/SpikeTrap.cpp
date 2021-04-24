@@ -4,6 +4,8 @@
 #include "SpikeTrap.h"
 
 
+
+#include "AITypes.h"
 #include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Character/CharacterBase.h"
 #include "ProductionTopDown/Components/InteractComponent.h"

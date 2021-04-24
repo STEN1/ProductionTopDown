@@ -42,22 +42,28 @@ protected:
 	void Move(float ScaleSpeed, FVector MoveDir);
 	void IsPlayerInView();
 	void FollowPlayer();
-	bool Attack();
+	virtual bool Attack() override;
 	void IdleState(float DeltaTime);
 	void PatrolState();
 
 	FTimerHandle AttackTimerHandle;
+	UPROPERTY()
+	class AAIController* EnemyAIController{nullptr};
 	
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
 	FVector CalcVectorFromPlayerToTarget(FVector Target);
 	FHitResult GetFirstHitInReach(ECollisionChannel CollisionChannel, FVector LineTraceEnd, bool DrawTraceLine) const;
-	
+
+	UPROPERTY()
 	class APlayerCharacter* Player{nullptr};
-	class UCapsuleComponent* CapsuleComponent{nullptr};
+	UPROPERTY()
+	class UCapsuleComponent* EnemyCapsuleComponent{nullptr};
+	UPROPERTY()
 	class UScentComponent* ScentComponent{nullptr};
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components",  meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* DetectionComponent{nullptr};
+	UPROPERTY()
 	class UBoxComponent* AttackBox{nullptr};
 	UPROPERTY(EditInstanceOnly)
 	class APatrolHub* PatrolHub{nullptr};
@@ -88,6 +94,9 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	float AttackKnockback{100.f};
 	bool bAttacking{false};
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bUseNavMesh{false};
 
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	class UNiagaraSystem* AttackParticle;
