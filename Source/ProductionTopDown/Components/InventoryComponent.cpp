@@ -336,6 +336,7 @@ void UInventoryComponent::UseInventoryItem()
 {
 	if (GameInstance->Inventory[CurrentSlot - 1])
 	{
+		Cast<APlayerCharacter>(GetOwner())->RotateCharToMouse();
 		AItemBase* InventoryItem = GameInstance->Inventory[CurrentSlot - 1];
 		InventoryItem->UseItem(Cast<APlayerCharacter>(GetOwner()), GetWorld());
 		InventoryItem->OnUseItem(Cast<APlayerCharacter>(GetOwner()));

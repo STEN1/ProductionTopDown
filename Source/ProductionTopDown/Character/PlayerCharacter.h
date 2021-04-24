@@ -62,7 +62,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	float WalkSpeedFloat;
-	
+
+
+	void RotateCharToMouse();
 protected:
 	virtual void BeginPlay() override;
 
@@ -83,7 +85,7 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void RotateCharacter();
-	void RotateCharToMouse();
+	
 	void EquipWeaponFromInv(UStaticMesh* EquipWeapon);
 	void StartDrag();
 	void StopDrag();
