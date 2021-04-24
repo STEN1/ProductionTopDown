@@ -19,7 +19,8 @@ enum class EPlayerState : uint8
 	Dragging = 4	UMETA(DisplayName = "Draging state"),
 	Dead = 5		UMETA(DisplayName = "Death State"),
 	Charge = 6		UMETA(DisplayName = "Charge State"),
-	HeavyAttack = 7	UMETA(DisplayName = "HeavyAttackState")
+	HeavyAttack = 7	UMETA(DisplayName = "HeavyAttackState"),
+	Jumping = 8		UMETA(DisplayName = "Jumping State")
 };
 
 class UInventoryComponent;
@@ -203,6 +204,7 @@ private:
 	FTimerHandle LightOverLapEventHandle;
 	FTimerHandle LightMovingHandle;
 	FTimerHandle HeavyOverLapEventHandle;
+	FTimerHandle HeavyOverLapEventHandle2;
 	FTimerHandle HeavyMovingHandle;
 	FTimerHandle HeavyParticle2;
 };
