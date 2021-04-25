@@ -56,9 +56,11 @@ void APlayerCharacter::TriggerDeath()
 	// Never call this function direcly. Let the healthcomponent call it.
 	// If something needs to kill instantly use applydmg with a really big number :)
 	
-	Super::TriggerDeath();
-	if(PlayerState != EPlayerState::Dead)BPTriggerDeath();
+	if(PlayerState != EPlayerState::Dead)BPTriggerDeath(); // death message
 	SetPlayerState(EPlayerState::Dead);
+	
+	//Super::TriggerDeath(); // particles and physics
+	
 	Cast<APawn>(this)->DisableInput(CharacterController);
 	//if(CharacterController)GetOwner()->DisableInput(CharacterController);
 	
@@ -114,6 +116,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(PlayerState == EPlayerState::Dead) return;
+		
 	InputVector = ((GetActorForwardVector()*ForwardFloat)+(GetActorRightVector()*SideWaysFloat)).GetSafeNormal2D();
 	if(InputVector != FVector().ZeroVector) LastInput = InputVector;
 	
@@ -449,7 +453,7 @@ void APlayerCharacter::LightAttack()
 	SetPlayerState(EPlayerState::Attacking);
 	if(InventoryComponent &&  InventoryComponent->GetItemObject())
 	{
-		const FVector BoxSize{60,80,50};
+		const FVector BoxSize{120,100,50};
 		AttackRangeComponent->SetBoxExtent(BoxSize,true);
 		//SetBoxSize
 		
@@ -560,7 +564,7 @@ void APlayerCharacter::DoubleHeavyAttack()
 {
 	SetPlayerState(EPlayerState::HeavyAttack);
 
-	const FVector BoxSize{140,100,50};
+	const FVector BoxSize{160,120,50};
 	AttackRangeComponent->SetBoxExtent(BoxSize,true);
 	//SetBoxRange
 		
