@@ -467,7 +467,7 @@ void APlayerCharacter::LightAttack()
 	SetPlayerState(EPlayerState::Attacking);
 	if(InventoryComponent &&  InventoryComponent->GetItemObject())
 	{
-		const FVector BoxSize{120,100,50};
+		const FVector BoxSize{140,140,50};
 		AttackRangeComponent->SetBoxExtent(BoxSize,true);
 		//SetBoxSize
 		
@@ -527,7 +527,7 @@ void APlayerCharacter::HeavyAttack()
 	if(InventoryComponent && InventoryComponent->GetItemObject())
 	{
 		
-		const FVector BoxSize{140,100,50};
+		const FVector BoxSize{140,140,50};
 		AttackRangeComponent->SetBoxExtent(BoxSize,true);
 		//SetBoxRange
 		
@@ -578,7 +578,7 @@ void APlayerCharacter::DoubleHeavyAttack()
 {
 	SetPlayerState(EPlayerState::HeavyAttack);
 
-	const FVector BoxSize{160,120,50};
+	const FVector BoxSize{160,140,50};
 	AttackRangeComponent->SetBoxExtent(BoxSize,true);
 	//SetBoxRange
 		
