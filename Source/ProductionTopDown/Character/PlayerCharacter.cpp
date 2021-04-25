@@ -109,6 +109,20 @@ void APlayerCharacter::BeginPlay()
 	}
 	OnInventoryChange();
 }
+
+void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	GetWorldTimerManager().ClearTimer(AttackChargeTimerHandle);
+	GetWorldTimerManager().ClearTimer(DashCooldownHandle);
+	GetWorldTimerManager().ClearTimer(DashTimerHandle);
+	GetWorldTimerManager().ClearTimer(LightOverLapEventHandle);
+	GetWorldTimerManager().ClearTimer(LightMovingHandle);
+	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle);
+	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
+}
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -31,6 +31,7 @@ public:
 	bool bCanSpawn{true};
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	UFUNCTION(BlueprintImplementableEvent)
     void OnActorSpawned(FVector SpawnLocationVector);

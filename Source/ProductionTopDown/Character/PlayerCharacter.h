@@ -68,6 +68,7 @@ public:
 	void RotateCharToMouse();
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	//virtual bool Attack() override;
 	virtual bool Dash() override;

@@ -52,6 +52,7 @@ void ARustySword::BeginPlay()
 
 void ARustySword::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	if (WorldPtr)
 		WorldPtr->GetTimerManager().ClearTimer(UseCooldownHandle);
 }

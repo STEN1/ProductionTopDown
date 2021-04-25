@@ -101,6 +101,7 @@ void AWallSpikes::BeginPlay()
 
 void AWallSpikes::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	GetWorldTimerManager().ClearTimer(StartTimerHandle);
 }
 

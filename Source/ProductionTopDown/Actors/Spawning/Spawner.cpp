@@ -173,6 +173,14 @@ void ASpawner::BeginPlay()
 	}
 }
 
+void ASpawner::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(TriggerCooldownTimerHandle);
+	GetWorldTimerManager().ClearTimer(SpawnTimerTimerHandle);
+}
+
 void ASpawner::BeginOverlapTrigger(AActor* OverlappedActor, AActor* OtherActor)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetHumanReadableName());

@@ -29,6 +29,7 @@ void AFidgetSpinnerSpell::BeginPlay()
 
 void AFidgetSpinnerSpell::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	if (ParticleSystemComponent)
 		ParticleSystemComponent->Deactivate();
 	if (NiagaraComponent)

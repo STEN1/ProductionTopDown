@@ -26,6 +26,13 @@ void UStaminaComponent::BeginPlay()
 	
 }
 
+void UStaminaComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearTimer(RegenerationTimerHandle);
+}
+
 void UStaminaComponent::RegenerateStamina()
 {
 	Stamina += StaminaRegenerationAmount;
