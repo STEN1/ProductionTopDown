@@ -69,7 +69,7 @@ void ACharacterBase::TriggerDeath()
     	GetWorld()->GetTimerManager().SetTimer(RagdollTimerHandle, [this]() {
             //code who runs after delay time
     		if(GetMesh())GetMesh()->SetSimulatePhysics(true);
-        }, 0.1f, 0);
+        }, 0.2f, 0);
 	
 }
 
