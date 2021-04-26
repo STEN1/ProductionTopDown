@@ -577,7 +577,10 @@ void APlayerCharacter::HeavyAttack()
 void APlayerCharacter::DoubleHeavyAttack()
 {
 	SetPlayerState(EPlayerState::HeavyAttack);
-
+	if(InventoryComponent && InventoryComponent->GetItemObject())
+	{
+		
+	
 	const FVector BoxSize{160,140,50};
 	AttackRangeComponent->SetBoxExtent(BoxSize,true);
 	//SetBoxRange
@@ -659,7 +662,7 @@ void APlayerCharacter::DoubleHeavyAttack()
         //code who runs after delay time
         SetPlayerState(EPlayerState::Moving);
     }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
-	
+	}
 }
 
 float APlayerCharacter::GetAttackDamage()
