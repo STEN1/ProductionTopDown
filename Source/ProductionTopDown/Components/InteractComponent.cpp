@@ -3,6 +3,8 @@
 
 #include "InteractComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/MyGameInstance.h"
 #include "ProductionTopDown/Actors/Interactables/InteractableBase.h"
 
 // Sets default values for this component's properties
@@ -41,7 +43,7 @@ void UInteractComponent::BeginPlay()
 	{
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &UInteractComponent::Interact);
 	}
-
+	
 	
 }
 
@@ -51,12 +53,12 @@ void UInteractComponent::Interact()
 	TSubclassOf<AInteractableBase> Base = AInteractableBase::StaticClass();
 	BoxComponent->GetOverlappingActors(ActorArray, Base);
 
-	UE_LOG(LogTemp, Warning, TEXT("ArraySize: %i"), ActorArray.Num());
 
 	if (ActorArray.Num() > 0)
 	{
 		Cast<AInteractableBase>(ActorArray.Last())->Interact();
 	}
+
 }
 
 void UInteractComponent::CreateBoxComponent()

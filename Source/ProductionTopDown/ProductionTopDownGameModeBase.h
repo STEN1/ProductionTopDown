@@ -19,7 +19,10 @@ class PRODUCTIONTOPDOWN_API AProductionTopDownGameModeBase : public AGameModeBas
 {
 	GENERATED_BODY()
 public:
-
+	UFUNCTION(BlueprintImplementableEvent)
+	void Pause();
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateNumberOfHealthPots(int32 NumberOfHealthPots);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateHealthUI(float Health, float DefaultHealth);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -30,8 +33,14 @@ public:
 	void UpdateInventoryUICurrentSlot(int32 CurrentSlot);
 	UFUNCTION(BlueprintImplementableEvent)
 	void GameOver(bool PlayerWon);
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayTextBox();
 
+	UPROPERTY(BlueprintReadOnly)
+	FString TextBoxString{""};
+	
 	void ActorDied(AActor* DeadActor);
+
 protected:
 	virtual void BeginPlay() override;
 

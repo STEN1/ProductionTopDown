@@ -19,11 +19,13 @@ class PRODUCTIONTOPDOWN_API UInventoryComponent : public UActorComponent
 
 public:	
 	UInventoryComponent();
-	
+
+	void DestroyWeapon();
 	AItemBase* GetItemObject() const;
 	TArray<AItemBase*> GetInventory();
 	void LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory);
 	int32 GetInventorySize() const;
+	int32 GetNumberOfHealthPots() const;
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,14 +35,24 @@ private:
 	UFUNCTION()
 	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	void Interact();
+	void UseHealthPot();
+	void PlayHealthPotUseEffects();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSHealthPotUseEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSHealthPotUseEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* HealthPotUseSound;
 	void Slot1();
 	void Slot2();
 	void Slot3();
 	void Slot4();
 	void UseInventoryItem();
 	void ThrowItem();
+	bool PickUpHealthPot();
 	bool FillEmptySlot();
 	bool ReplaceCurrentSlot();
+	bool IsInventoryEmpty();
 	int32 PreviousSlot{ 1 };
 	int32 CurrentSlot{ 1 };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmptySlotImage", meta = (AllowPrivateAccess = "true"))
@@ -52,15 +64,27 @@ private:
 	TArray<AItemBase*> OverlappingItems;
 
 	UPROPERTY()
-	TArray<AItemBase*> Inventory;
-
-	UPROPERTY()
 	UInputComponent* PlayerInputComponent;
 	UPROPERTY()
 	AProductionTopDownGameModeBase* GameModeRef;
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 
 	int32 InventorySize{4};
 
 	void Save();
 	void Load();
+
+	void Pause();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* WeaponBreakSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* PSWeaponBreakEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* NSWeaponBreakEffect;
+	void SpawnBreakParticleEffect(FVector EffectSpawnLocationVector);
+
+
 };

@@ -19,10 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	APressurePlate();
 
-
-	
 	UPROPERTY(EditInstanceOnly, Category="Settings")
-	APuzzleController* PuzzleController;
+	TArray<class AActivatableBase*> ActivateActors;
+	UPROPERTY(EditAnywhere, Category="Settings")
+	USoundBase* ActivateSound;
+	UPROPERTY(EditAnywhere, Category="Settings")
+	USoundBase* DeactivateSound;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,9 +33,18 @@ protected:
 	bool bIsPressed{false};
 	
 	UFUNCTION()
-	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION()
-    void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void ActivateLoop(bool On);
+
+	UPROPERTY()
+	TArray<AActor*> OverlappingActors;
+
+	bool IsValidOtherActor(AActor* OtherActor, UPrimitiveComponent* OtherComp);
 
 	FVector PressedPosition{0.f, 0.f, -5.f};
 	FVector ReleasedPosition{FVector::ZeroVector};
@@ -44,11 +56,13 @@ protected:
 	UStaticMeshComponent* PlateButton;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* PlateFrame;
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	ATriggerVolume* PlateTrigger2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* PlateTrigger;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };
+
+

@@ -3,6 +3,9 @@
 
 #include "DoorActor.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BrushComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProductionTopDown/Character/PlayerCharacter.h"
 
 // Sets default values
@@ -13,19 +16,15 @@ ADoorActor::ADoorActor()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>("AudioComponent");
+	AudioComponent->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
 void ADoorActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorTickEnabled(false);
-	if (TriggerVolume)
-	{
-		TriggerVolume->OnActorBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
-		TriggerVolume->OnActorEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
-	}
-	SetActorTickEnabled(true);
 
 	StartLocation = GetActorLocation();
 	StartRotation = GetActorRotation();
@@ -38,7 +37,20 @@ void ADoorActor::BeginPlay()
         StartRotation.Pitch,
         StartRotation.Yaw + TargetYaw,
         StartRotation.Roll);
-	
+
+	if (OpenTrigger)
+	{
+		OpenTrigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
+		OpenTrigger->GetBrushComponent()->OnComponentEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
+	}
+	SetActorTickEnabled(false);
+}
+
+void ADoorActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorldTimerManager().ClearTimer(CloseTimerHandle);
+	AudioComponent->Stop();
 }
 
 // Called every frame
@@ -80,17 +92,53 @@ void ADoorActor::Tick(float DeltaTime)
 
 }
 
-void ADoorActor::OpenFromInteract()
+void ADoorActor::Activate(bool On)
 {
-	if (bDoorOpen)
+	if (CloseDelay > 0.f)
 	{
-		bDoorOpen = false;
-	}else
-	{
-		bDoorOpen = true;
+		if (On)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CloseTimerHandle);
+			bDoorOpen = On;
+			ExpoSpeed = 10.f;
+			SetActorTickEnabled(true);
+			AudioComponent->Play();
+		}
+		else
+		{
+			if (bStayOpen)
+			{
+				return;
+			}
+			GetWorld()->GetTimerManager().ClearTimer(CloseTimerHandle);
+			GetWorld()->GetTimerManager().SetTimer(CloseTimerHandle, [this, On]()
+			{
+				bDoorOpen = On;
+				ExpoSpeed = 10.f;
+				SetActorTickEnabled(true);
+				AudioComponent->Stop();
+			}, CloseDelay, false);
+		}
 	}
-	ExpoSpeed = 10.f;
-	SetActorTickEnabled(true);
+	else
+	{
+		if (!On && bStayOpen)
+		{
+			return;
+		}
+		bDoorOpen = On;
+		ExpoSpeed = 10.f;
+		SetActorTickEnabled(true);
+		if (On)
+		{
+			AudioComponent->Play();
+		}
+		else
+		{
+			AudioComponent->Stop();
+		}
+	}
+
 }
 
 void ADoorActor::SetAlwaysMoving(bool AlwaysMoving)
@@ -124,6 +172,7 @@ void ADoorActor::OpenDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorOpened();
 		}
 	}
 }
@@ -153,6 +202,7 @@ void ADoorActor::CloseDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorClosed();
 		}
 	}
 }
@@ -184,6 +234,7 @@ void ADoorActor::EaseOpenDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorOpened();
 		}
 	}
 }
@@ -213,6 +264,7 @@ void ADoorActor::EaseCloseDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorClosed();
 		}
 	}
 }
@@ -247,6 +299,7 @@ void ADoorActor::AccelOpenDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorOpened();
 		}
 	}
 
@@ -283,31 +336,42 @@ void ADoorActor::AccelCloseDoor(float DeltaTime)
 		else
 		{
 			SetActorTickEnabled(false);
+			OnDoorClosed();
 		}
 	}
 }
 
-void ADoorActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void ADoorActor::OnDoorOpened()
 {
-	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
+	AudioComponent->Stop();
+}
+
+void ADoorActor::OnDoorClosed()
+{
+	if (ClosedSound)
 	{
-		bDoorOpen = true;
-		ExpoSpeed = 10.f;
-		SetActorTickEnabled(true);
-		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("DOOR BEGINOtherActor: %s"), *OtherActor->GetHumanReadableName());
+		if (ClosedParticle && !ClosedParticle->IsLooping())
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ClosedParticle, GetActorLocation() + FVector{0.f, 0.f, 40.f}, GetActorRotation() + FRotator{0.f, 90.f, 0.f});
+		}
+		UGameplayStatics::PlaySoundAtLocation(this, ClosedSound, GetActorLocation(), GetActorRotation());
 	}
 }
 
-void ADoorActor::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void ADoorActor::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	if (/*APlayerPawn* Player = */Cast<APlayerCharacter>(OtherActor))
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
-		bDoorOpen = false;
-		ExpoSpeed = 10.f;
-		SetActorTickEnabled(true);
-		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOverlappedActor: %s"), *OverlappedActor->GetHumanReadableName());
-		UE_LOG(LogTemp, Warning, TEXT("DOOR ENDOtherActor: %s"), *OtherActor->GetHumanReadableName());
+		Activate(true);
 	}
 }
 
+void ADoorActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		Activate(false);
+	}
+}

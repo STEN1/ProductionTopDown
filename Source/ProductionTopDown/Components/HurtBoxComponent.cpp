@@ -36,7 +36,7 @@ void UHurtBoxComponent::BeginPlay()
 		HurtBox->SetRelativeScale3D(BoxScale);
 		HurtBox->SetRelativeLocation(MeshAttachedTo->GetRelativeLocation() + BoxOffset);
 		HurtBox->RegisterComponent();
-		UE_LOG(LogTemp, Warning, TEXT("HurtBoxComponent attached to: %s"), *MeshAttachedTo->GetName());
+		HurtBox->SetCollisionObjectType(ECC_GameTraceChannel2);
 
 		SetComponentTickEnabled(bDrawDebugBox);
 	}
@@ -63,6 +63,11 @@ void UHurtBoxComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 	if (Cast<APlayerCharacter>(OtherActor) && Cast<UCapsuleComponent>(OtherComp))
 	{
         UGameplayStatics::ApplyDamage(OtherActor, Damage, OtherActor->GetInstigatorController(), GetOwner()->GetInstigatorController(), UDamageType::StaticClass());
+
+		FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal2D();
+		APlayerCharacter* PlayerCharacterTemp = Cast<APlayerCharacter>(OtherComp->GetOwner());
+		if (PlayerCharacterTemp)
+			PlayerCharacterTemp->LaunchCharacter(PushBackVector*DamageKnockback + KnockbackJump, true, false);
 	}
 }
 

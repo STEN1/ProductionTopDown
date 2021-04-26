@@ -37,7 +37,6 @@ void ALever::Tick(float DeltaSeconds)
 
         if (NewRotation.Pitch == TargetRotation.Pitch)
         {
-        	UE_LOG(LogTemp, Error, TEXT("Lever Down"));
             if (!bTimer)
             {
 	            SetActorTickEnabled(false);
@@ -53,7 +52,6 @@ void ALever::Tick(float DeltaSeconds)
 
 		if (NewRotation.Pitch == StartRotation.Pitch)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Lever Up"));
 			SetActorTickEnabled(false);
 		}
 	}
@@ -78,25 +76,18 @@ void ALever::Interact(bool Condition)
 	bIsActivated = !bIsActivated;
 	ActivateTimer = 0.f;
 	
-	if (DoorActors.Num() > 0)
+	if (ActivateActors.Num() > 0 && !bDontActivate)
 	{
-		for (int i = 0; i < DoorActors.Num(); ++i)
+		for (int i = 0; i < ActivateActors.Num(); ++i)
 		{
-			if (DoorActors[i])
+			if (ActivateActors[i])
 			{
-				DoorActors[i]->OpenFromInteract();
+				ActivateActors[i]->Activate(bIsActivated);
 			}
 		}
-	}
-
-	if (SpikeActors.Num() > 0)
-	{
-		for (int i = 0; i < SpikeActors.Num(); ++i)
+		if (bActivateOnlyOnce)
 		{
-			if (SpikeActors[i])
-			{
-				SpikeActors[i]->ActivateFromInteractObject(false);
-			}
+			bDontActivate = !bDontActivate;
 		}
 	}
 }

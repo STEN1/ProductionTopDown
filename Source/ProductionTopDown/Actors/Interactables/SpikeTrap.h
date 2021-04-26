@@ -3,11 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableBase.h"
+#include "ActivatableBase.h"
+#include "Components/BoxComponent.h"
+
 #include "SpikeTrap.generated.h"
 
+
+
 UCLASS()
-class PRODUCTIONTOPDOWN_API ASpikeTrap : public AInteractableBase
+class PRODUCTIONTOPDOWN_API ASpikeTrap : public AActivatableBase
 {
 	GENERATED_BODY()
 
@@ -18,16 +22,30 @@ public:
 
 	//virtual void Interact(bool Condition = true);
 
-	void ActivateFromInteractObject(bool Condition);
+	virtual void Activate(bool On) override;
 
+    UPROPERTY(EditAnywhere, Category="Sound")
+	class USoundAttenuation* SoundAttenuation;
+	
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* HalfSpikeSound;
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* FullExtendSound;
+	UPROPERTY(EditAnywhere, Category="Sound")
+	USoundBase* RedrawSound;
+	
 	UPROPERTY(VisibleAnywhere, Category="Setup")
 	UStaticMeshComponent* BaseMesh{nullptr};
 	UPROPERTY(VisibleAnywhere, Category="Setup")
 	UStaticMeshComponent* SpikeMesh{nullptr};
+	UPROPERTY(VisibleAnywhere, Category="Setup")
+	UBoxComponent* BoxComponent{nullptr};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	FVector Stage1Offset{10.f, 10.f, 10.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	FVector Stage2Offset{20.f, 20.f, 20.f};
+	UPROPERTY(EditAnywhere, Category="Setup")
+	float StartDelay{-1.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	float Stage1Timer{1.f};
 	UPROPERTY(EditAnywhere, Category="Setup")
@@ -42,6 +60,11 @@ public:
 	bool bStartSpikeOut{false};
 	UPROPERTY(EditAnywhere, Category="Setup")
 	bool bStartActivated{false};
+	UPROPERTY(EditAnywhere, Category="Setup")
+	bool bActivateOnTouch{false};
+
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +75,8 @@ private:
 	FVector TargetLocationStage2;
 
 	float TickTimer{0.f};
+
+	bool bActivated{false};
 
 	int32 SpikeState{0};	// 0 == Peaking out, 1 == Fully out, 2 == Reset/Hidden
 };

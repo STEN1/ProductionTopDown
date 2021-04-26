@@ -30,13 +30,14 @@ public:
 	float TimeBeforeClose{1.0f};
 	UPROPERTY(EditInstanceOnly, Category="Setup")
 	bool bTimer{false};
+	UPROPERTY(EditInstanceOnly, Category="Setup")
+	bool bActivateOnlyOnce{false};
 	
 	virtual void Interact(bool Condition = true) override;
 	
 	UPROPERTY(EditInstanceOnly, Category="Setup")
-	TArray<class ADoorActor*> DoorActors;
-	UPROPERTY(EditInstanceOnly, Category="Setup")
-	TArray<class ASpikeTrap*> SpikeActors;
+	TArray<class AActivatableBase*> ActivateActors;
+
 	
 private:
 	FRotator StartRotation{0.f, 0.f, 0.f};
@@ -45,6 +46,7 @@ private:
 	
 	float ActivateTimer{0.f};
 	bool bIsActivated{false};
+	bool bDontActivate{false};
 
 	protected:
 	virtual void BeginPlay() override;

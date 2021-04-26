@@ -20,6 +20,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// Functions
 	virtual bool Attack();
 	virtual bool Dash();
@@ -47,10 +48,12 @@ protected:
 private:
 	//variables
 	UPROPERTY(EditAnywhere, Category="Particle Effects")
+	class UNiagaraSystem* DeathParticleNiagra;
+	UPROPERTY(EditAnywhere, Category="Particle Effects")
 	UParticleSystem* DeathParticle;
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DeathSound;
 
-
+	FTimerHandle RagdollTimerHandle;
 
 };

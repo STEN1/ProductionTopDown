@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
+#include "ProductionTopDown/Character/EnemyBase.h"
 
 
 // Sets default values
@@ -20,6 +22,10 @@ ASpawner::ASpawner()
 
 void ASpawner::StartSpawning()
 {
+	if (!bCanSpawn)
+	{
+		return;
+	}
 	if (DelayBetweenSpawn == 0.f)
 	{
 		InstantSpawn();
@@ -29,6 +35,12 @@ void ASpawner::StartSpawning()
 		SpawnArrayIndex = 0;
 		bSpawningActors = true;
 		SpawnWithTimer();
+	}
+	AliveActors = SpawnPoints.Num();
+	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
+	if (bSpawnOnce)
+	{
+		bCanSpawn = false;
 	}
 }
 
@@ -53,18 +65,61 @@ void ASpawner::SpawnParticleEffect(FVector EffectSpawnLocationVector)
 	}
 }
 
+void ASpawner::OnClear()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Room Clear! %s"), *GetHumanReadableName())
+	ActivateActivatableArray();
+	
+	// play sound?
+}
+
+void ASpawner::ActivateActivatableArray()
+{
+	// Activatable is on a word :)
+	for (auto& ActivatableActor : ActorsToActivateOnClear)
+	{
+		if (ActivatableActor)
+		{
+			ActivatableActor->Activate(true);
+		}
+	}
+}
+
+void ASpawner::ActorDied(AActor* DeadActor)
+{
+	AliveActors--;
+	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
+	if (AliveActors == 0)
+	{
+		OnClear();
+	}
+}
+
 void ASpawner::InstantSpawn()
 {
 	for (auto& SpawnPoint : SpawnPoints)
 	{
 		if (SpawnPoint)
 		{
-			GetWorld()->SpawnActor<AActor>(
+			AActor* TempActor = GetWorld()->SpawnActor<AActor>(
 				SpawnPoint->ActorToSpawn,
 				SpawnPoint->GetActorLocation(),
 				SpawnPoint->GetActorRotation());
 			SpawnParticleEffect(SpawnPoint->GetActorLocation());
-			OnActorSpawned(SpawnPoint->GetActorLocation());
+			
+			if (TempActor)
+			{
+				TempActor->SetOwner(this);
+				OnActorSpawned(SpawnPoint->GetActorLocation());
+				if(AEnemyBase* TempEnemy = Cast<AEnemyBase>(TempActor))
+					TempEnemy->InitializeEnemyFromSpawner();
+			}
+			else
+			{
+				AliveActors--;
+				UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
+			}
+			
 		}
 	}
 }
@@ -79,12 +134,24 @@ void ASpawner::SpawnWithTimer()
 
 	if (SpawnPoints[SpawnArrayIndex])
 	{
-		GetWorld()->SpawnActor<AActor>(
+		AActor* TempActor = GetWorld()->SpawnActor<AActor>(
             SpawnPoints[SpawnArrayIndex]->ActorToSpawn,
             SpawnPoints[SpawnArrayIndex]->GetActorLocation(),
             SpawnPoints[SpawnArrayIndex]->GetActorRotation());
 		SpawnParticleEffect(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
-		OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+
+		if (TempActor)
+		{
+			TempActor->SetOwner(this);
+			OnActorSpawned(SpawnPoints[SpawnArrayIndex]->GetActorLocation());
+			if(AEnemyBase* TempEnemy = Cast<AEnemyBase>(TempActor))
+				TempEnemy->InitializeEnemyFromSpawner();
+		}
+		else
+		{
+			AliveActors--;
+			UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
+		}
 	}
 
 	SpawnArrayIndex++;
@@ -104,6 +171,14 @@ void ASpawner::BeginPlay()
 	{
 		Trigger->OnActorBeginOverlap.AddDynamic(this, &ASpawner::BeginOverlapTrigger);
 	}
+}
+
+void ASpawner::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(TriggerCooldownTimerHandle);
+	GetWorldTimerManager().ClearTimer(SpawnTimerTimerHandle);
 }
 
 void ASpawner::BeginOverlapTrigger(AActor* OverlappedActor, AActor* OtherActor)

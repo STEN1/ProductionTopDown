@@ -21,8 +21,18 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FRotator PlayerRotation;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
+	TArray<int32> ItemsDurability;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<TSubclassOf<class AItemBase>> Inventory;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	int32 NumberOfHealthPots;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString Level;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString SavePoint;
 
-	static void SaveGame(const UObject* WorldContextObject);
-	static void LoadGame(const UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable)
+	static bool SaveGame(const UObject* WorldContextObject, FString SlotName, FString SavePointName = "");
+	UFUNCTION(BlueprintCallable)
+	static void LoadGame(const UObject* WorldContextObject, FString SlotName);
 };

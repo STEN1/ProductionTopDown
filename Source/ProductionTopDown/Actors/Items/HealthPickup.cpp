@@ -14,7 +14,7 @@ AHealthPickup::AHealthPickup()
 	bConsumable = true;
 }
 
-void AHealthPickup::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
+bool AHealthPickup::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
 	if (PlayerCharacter && World)
 	{
@@ -24,8 +24,11 @@ void AHealthPickup::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
                                     PlayerCharacter,
                                     UDamageType::StaticClass()
                                     );
+		UE_LOG(LogTemp, Warning, TEXT("Calling use on HealthPickup."));
+		return true;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Calling use on HealthPickup."));
+	
+	return false;
 }
 
 

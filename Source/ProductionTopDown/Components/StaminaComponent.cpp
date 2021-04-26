@@ -26,6 +26,13 @@ void UStaminaComponent::BeginPlay()
 	
 }
 
+void UStaminaComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearTimer(RegenerationTimerHandle);
+}
+
 void UStaminaComponent::RegenerateStamina()
 {
 	Stamina += StaminaRegenerationAmount;
@@ -72,7 +79,6 @@ void UStaminaComponent::Attack()
 		StaminaRegenerationTimer, 
 		true,
 		StaminaRegenerationTimerStartDelay);
-	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
 }
 
 void UStaminaComponent::Dash()
@@ -89,5 +95,4 @@ void UStaminaComponent::Dash()
 		StaminaRegenerationTimer,
 		true,
 		StaminaRegenerationTimerStartDelay);
-	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), Stamina);
 }

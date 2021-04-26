@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 
+#include "Components/AudioComponent.h"
 #include "Engine/TriggerVolume.h"
-#include "GameFramework/Actor.h"
-#include "Trace/Detail/LogScope.h"
-
+#include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
 #include "DoorActor.generated.h"
+
 UENUM(BlueprintType)
 enum class EDoorType : uint8
 {
@@ -17,7 +17,7 @@ enum class EDoorType : uint8
     Constant = 2		UMETA(DisplayName = "Constant movement"),
 };
 UCLASS()
-class PRODUCTIONTOPDOWN_API ADoorActor : public AActor
+class PRODUCTIONTOPDOWN_API ADoorActor : public AActivatableBase
 {
 	GENERATED_BODY()
 	
@@ -28,24 +28,27 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void OpenFromInteract();
+	virtual void Activate(bool On) override;
 	void SetAlwaysMoving(bool AlwaysMoving);
 
 private:
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Trigger", meta = (AllowPrivateAccess = "true"))
-	ATriggerVolume* TriggerVolume;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* AudioComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	EDoorType DoorTypeOpen;
 	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	EDoorType DoorTypeClose;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ClosedParticle;
 	
 	FVector StartLocation;
 	FRotator StartRotation;
@@ -54,20 +57,28 @@ private:
 	FRotator TargetRotation;
 
 	bool bDoorOpen = false;
+	
+	FTimerHandle CloseTimerHandle;
 
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
-	float TargetYaw = 90.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	bool bStayOpen{false};
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	float CloseDelay{-1.f};
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	ATriggerVolume* OpenTrigger;
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	float TargetYaw = 0.f;
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetXPos = 0.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float TargetYPos = 0.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
-	float TargetZPos = 200.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	float TargetZPos = 600.f;
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float OpenSpeed = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float CloseSpeed = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
 	float MaxExpoSpeed = 1200.f;
 	float ExpoSpeed{10.f};
 	float DoorSpeed{0.f};
@@ -80,13 +91,23 @@ private:
 	void EaseCloseDoor(float DeltaTime);
 	void AccelOpenDoor(float DeltaTime);
 	void AccelCloseDoor(float DeltaTime);
-	UFUNCTION()
-	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
-	UFUNCTION()
-	void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
-
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
-	bool bAlwaysMoving{false};
 	
+	void OnDoorOpened();
+	void OnDoorClosed();
+
+	
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	USoundBase* ClosedSound;
+
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (AllowPrivateAccess = "true"))
+	bool bAlwaysMoving{false};
+
+	UFUNCTION()
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	UFUNCTION()
+	void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 };

@@ -21,6 +21,10 @@ public:
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	float Damage{50.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
+	float DamageKnockback{500};
+	UPROPERTY(EditAnywhere, Category="HurtBox")
+	FVector KnockbackJump{0.f, 0.f, 250.f};
+	UPROPERTY(EditAnywhere, Category="HurtBox")
 	FVector BoxScale{2.5f, 2.5f, 1.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	FVector BoxOffset{0.f, 0.f, 10.f};

@@ -25,13 +25,16 @@ AItemBase::AItemBase()
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-	WidgetComponent->SetVisibility(false, true);
-	OnActorBeginOverlap.AddDynamic(this, &AItemBase::BeginOverlap);
-	OnActorEndOverlap.AddDynamic(this, &AItemBase::EndOverlap);
-	StaticMeshComponent->SetGenerateOverlapEvents(false);
-	BoxComponent->SetGenerateOverlapEvents(true);
-	WidgetComponent->SetGenerateOverlapEvents(false);
-	
+
+	if (WidgetComponent && StaticMeshComponent && BoxComponent)
+	{
+		WidgetComponent->SetVisibility(false, true);
+		OnActorBeginOverlap.AddDynamic(this, &AItemBase::BeginOverlap);
+		OnActorEndOverlap.AddDynamic(this, &AItemBase::EndOverlap);
+		StaticMeshComponent->SetGenerateOverlapEvents(false);
+		BoxComponent->SetGenerateOverlapEvents(true);
+		WidgetComponent->SetGenerateOverlapEvents(false);
+	}
 }
 
 void AItemBase::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
@@ -91,6 +94,36 @@ float AItemBase::GetKnockbackAmount() const
 	return KnockbackAmount;
 }
 
+float AItemBase::GetAttackDelay() const
+{
+	return AttackDelay;
+}
+
+float AItemBase::GetAttackHeavyChargeTime() const
+{
+	return AttackHeavyChargeTime;
+}
+
+float AItemBase::GetAttackSpeed() const
+{
+	return AttackSpeed;
+}
+
+bool AItemBase::IsHeavy() const
+{
+	return bIsHeavy;
+}
+
+UNiagaraSystem* AItemBase::GetLightAttackEffect() const
+{
+	return LightAttackEffect;
+}
+
+UNiagaraSystem* AItemBase::GetHeavyAttackEffect() const
+{
+	return HeavyAttackEffect;
+}
+
 ItemClass AItemBase::GetItemClass() const
 {
 	return ThisItemClass;
@@ -111,9 +144,9 @@ UStaticMeshComponent* AItemBase::GetItemStaticMesh() const
 	return StaticMeshComponent;
 }
 
-void AItemBase::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
+bool AItemBase::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Calling use on AItemBase."));
+	return false;
 }
 
 
