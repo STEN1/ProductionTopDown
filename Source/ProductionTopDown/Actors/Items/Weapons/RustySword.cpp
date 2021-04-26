@@ -12,7 +12,7 @@ ARustySword::ARustySword()
 	bIsWeapon = true;
 }
 
-void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
+bool ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
 	if (PlayerCharacter && World)
 	{
@@ -22,6 +22,17 @@ void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
                                     PlayerCharacter,
                                     UDamageType::StaticClass()
                                     );
+
+		WorldPtr = World;
+		
+		if (PlayerCharacter->GetPlayerState() != EPlayerState::Moving) return true;
+		PlayerCharacter->SetPlayerState(EPlayerState::Attacking);
+		PlayerCharacter->RotateCharToMouse();
+		WorldPtr->GetTimerManager().SetTimer(UseCooldownHandle, [PlayerCharacter]()
+		{
+			PlayerCharacter->SetPlayerState(EPlayerState::Moving);
+		}, UseCooldown, false);
+		
 		FVector SpawnLocation{PlayerCharacter->GetActorLocation()};
 		FRotator SpawnRotation{PlayerCharacter->FindComponentByClass<USkeletalMeshComponent>()->GetComponentRotation()};
 		SpawnRotation.Yaw += 90.f;
@@ -29,14 +40,19 @@ void ARustySword::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 		SpawnParameters.Owner = PlayerCharacter;
 		SpawnParameters.Instigator = PlayerCharacter;
 		AActor* Projectile = World->SpawnActor<AActor>(ProjectileSpell, SpawnLocation, SpawnRotation, SpawnParameters);
-		if (Projectile)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("FIREBALL"));
-		}
+		return true;
 	}
+	return false;
 }
 
 void ARustySword::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ARustySword::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	if (WorldPtr)
+		WorldPtr->GetTimerManager().ClearTimer(UseCooldownHandle);
 }

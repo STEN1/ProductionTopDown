@@ -48,6 +48,7 @@ void ADoorActor::BeginPlay()
 
 void ADoorActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	GetWorldTimerManager().ClearTimer(CloseTimerHandle);
 	AudioComponent->Stop();
 }

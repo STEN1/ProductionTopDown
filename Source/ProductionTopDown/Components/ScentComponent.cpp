@@ -28,6 +28,13 @@ void UScentComponent::BeginPlay()
 	SetComponentTickEnabled(bDrawDebugScent);
 }
 
+void UScentComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+}
+
 void UScentComponent::SpawnScent()
 {
 	FVector NewScent{GetOwner()->GetActorLocation()};

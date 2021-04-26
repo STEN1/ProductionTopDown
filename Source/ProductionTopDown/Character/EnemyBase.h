@@ -38,6 +38,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	void Move(float ScaleSpeed, FVector MoveDir);
 	void IsPlayerInView();
@@ -47,9 +48,11 @@ protected:
 	void PatrolState();
 
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle RagdollTimerHandle;
+	
 	UPROPERTY()
 	class AAIController* EnemyAIController{nullptr};
-	
+
 	FVector GetMoveDirFromScent();
 	FVector GetMoveOffsetFromWall(float InReach, ECollisionChannel CollisionChannel);
 	FVector CalcVectorFromPlayerToTarget(FVector Target);

@@ -76,6 +76,14 @@ void AEnemyBase::BeginPlay()
 	
 }
 
+void AEnemyBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+	GetWorldTimerManager().ClearTimer(RagdollTimerHandle);
+}
+
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -567,8 +575,7 @@ void AEnemyBase::TriggerDeath()
 	}
 	
 	//ragdoll before it dies
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
+	GetWorld()->GetTimerManager().SetTimer(RagdollTimerHandle, [this]() {
         //code who runs after delay time
 		Destroy();
     }, 5.f, 0);

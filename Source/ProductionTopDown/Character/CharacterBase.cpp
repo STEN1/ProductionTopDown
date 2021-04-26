@@ -31,6 +31,13 @@ void ACharacterBase::BeginPlay()
 	
 }
 
+void ACharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(RagdollTimerHandle);
+}
+
 // Called every frame
 void ACharacterBase::Tick(float DeltaTime)
 {
@@ -59,11 +66,10 @@ void ACharacterBase::TriggerDeath()
 
 
     //Ragdoll
-    FTimerHandle Handle;
-    	GetWorld()->GetTimerManager().SetTimer(Handle, [this]() {
+    	GetWorld()->GetTimerManager().SetTimer(RagdollTimerHandle, [this]() {
             //code who runs after delay time
     		if(GetMesh())GetMesh()->SetSimulatePhysics(true);
-        }, 0.1f, 0);
+        }, 0.2f, 0);
 	
 }
 

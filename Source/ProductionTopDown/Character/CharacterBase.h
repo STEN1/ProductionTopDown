@@ -20,6 +20,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// Functions
 	virtual bool Attack();
 	virtual bool Dash();
@@ -53,6 +54,6 @@ private:
 	UPROPERTY(EditAnywhere, Category="Sound Effects")
 	USoundBase* DeathSound;
 
-
+	FTimerHandle RagdollTimerHandle;
 
 };

@@ -18,11 +18,17 @@ class PRODUCTIONTOPDOWN_API ARustySword : public AItemBase
 public:
 	ARustySword();
 
-	virtual void UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
+	virtual bool UseItem(class APlayerCharacter* PlayerCharacter, UWorld* World) override;
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AProjectileSpell> ProjectileSpell;
-	
+
+	FTimerHandle UseCooldownHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	float UseCooldown{0.2f};
+
+	UWorld* WorldPtr{nullptr};
 };

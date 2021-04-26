@@ -8,8 +8,9 @@ AWeaponBase::AWeaponBase()
 	bIsWeapon = true;
 }
 
-void AWeaponBase::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
+bool AWeaponBase::UseItem(APlayerCharacter* PlayerCharacter, UWorld* World)
 {
+	return false;
 }
 
 void AWeaponBase::BeginPlay()
