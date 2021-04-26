@@ -335,7 +335,7 @@ void AEnemyBase::IsPlayerInView()
 		EnemyState = EEnemyState::Chase;
 	}
 
-	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange)
+	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange && (int)(Player->GetPlayerState()) != 5)
 	{
 		EnemyState = EEnemyState::Attack;
 	}
@@ -345,60 +345,146 @@ void AEnemyBase::PatrolState()
 {
 	if (!bPatrolSet)
 	{
-		bool ValidPosFound{false};
-		PatrolPointSelected = FVector::ZeroVector;
+		TArray<float> PatrolDistance;
+		TArray<bool> PatrolPointVisible;
 		FHitResult Hit;
 		FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
-		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
+		
+		for (int i = 0; i < PatrolHub->PatrolPoints.Num(); ++i)	//Get distance to all patrol points
+		{
+			FVector TempVector = PatrolHub->PatrolPoints[i]->GetActorLocation() - GetActorLocation();
+			float Distance = TempVector.Size();
+			PatrolDistance.Add(Distance);
+		}
+
+		for (int i = 0; i < PatrolHub->PatrolPoints.Num(); ++i)		//Get which patrol point is visible to the enemy
 		{
 			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
-			
-			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
+
 			if (!Hit.IsValidBlockingHit())
+				PatrolPointVisible.Add(true);
+			else
+				PatrolPointVisible.Add(false);
+		}
+
+		PatrolPointSelected = PatrolHub->PatrolPoints[0]->GetActorLocation();
+
+		
+		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
+		{
+			if (PatrolPointVisible[i] && i != PatrolIndex)
 			{
-				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
-				PatrolIndex = i + 1;
-				ValidPosFound = true;
-			}else if (ValidPosFound)
-			{
-				bPatrolSet = true;
-				return;
+				if (PatrolDistance[i] < PatrolPointSelected.Size())
+				{
+					PatrolIndex = i;
+					PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
+
+					if (PatrolIndex >= PatrolHub->PatrolPoints.Num()-1)
+                    {
+                        PatrolIndex = 0;
+						PatrolPointSelected = PatrolHub->PatrolPoints[0]->GetActorLocation();
+                    }
+				}
 			}
 		}
-		PatrolIndex = 0;
-		bPatrolSet = true;
 		
-	} else
+		bPatrolSet = true;
+	}
+	else
 	{
 		FVector MoveDir;
-		
+
 		if (bUseNavMesh)
-     	{
+		{
 			MoveDir = PatrolPointSelected.GetSafeNormal2D();
-     		EnemyAIController->MoveTo(MoveDir);
-     	} else
-     	{
-     		MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
-            MoveDir.Z = 0.f;
-            Move(0.5f, MoveDir);
-     	}
+		    EnemyAIController->MoveTo(MoveDir);
+		}
+		else
+		{
+		     MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
+             MoveDir.Z = 0.f;
+             Move(0.5f, MoveDir);
+		}
 
 		if (MoveDir != FVector::ZeroVector)
-		{
 			SetActorRotation(MoveDir.Rotation());
-		}
-		
+
 		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
 		{
-			bPatrolSet = false;
-			if (PatrolIndex == 0 && PatrolHub->PatrolPoints[PatrolHub->PatrolPoints.Num()-1]->bIsIdlePoint || PatrolIndex >= 1 && PatrolHub->PatrolPoints[PatrolIndex-1]->bIsIdlePoint)
+			if (PatrolHub->PatrolPoints[PatrolIndex]->bIsIdlePoint)
 			{
 				EnemyState = EEnemyState::Idle;
+				return;
 			}
-		
+
+			++PatrolIndex;
+			if (PatrolIndex > PatrolHub->PatrolPoints.Num()-1)
+			{
+				PatrolIndex = 0;
+			}
+			PatrolPointSelected = PatrolHub->PatrolPoints[PatrolIndex]->GetActorLocation();
 		}
 	}
 }
+
+// void AEnemyBase::PatrolState()
+// {
+// 	if (!bPatrolSet)
+// 	{
+// 		bool ValidPosFound{false};
+// 		PatrolPointSelected = FVector::ZeroVector;
+// 		FHitResult Hit;
+// 		FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
+// 		for (int i = PatrolIndex; i < PatrolHub->PatrolPoints.Num(); ++i)
+// 		{
+// 			GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(), ECC_Visibility, TraceParams);
+// 			
+// 			DrawDebugLine(GetWorld(), GetActorLocation(), PatrolHub->PatrolPoints[i]->GetActorLocation(),FColor::Red);
+// 			if (!Hit.IsValidBlockingHit())
+// 			{
+// 				PatrolPointSelected = PatrolHub->PatrolPoints[i]->GetActorLocation();
+// 				PatrolIndex = i + 1;
+// 				ValidPosFound = true;
+// 			}else if (ValidPosFound)
+// 			{
+// 				bPatrolSet = true;
+// 				return;
+// 			}
+// 		}
+// 		PatrolIndex = 0;
+// 		bPatrolSet = true;
+// 		
+// 	} else
+// 	{
+// 		FVector MoveDir;
+// 		
+// 		if (bUseNavMesh)
+//      	{
+// 			MoveDir = PatrolPointSelected.GetSafeNormal2D();
+//      		EnemyAIController->MoveTo(MoveDir);
+//      	} else
+//      	{
+//      		MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
+//             MoveDir.Z = 0.f;
+//             Move(0.5f, MoveDir);
+//      	}
+//
+// 		if (MoveDir != FVector::ZeroVector)
+// 		{
+// 			SetActorRotation(MoveDir.Rotation());
+// 		}
+// 		
+// 		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
+// 		{
+// 			PatrolPointSelected = PatrolHub->PatrolPoints[PatrolIndex]->GetActorLocation();
+// 			if (PatrolIndex == 0 && PatrolHub->PatrolPoints[PatrolHub->PatrolPoints.Num()-1]->bIsIdlePoint || PatrolIndex >= 1 && PatrolHub->PatrolPoints[PatrolIndex-1]->bIsIdlePoint)
+// 			{
+// 				EnemyState = EEnemyState::Idle;
+// 			}
+// 		
+// 		}
+// 	}
+// }
 
 void AEnemyBase::InitializeEnemyFromSpawner()
 {
@@ -457,7 +543,7 @@ void AEnemyBase::IdleState(float DeltaTime)
 	if (FMath::Rand() % 40 == 1)
 	{
 		const FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
-       	SetActorRotation(RandDir.Rotation());
+       	SetActorRotation(RandDir.Rotation());	//Look around randomly
 	}
 }
 
