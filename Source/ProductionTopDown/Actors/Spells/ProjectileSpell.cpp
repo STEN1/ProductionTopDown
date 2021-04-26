@@ -9,6 +9,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
@@ -24,6 +25,8 @@ AProjectileSpell::AProjectileSpell()
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	HitBox = CreateDefaultSubobject<UBoxComponent>("HurtBox");
 	HitBox->SetupAttachment(RootComponent);
+	AoeHitBox = CreateDefaultSubobject<USphereComponent>("AoeHurtBox");
+	AoeHitBox->SetupAttachment(RootComponent);
 }
 
 
@@ -41,6 +44,7 @@ void AProjectileSpell::BeginPlay()
 		
 		HitBox->OnComponentBeginOverlap.AddDynamic(this, &AProjectileSpell::OnHitBoxOverlap);
 	}
+
 	if (!SoundAttenuation)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant play sound on: %s, no sound attenuation."), *GetHumanReadableName())
@@ -91,16 +95,34 @@ void AProjectileSpell::OnHitBoxOverlap(UPrimitiveComponent* OverlappedComponent,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetOwner()) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Overlapped: %s"), *OtherActor->GetHumanReadableName())
+	
 	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass())
 		|| !OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UStaticMeshComponent::StaticClass()))
 	{
-		UGameplayStatics::ApplyDamage(OtherActor, SpellDamage, GetInstigatorController(), GetOwner(), UDamageType::StaticClass());
+		if (AoeDamage)
+		{
+			TArray<UPrimitiveComponent*> Components;
+			AoeHitBox->GetOverlappingComponents(Components);
+			for (auto Component : Components)
+			{
+				if (Component->IsA(UCapsuleComponent::StaticClass()) && Component->GetOwner()->IsA(ACharacterBase::StaticClass())
+				|| Component->IsA(UStaticMeshComponent::StaticClass()) && !Component->GetOwner()->IsA(ACharacterBase::StaticClass()))
+				{
+					UGameplayStatics::ApplyDamage(Component->GetOwner(), SpellDamage, GetInstigatorController(), GetOwner(), UDamageType::StaticClass());
+				}
+				
+			}
+		}
+		else
+		{
+			UGameplayStatics::ApplyDamage(OtherActor, SpellDamage, GetInstigatorController(), GetOwner(), UDamageType::StaticClass());
+		}
+		
 		Destroy();
 	}
 
 }
+
 
 
 void AProjectileSpell::Tick(float DeltaTime)

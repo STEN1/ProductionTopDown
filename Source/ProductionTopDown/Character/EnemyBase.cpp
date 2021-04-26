@@ -318,11 +318,12 @@ void AEnemyBase::OnComponentBeginOverlapAttackBox(UPrimitiveComponent* Overlappe
                     this,
                     DamageType
                     );
-
-			FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				
+			const FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
 			APlayerCharacter* PlayerCharacterTemp = Cast<APlayerCharacter>(OtherComp->GetOwner());
 			if (PlayerCharacterTemp)
 				PlayerCharacterTemp->LaunchCharacter(PushBackVector*AttackKnockback, true, false);
+				PlayerCharacterTemp->ResetWalkSpeed();
 
 			if (AttackParticle && !AttackParticle->IsLooping())
 			{
