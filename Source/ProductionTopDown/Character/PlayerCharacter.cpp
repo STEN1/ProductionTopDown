@@ -271,7 +271,7 @@ bool APlayerCharacter::Attack()
 void APlayerCharacter::DashEvent()
 {
 	//Dash Animation and particles
-	if (GetPlayerState() == EPlayerState::Moving && bCanDash)
+	if (GetPlayerState() == EPlayerState::Moving && bCanDash || GetPlayerState() == EPlayerState::Jumping && bCanDash)
 	{
 		Dash();
 	}
