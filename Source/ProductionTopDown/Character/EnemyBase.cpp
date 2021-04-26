@@ -123,7 +123,9 @@ void AEnemyBase::Tick(float DeltaTime)
 	{
 		IsPlayerInView();
 	}
-	
+
+	if ((int)(Player->GetPlayerState()) == 5)
+		EnemyState = EEnemyState::Idle;
 }
 
 void AEnemyBase::FollowPlayer()
@@ -344,7 +346,7 @@ void AEnemyBase::IsPlayerInView()
 		EnemyState = EEnemyState::Chase;
 	}
 
-	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange && (int)(Player->GetPlayerState()) != 5)
+	if (FMath::Abs((GetActorLocation() - Player->GetActorLocation()).Size()) <= AttackRange)
 	{
 		EnemyState = EEnemyState::Attack;
 	}
@@ -524,17 +526,15 @@ bool AEnemyBase::Attack()
 	if (!bAttacking)
 	{
 		bAttacking = true;
-		UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents TRUE"));
-		AttackBox->SetGenerateOverlapEvents(true);
 		GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, [this]()
             {
                 UE_LOG(LogTemp, Error, TEXT("Attack Over"))
 			EnemyState = EEnemyState::Chase;
             bAttacking = false;
-        UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents FALSE"));
-        AttackBox->SetGenerateOverlapEvents(false);
         }, AttackLenght, 0);	
 	}
+
+	Move(0.01f, CalcVectorFromPlayerToTarget(Player->GetActorLocation()));
 	
 	return true;
 }
@@ -553,6 +553,7 @@ void AEnemyBase::IdleState(float DeltaTime)
 	{
 		const FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
        	SetActorRotation(RandDir.Rotation());	//Look around randomly
+		Move(0.01f,RandDir);
 	}
 }
 
@@ -581,5 +582,16 @@ void AEnemyBase::TriggerDeath()
 		Destroy();
     }, 5.f, 0);
 	
-	
 }
+
+EEnemyState AEnemyBase::GetEnemyState()
+{
+	return EnemyState;
+}
+
+void AEnemyBase::ToggleAttackBox(bool ToggleAttack)
+{
+	AttackBox->SetGenerateOverlapEvents(ToggleAttack);
+	UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents: %s"), (ToggleAttack ? TEXT("True") : TEXT("False")));
+}
+

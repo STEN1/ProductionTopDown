@@ -10,10 +10,10 @@ UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
 	Idle	= 0			UMETA(DisplayName = "Idle..."),
-    Patrol = 1		UMETA(DisplayName = "Following Patrol"),
-    Chase = 2		UMETA(DisplayName = "Chasing Target"),
-	Attack = 3		UMETA(DisplayName = "Attacking"),
-	Dead = 4		UMETA(DisplayName = "Dead"),
+    Patrol = 1			UMETA(DisplayName = "Following Patrol"),
+    Chase = 2			UMETA(DisplayName = "Chasing Target"),
+	Attack = 3			UMETA(DisplayName = "Attacking"),
+	Dead = 4			UMETA(DisplayName = "Dead"),
 };
 
 UCLASS()
@@ -35,6 +35,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void RemoveHealthBar();
+
+	UFUNCTION(BlueprintCallable)
+	EEnemyState GetEnemyState();
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleAttackBox(bool ToggleAttack);
 	
 protected:
 	virtual void BeginPlay() override;
