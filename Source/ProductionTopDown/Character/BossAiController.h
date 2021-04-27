@@ -4,12 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "FirstBoss.h"
 #include "BossAiController.generated.h"
+
 
 /**
  * 
  */
 UCLASS()
+
+
 class PRODUCTIONTOPDOWN_API ABossAiController : public AAIController
 {
 	GENERATED_BODY()
@@ -24,7 +28,8 @@ class PRODUCTIONTOPDOWN_API ABossAiController : public AAIController
 	
 	private:
 	APawn* PlayerPawn;
-
+	AFirstBoss* Bossptr;
+	
 	float CurrentHP;
 	bool HaveEnteredFidgetPhase{false};
 	
