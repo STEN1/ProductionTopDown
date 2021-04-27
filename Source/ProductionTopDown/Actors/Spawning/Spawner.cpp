@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "Components/BrushComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "ProductionTopDown/Actors/Interactables/ActivatableBase.h"
 #include "ProductionTopDown/Character/EnemyBase.h"
 
@@ -169,7 +171,7 @@ void ASpawner::BeginPlay()
 	}
 	if (Trigger)
 	{
-		Trigger->OnActorBeginOverlap.AddDynamic(this, &ASpawner::BeginOverlapTrigger);
+		Trigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ASpawner::BeginOverlapTrigger);
 	}
 }
 
@@ -181,12 +183,17 @@ void ASpawner::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorldTimerManager().ClearTimer(SpawnTimerTimerHandle);
 }
 
-void ASpawner::BeginOverlapTrigger(AActor* OverlappedActor, AActor* OtherActor)
+void ASpawner::BeginOverlapTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetHumanReadableName());
 	if (!ActorThatTriggers) return;
 	if (!bSpawningActors && SpawnOnTriggerOverlap && OtherActor->IsA(ActorThatTriggers->ClassDefaultObject->GetClass()))
 	{
+		if (OtherActor->IsA(ACharacterBase::StaticClass()) && !OtherComp->IsA(UCapsuleComponent::StaticClass()))
+		{
+			return;
+		}
 		StartSpawning();
 		SpawnOnTriggerOverlap = false;
 		GetWorld()->GetTimerManager().SetTimer(TriggerCooldownTimerHandle, [this]()

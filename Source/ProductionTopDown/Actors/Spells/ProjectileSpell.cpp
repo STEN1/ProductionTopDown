@@ -55,8 +55,10 @@ void AProjectileSpell::BeginPlay()
 
 void AProjectileSpell::PlayLaunchEffects()
 {
+	FRotator LaunchRotation{GetActorRotation()};
+	LaunchRotation.Yaw -= 90;
 	if (LaunchNiagaraParticle && !LaunchNiagaraParticle->IsLooping())
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LaunchNiagaraParticle, GetActorLocation(), GetActorRotation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LaunchNiagaraParticle, GetActorLocation(), LaunchRotation, {0.5f,0.5f,0.5f});
 	if (LaunchParticle && !LaunchParticle->IsLooping())
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LaunchParticle, GetActorLocation(), GetActorRotation());
 
