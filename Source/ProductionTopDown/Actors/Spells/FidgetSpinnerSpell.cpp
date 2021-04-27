@@ -52,14 +52,13 @@ void AFidgetSpinnerSpell::PlayStartEffects()
 
 void AFidgetSpinnerSpell::FireProsjectile()
 {
-	AActor* ProjectileOwner;
 
 	if (GetOwner() && GetOwner()->IsA(ACharacterBase::StaticClass()))
 		ProjectileOwner = GetOwner();
 	else
 		ProjectileOwner = this;
 	
-	GetWorldTimerManager().SetTimer(FireProjectileHandle, [this, ProjectileOwner]()
+	GetWorldTimerManager().SetTimer(FireProjectileHandle, [this]()
 	{
 		FVector SpawnLocation{GetActorLocation()};
 		FRotator SpawnRotation{GetActorRotation()};

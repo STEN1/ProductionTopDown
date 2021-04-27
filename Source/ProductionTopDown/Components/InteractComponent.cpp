@@ -70,8 +70,8 @@ void UInteractComponent::CreateBoxComponent()
 	{
 		BoxComponent->SetupAttachment(Mesh);
 		BoxComponent->RegisterComponent();
-		BoxComponent->SetRelativeLocation({0.f, 60.f, 80.f});
-		BoxComponent->SetRelativeScale3D({1.5f, 2.f, 3.f});
+		BoxComponent->SetRelativeLocation({0.f, 0.f, 50.f});
+		BoxComponent->SetRelativeScale3D({5, 5, 3.f});
 	}
 
 }

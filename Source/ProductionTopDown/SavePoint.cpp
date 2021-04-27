@@ -28,6 +28,21 @@ void ASavePoint::BeginPlay()
 	Super::BeginPlay();
 
 	SaveZone->OnComponentBeginOverlap.AddDynamic(this, &ASavePoint::OnOverlap);
+
+	TArray<AActor*> OverlappingActors;
+	SaveZone->GetOverlappingActors(OverlappingActors, APlayerCharacter::StaticClass());
+	for (auto OverlappingActor : OverlappingActors)
+	{
+		if (OverlappingActor->IsA(APlayerCharacter::StaticClass()))
+		{
+			if (!UMySaveGame::SaveGame(this, "Slot1", GetName()))
+			{
+				return;
+			}
+			SpawnSaveParticle(OverlappingActor->GetActorLocation());
+			OnSaved();
+		}
+	}
 }
 
 void ASavePoint::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

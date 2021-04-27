@@ -54,7 +54,7 @@ protected:
 	void PatrolState();
 
 	FTimerHandle AttackTimerHandle;
-	FTimerHandle RagdollTimerHandle;
+	FTimerHandle DeathTimerHandle;
 	
 	UPROPERTY()
 	class AAIController* EnemyAIController{nullptr};
@@ -122,6 +122,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState EnemyState;
+
+	UPROPERTY(EditAnywhere, Category="Weapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* WeaponInHand;
 	
 private:
 	

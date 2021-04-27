@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTT_FidgetSpin.generated.h"
 
 
@@ -14,7 +14,13 @@ class PRODUCTIONTOPDOWN_API UBTT_FidgetSpin : public UBTTaskNode
 	GENERATED_BODY()
 
 	public:
+	
+	UBTT_FidgetSpin();
+
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	
 	
 	protected:
 	
