@@ -125,6 +125,9 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorldTimerManager().ClearTimer(LightMovingHandle);
 	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle);
 	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
+	GetWorldTimerManager().ClearTimer(HeavyParticle2);
+	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
+	
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -371,7 +374,7 @@ AActor* APlayerCharacter::GetActorToDamage()
 void APlayerCharacter::StartAttackTimer()
 {
 	//need weapon to attack
-	if (InventoryComponent && InventoryComponent->GetItemObject() && PlayerState == EPlayerState::Moving)
+	if (InventoryComponent && InventoryComponent->GetItemObject() && bCanAttackAgain && PlayerState == EPlayerState::Moving)
 	{
 		//Charge animation
 		PlayerState = EPlayerState::Charge;
@@ -452,8 +455,7 @@ void APlayerCharacter::CalcAttackType()
 		}
 		else
 		{
-			//drain double Stamina
-			if(!Super::Attack()) return;
+			//drain Stamina
 			if(!Super::Attack()) return;
 			RotateCharToMouse();
 			//HeavyAttack();
@@ -466,6 +468,8 @@ void APlayerCharacter::LightAttack()
 {
 	
 	SetPlayerState(EPlayerState::Attacking);
+	bCanAttackAgain = false;
+	
 	if(InventoryComponent &&  InventoryComponent->GetItemObject())
 	{
 		const FVector BoxSize{140,140,50};
@@ -515,6 +519,7 @@ void APlayerCharacter::LightAttack()
 
 		GetWorld()->GetTimerManager().SetTimer(LightMovingHandle, [this]() {
 	        //code who runs after delay time
+			bCanAttackAgain = true;
 	        SetPlayerState(EPlayerState::Moving);
 	    }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0);
 	}
@@ -524,6 +529,7 @@ void APlayerCharacter::HeavyAttack()
 {
 
 	SetPlayerState(EPlayerState::Attacking);
+	bCanAttackAgain = false;
 	
 	if(InventoryComponent && InventoryComponent->GetItemObject())
 	{
@@ -570,6 +576,7 @@ void APlayerCharacter::HeavyAttack()
 		
 		GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
 	        //code who runs after delay time
+			bCanAttackAgain = true;
 	        SetPlayerState(EPlayerState::Moving);
 	    }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
 	}
@@ -578,6 +585,8 @@ void APlayerCharacter::HeavyAttack()
 void APlayerCharacter::DoubleHeavyAttack()
 {
 	SetPlayerState(EPlayerState::HeavyAttack);
+	bCanAttackAgain = false;
+	
 	if(InventoryComponent && InventoryComponent->GetItemObject())
 	{
 		
@@ -661,6 +670,7 @@ void APlayerCharacter::DoubleHeavyAttack()
 		
 	GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
         //code who runs after delay time
+		bCanAttackAgain = true;
         SetPlayerState(EPlayerState::Moving);
     }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
 	}
@@ -747,6 +757,11 @@ void APlayerCharacter::RotateCharToMouse()
 	
 	CharacterMesh->SetWorldRotation(MeshRotation);
 
+}
+
+void APlayerCharacter::SetMovingState()
+{
+	SetPlayerState(EPlayerState::Moving);
 }
 
 void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)

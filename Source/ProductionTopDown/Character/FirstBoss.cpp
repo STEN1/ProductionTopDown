@@ -30,7 +30,7 @@ void AFirstBoss::BeginPlay()
 	CharacterMesh = FindComponentByClass<USkeletalMeshComponent>();
 	if(WeaponMesh) WeaponMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("WeaponSocket"));
 	if(AttackRange) AttackRange->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("AttackRange"));
-	if(AttackRange) AttackRange->SetRelativeScale3D(FVector(0.2f,0.5f,1.5f));
+	if(AttackRange) AttackRange->SetRelativeScale3D(FVector(0.5f,0.5f,1.5f));
 	if(AttackRange) AttackRange->OnComponentBeginOverlap.AddDynamic(this, &AFirstBoss::OnComponentBeginOverlap);
 	    
 	GetCharacterMovement()->MaxWalkSpeed = 400;
