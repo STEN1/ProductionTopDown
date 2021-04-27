@@ -16,12 +16,15 @@ enum class EBossState : uint8
 	RangeAttack = 3 UMETA(DisplayName = "Range Attack State"),
 	SpinAttack = 4	UMETA(DisplayName = "Spin Attack State"),
 	NormalAttack = 5 UMETA(DisplayName = "Normal Attack State"),
-	BigClearRoomAttack = 6 UMETA(DisplayName = "Big Clear Room Attack State")
-	
+	BigClearRoomAttack = 6 UMETA(DisplayName = "Big Clear Room Attack State"),
+	HalfCharged = 7 UMETA(DisplayName = "Half Charge State")
 };
 
 
 class UBoxComponent;
+class APlayerCharacter;
+class AProjectileSpell;
+class AFidgetSpinnerSpell;
 
 UCLASS()
 class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
@@ -46,6 +49,8 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	UFUNCTION(BlueprintCallable)
 	void ToogleAttackRangeOverlap(bool EnableOverlap);
 	
+	void ShootFireBall();
+	void FidgetSpinAttack();
 	protected:
 	
 	
@@ -69,6 +74,16 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
     TSubclassOf<UDamageType> DamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"));
-	float MeleeDamage;
+	float MeleeDamage{20};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AProjectileSpell> FireBallSpell;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AFidgetSpinnerSpell> FidgetSpinSpell;
+
+	
+	APlayerCharacter* PlayerCharacter;
+
 	
 };

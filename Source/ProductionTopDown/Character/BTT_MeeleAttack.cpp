@@ -2,6 +2,8 @@
 
 
 #include "BTT_MeeleAttack.h"
+
+#include "AIController.h"
 #include "FirstBoss.h"
 
 UBTT_MeeleAttack::UBTT_MeeleAttack()
@@ -20,9 +22,9 @@ EBTNodeResult::Type UBTT_MeeleAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	
 	// slice melee attack
 	
-	UE_LOG(LogTemp, Warning, TEXT("Slishing with sword"))
+	//UE_LOG(LogTemp, Warning, TEXT("Slishing with sword"))
 
-	AFirstBoss* Bossptr = Cast<AFirstBoss>(OwnerComp.GetOwner());
+	AFirstBoss* Bossptr = Cast<AFirstBoss>(OwnerComp.GetAIOwner()->GetPawn());
 	if(Bossptr)
 	{
 		Bossptr->SetEnemyState(EBossState::NormalAttack);

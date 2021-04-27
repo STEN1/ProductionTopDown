@@ -17,6 +17,7 @@
 #include "ProductionTopDown/Actors/Puzzle/Pushable_ActorBase.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "FirstBoss.h"
 //#include "ToolContextInterfaces.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -925,18 +926,22 @@ void APlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
                     );
 				
 			}
+
+			
 			
 			if(bHeavyAttack)
 			{
 				FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
-				PushBackVector *=2;		
+				PushBackVector *=2;
+				if(OtherComp->GetOwner()->IsA(AFirstBoss::StaticClass())) PushBackVector = FVector().ZeroVector; // removes Knockback on boss
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
 				if(OtherActor->FindComponentByClass(UHealthComponent::StaticClass()))InventoryComponent->GetItemObject()->Durability -=2;
 			}
 			else
 			{
-				const FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				FVector PushBackVector = (OtherComp->GetOwner()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+				if(OtherComp->GetOwner()->IsA(AFirstBoss::StaticClass())) PushBackVector = FVector().ZeroVector; // removes Knockback on boss
 				ACharacterBase* Characterbaseptr = Cast<ACharacterBase>(OtherComp->GetOwner());
 				if(Characterbaseptr)Characterbaseptr->LaunchCharacter(PushBackVector*InventoryComponent->GetItemObject()->GetKnockbackAmount(), true, false);
 				if(OtherActor->FindComponentByClass(UHealthComponent::StaticClass()))InventoryComponent->GetItemObject()->Durability -=1;

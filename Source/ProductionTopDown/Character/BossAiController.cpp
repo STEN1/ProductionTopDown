@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
+#include "FirstBoss.h"
 
 ABossAiController::ABossAiController()
 {
@@ -31,13 +32,16 @@ void ABossAiController::BeginPlay()
 	BossBlackBoard = GetBlackboardComponent();
 	if(PlayerPawn && BossBlackBoard) BossBlackBoard->SetValueAsObject(TEXT("Player"), PlayerPawn->GetOwner());
 	if(BossBlackBoard && GetPawn()) BossBlackBoard->SetValueAsVector(TEXT("RoomCenter"), GetPawn()->GetActorLocation()); // Location to use spin attack
+
+	Bossptr = Cast<AFirstBoss>(GetPawn());
+	
 }
 
 void ABossAiController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(BossBlackBoard)
+	if(BossBlackBoard && Bossptr)
 	{
 		if(PlayerPawn)BossBlackBoard->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
 		
@@ -45,7 +49,7 @@ void ABossAiController::Tick(float DeltaSeconds)
 		else BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), false);
 		
 		if(GetPawn() &&  PlayerPawn && GetPawn()->GetDistanceTo(PlayerPawn) < 300) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), true);
-		else BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), false);
+		else if(Bossptr->GetEnemyState() != EBossState::NormalAttack) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), false);
 
 		//nuke room every 30% of hp
 		//walk to middle. use fidget spinner

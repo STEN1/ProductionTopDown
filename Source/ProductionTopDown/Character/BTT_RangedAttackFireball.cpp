@@ -2,6 +2,9 @@
 
 
 #include "BTT_RangedAttackFireball.h"
+#include "AIController.h"
+#include "FirstBoss.h"
+
 
 UBTT_RangedAttackFireball::UBTT_RangedAttackFireball()
 {
@@ -19,8 +22,14 @@ EBTNodeResult::Type UBTT_RangedAttackFireball::ExecuteTask(UBehaviorTreeComponen
 	
 	// Move to center of room shoot fireballs
 	
-	UE_LOG(LogTemp, Warning, TEXT("Shooting Fireball"))
+	//UE_LOG(LogTemp, Warning, TEXT("Shooting Fireball"))
 
+	AFirstBoss* Bossptr = Cast<AFirstBoss>(OwnerComp.GetAIOwner()->GetPawn());
+	if(Bossptr)
+	{
+		Bossptr->ShootFireBall();
+		Bossptr->SetEnemyState(EBossState::RangeAttack);
+	}
 	return EBTNodeResult::Succeeded;
 }
 
