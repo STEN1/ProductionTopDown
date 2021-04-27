@@ -17,6 +17,7 @@ ABossAiController::ABossAiController()
 void ABossAiController::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Error, TEXT("GO kys "));
 	
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
@@ -30,10 +31,17 @@ void ABossAiController::BeginPlay()
 	}
 	
 	BossBlackBoard = GetBlackboardComponent();
-	if(PlayerPawn && BossBlackBoard) BossBlackBoard->SetValueAsObject(TEXT("Player"), PlayerPawn->GetOwner());
-	if(BossBlackBoard && GetPawn()) BossBlackBoard->SetValueAsVector(TEXT("RoomCenter"), GetPawn()->GetActorLocation()); // Location to use spin attack
-
-	Bossptr = Cast<AFirstBoss>(GetPawn());
+	if(PlayerPawn && BossBlackBoard)
+	{
+		BossBlackBoard->SetValueAsObject(TEXT("Player"), PlayerPawn->GetOwner());
+		UE_LOG(LogTemp, Error, TEXT("Playerpawnfound "));
+	}
+	if(BossBlackBoard && GetPawn())
+	{
+		BossBlackBoard->SetValueAsVector(TEXT("RoomCenter"), GetPawn()->GetActorLocation()); // Location to use spin attack
+		UE_LOG(LogTemp, Error, TEXT("Spawn Location Found"));
+	}
+	
 	
 }
 
@@ -41,14 +49,32 @@ void ABossAiController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (FirstTick && BossBlackBoard && GetPawn())
+	{
+		SpawnLocation = GetPawn()->GetActorLocation();
+		Bossptr = Cast<AFirstBoss>(GetPawn());
+		
+		FirstTick = false;
+
+		GetWorld()->GetTimerManager().SetTimer(GetZValueTimer,[this](){
+				SpawnLocation.Z = GetPawn()->GetActorLocation().Z;
+				BossBlackBoard->SetValueAsVector(TEXT("RoomCenter"), SpawnLocation); // Location to use spin attack
+			},1.5f,false
+		);
+	}
+		
 	if(BossBlackBoard && Bossptr)
 	{
-		if(PlayerPawn)BossBlackBoard->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+		if(PlayerPawn)
+		{
+			BossBlackBoard->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+		}
+		if(PlayerPawn && LineOfSightTo(PlayerPawn) && PlayerPawn->GetActorLocation().Z < Bossptr->GetActorLocation().Z + 20.f)
+			BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), true);
+		else
+			BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), false);
 		
-		if(PlayerPawn && LineOfSightTo(PlayerPawn)) BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), true);
-		else BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), false);
-		
-		if(GetPawn() &&  PlayerPawn && GetPawn()->GetDistanceTo(PlayerPawn) < 300) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), true);
+		if(GetPawn() &&  PlayerPawn && GetPawn()->GetDistanceTo(PlayerPawn) < 300.f) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), true);
 		else if(Bossptr->GetEnemyState() != EBossState::NormalAttack) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), false);
 
 		//nuke room every 30% of hp
@@ -73,4 +99,10 @@ void ABossAiController::Tick(float DeltaSeconds)
 		
 	}
 	
+}
+
+void ABossAiController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	GetWorldTimerManager().ClearTimer(GetZValueTimer);
 }

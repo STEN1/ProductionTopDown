@@ -68,6 +68,10 @@ public:
 
 
 	void RotateCharToMouse();
+
+	UFUNCTION(BlueprintCallable)
+	void SetMovingState();
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -195,6 +199,8 @@ private:
 	bool bDrawAttackRangeBox{false};
 	
 	bool bCanPush{false};
+
+	bool bCanAttackAgain{true};
 
 	//Timer Handles
 

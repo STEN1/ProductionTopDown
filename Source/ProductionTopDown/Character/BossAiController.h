@@ -24,14 +24,18 @@ class PRODUCTIONTOPDOWN_API ABossAiController : public AAIController
 	virtual void Tick (float DeltaSeconds) override;
 
 	protected:
-	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	private:
 	APawn* PlayerPawn;
 	AFirstBoss* Bossptr;
-	
+	FVector SpawnLocation;
 	float CurrentHP;
 	bool HaveEnteredFidgetPhase{false};
+
+	bool FirstTick{true};
+
+	FTimerHandle GetZValueTimer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UBehaviorTree* BossBehaviorTree;
