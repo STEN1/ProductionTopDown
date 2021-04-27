@@ -25,6 +25,9 @@ class PRODUCTIONTOPDOWN_API ABossAiController : public AAIController
 	private:
 	APawn* PlayerPawn;
 
+	float CurrentHP;
+	bool HaveEnteredFidgetPhase{false};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UBehaviorTree* BossBehaviorTree;
 	class UBlackboardComponent* BossBlackBoard;

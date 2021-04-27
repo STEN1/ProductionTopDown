@@ -3,27 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
-#include "BTT_FidgetSpin.generated.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "BTT_ResetBossState.generated.h"
 
-
-
+/**
+ * 
+ */
 UCLASS()
-class PRODUCTIONTOPDOWN_API UBTT_FidgetSpin : public UBTTaskNode
+class PRODUCTIONTOPDOWN_API UBTT_ResetBossState : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-
 	public:
-	
-	UBTT_FidgetSpin();
-
+	UBTT_ResetBossState();
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	
-	
-	protected:
-	
-	private:
 	
 };

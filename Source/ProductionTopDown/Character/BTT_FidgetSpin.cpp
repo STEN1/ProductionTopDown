@@ -3,11 +3,16 @@
 
 #include "BTT_FidgetSpin.h"
 
+UBTT_FidgetSpin::UBTT_FidgetSpin()
+{
+	NodeName = TEXT("Use fidgetSpin attack");
+}
+
 EBTNodeResult::Type UBTT_FidgetSpin::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	if (OwnerComp.GetAIOwner())
+	if (!OwnerComp.GetAIOwner())
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -17,3 +22,5 @@ EBTNodeResult::Type UBTT_FidgetSpin::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	return EBTNodeResult::Succeeded;
 }
+
+
