@@ -125,6 +125,9 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorldTimerManager().ClearTimer(LightMovingHandle);
 	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle);
 	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
+	GetWorldTimerManager().ClearTimer(HeavyParticle2);
+	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
+	
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
