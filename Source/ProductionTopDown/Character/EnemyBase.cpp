@@ -22,12 +22,16 @@ AEnemyBase::AEnemyBase()
 	DetectionComponent->SetupAttachment(RootComponent);
 	AttackBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox1"));
 	AttackBox->SetupAttachment(RootComponent);
+
+	WeaponInHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 }
 
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	if(WeaponInHand) WeaponInHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("WeaponSocket"));
+	
 	EnemyAIController = Cast<AAIController>(GetController());
 
 	EnemyCapsuleComponent = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
@@ -205,7 +209,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
         	if (Hit.IsValidBlockingHit())
         	{
 					HitArray.Add(Hit);
-        		
+        			/*
         			DrawDebugLine(
                     GetWorld(),
                     GetActorLocation(),
@@ -215,7 +219,7 @@ FVector AEnemyBase::GetMoveOffsetFromWall(float InReach, ECollisionChannel Colli
                     0.f,
                     0,
                     5.f
-                    );
+                    );*/
         	} 
 	}
 
@@ -281,6 +285,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 	// } else
 	if (DrawTraceLine && !Hit.IsValidBlockingHit())	//Draw to Hit in sight
 	{
+		/*
 		DrawDebugLine(
 		GetWorld(),
 		EnemyLocation,
@@ -290,7 +295,7 @@ FHitResult AEnemyBase::GetFirstHitInReach(ECollisionChannel CollisionChannel, FV
 		0.f,
 		0,
 		5.f
-		);
+		);*/
 	}
 		return Hit;
 }

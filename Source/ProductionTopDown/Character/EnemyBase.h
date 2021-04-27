@@ -122,6 +122,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState EnemyState;
+
+	UPROPERTY(EditAnywhere, Category="Weapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* WeaponInHand;
 	
 private:
 	

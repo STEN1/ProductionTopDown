@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
+
 #include "FirstBoss.generated.h"
 
 UENUM(BlueprintType)
@@ -19,6 +20,9 @@ enum class EBossState : uint8
 	
 };
 
+
+class UBoxComponent;
+
 UCLASS()
 class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 {
@@ -26,6 +30,8 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	AFirstBoss();
 
 	public:
+	
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -34,11 +40,17 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	
 	float GetWalkSpeed() const;
 	
+	UFUNCTION()
+    void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	void ToogleAttackRangeOverlap(bool EnableOverlap);
+	
 	protected:
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"));
-	EBossState EnemyState;
+	EBossState BossState;
 	
 	private:
 	
@@ -50,6 +62,13 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	
 	USkeletalMeshComponent* CharacterMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* AttackRange;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "DamageType")
+    TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"));
+	float MeleeDamage;
 	
 };
