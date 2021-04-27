@@ -54,7 +54,7 @@ protected:
 	void PatrolState();
 
 	FTimerHandle AttackTimerHandle;
-	FTimerHandle RagdollTimerHandle;
+	FTimerHandle DeathTimerHandle;
 	
 	UPROPERTY()
 	class AAIController* EnemyAIController{nullptr};

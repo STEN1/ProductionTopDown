@@ -39,7 +39,6 @@ void ASpawner::StartSpawning()
 		SpawnWithTimer();
 	}
 	AliveActors = SpawnPoints.Num();
-	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 	if (bSpawnOnce)
 	{
 		bCanSpawn = false;
@@ -90,7 +89,6 @@ void ASpawner::ActivateActivatableArray()
 void ASpawner::ActorDied(AActor* DeadActor)
 {
 	AliveActors--;
-	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 	if (AliveActors == 0)
 	{
 		OnClear();
@@ -119,7 +117,6 @@ void ASpawner::InstantSpawn()
 			else
 			{
 				AliveActors--;
-				UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 			}
 			
 		}
@@ -152,11 +149,11 @@ void ASpawner::SpawnWithTimer()
 		else
 		{
 			AliveActors--;
-			UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), AliveActors)
 		}
 	}
 
 	SpawnArrayIndex++;
+	if (bLoopWhenOverlapped && SpawnPoints.Num() <= SpawnArrayIndex) SpawnArrayIndex = 0; 
 	// Call this function again with a timer
 	GetWorld()->GetTimerManager().SetTimer(SpawnTimerTimerHandle, this, &ASpawner::SpawnWithTimer, DelayBetweenSpawn);
 }
@@ -172,6 +169,7 @@ void ASpawner::BeginPlay()
 	if (Trigger)
 	{
 		Trigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ASpawner::BeginOverlapTrigger);
+		Trigger->GetBrushComponent()->OnComponentEndOverlap.AddDynamic(this, &ASpawner::EndOverlapTrigger);
 	}
 }
 
@@ -186,7 +184,6 @@ void ASpawner::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ASpawner::BeginOverlapTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetHumanReadableName());
 	if (!ActorThatTriggers) return;
 	if (!bSpawningActors && SpawnOnTriggerOverlap && OtherActor->IsA(ActorThatTriggers->ClassDefaultObject->GetClass()))
 	{
@@ -200,5 +197,20 @@ void ASpawner::BeginOverlapTrigger(UPrimitiveComponent* OverlappedComponent, AAc
 		{
 			SpawnOnTriggerOverlap = true;
 		}, TriggerCooldown, false);
+	}
+}
+
+void ASpawner::EndOverlapTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!bLoopWhenOverlapped) return;
+	if (OtherActor->IsA(ActorThatTriggers->ClassDefaultObject->GetClass()))
+	{
+		if (OtherActor->IsA(ACharacterBase::StaticClass()) && !OtherComp->IsA(UCapsuleComponent::StaticClass()))
+		{
+			return;
+		}
+		GetWorldTimerManager().ClearTimer(SpawnTimerTimerHandle);
+		bSpawningActors = false;
 	}
 }
