@@ -2,9 +2,7 @@
 
 
 #include "SpikeTrap.h"
-
-
-
+#include "AITypes.h"
 #include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
