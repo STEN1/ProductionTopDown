@@ -2,6 +2,8 @@
 
 
 #include "BTT_FidgetSpin.h"
+#include "AIController.h"
+#include "FirstBoss.h"
 
 UBTT_FidgetSpin::UBTT_FidgetSpin()
 {
@@ -18,7 +20,12 @@ EBTNodeResult::Type UBTT_FidgetSpin::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	}
 	 // move to center of room. use fidget spinner
 	
-	UE_LOG(LogTemp, Error, TEXT("Attackkiiinnngngngg scrubers"))
+	AFirstBoss* Bossptr = Cast<AFirstBoss>(OwnerComp.GetAIOwner()->GetPawn());
+	if(Bossptr)
+	{
+		Bossptr->FidgetSpinAttack();
+		Bossptr->SetEnemyState(EBossState::BigClearRoomAttack);
+	}
 
 	return EBTNodeResult::Succeeded;
 }

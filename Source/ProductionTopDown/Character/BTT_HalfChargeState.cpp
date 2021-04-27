@@ -1,17 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTT_ResetBossState.h"
-
-#include "AIController.h"
+#include "BTT_HalfChargeState.h"
 #include "FirstBoss.h"
+#include "AIController.h"
 
-UBTT_ResetBossState::UBTT_ResetBossState()
+UBTT_HalfChargeState::UBTT_HalfChargeState()
 {
-	NodeName = TEXT("Boss State to Moving");
+	NodeName = TEXT("Set Half Charge");
 }
 
-EBTNodeResult::Type UBTT_ResetBossState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTT_HalfChargeState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
@@ -20,12 +19,12 @@ EBTNodeResult::Type UBTT_ResetBossState::ExecuteTask(UBehaviorTreeComponent& Own
 		return EBTNodeResult::Failed;
 	}
 	
-	// Resets boss state
+	// Set boss state
 
 	AFirstBoss* Bossptr = Cast<AFirstBoss>(OwnerComp.GetAIOwner()->GetPawn());
 	if(Bossptr)
 	{
-		Bossptr->SetEnemyState(EBossState::Moving);
+		Bossptr->SetEnemyState(EBossState::HalfCharged);
 	}
 	
 	return EBTNodeResult::Succeeded;
