@@ -39,6 +39,8 @@ protected:
 
 	FTimerHandle FireProjectileHandle;
 
+	AActor* ProjectileOwner;
+
 	class UNiagaraComponent* NiagaraComponent{ nullptr };
 	UParticleSystemComponent* ParticleSystemComponent{ nullptr };
 };

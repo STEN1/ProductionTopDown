@@ -96,7 +96,7 @@ void AProjectileSpell::Destroyed()
 void AProjectileSpell::OnHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner()) return;
+	if (OtherActor == GetOwner() && OtherActor->IsA(ACharacterBase::StaticClass())) return;
 	
 	if (OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UCapsuleComponent::StaticClass())
 		|| !OtherActor->IsA(ACharacterBase::StaticClass()) && OtherComp->IsA(UStaticMeshComponent::StaticClass()))
