@@ -13,8 +13,10 @@ Michelle Bø Nevstad,
 Hedda Henriksen,
 Nikolai Storslett
 
-Example Gameplay (Alhpa):
-https://youtu.be/zMIENUUOeVc
-
 Beta Trailer
 https://youtu.be/vpR2HjxXYdY
+
+
+Alpha Gameplay:
+https://youtu.be/zMIENUUOeVc
+
