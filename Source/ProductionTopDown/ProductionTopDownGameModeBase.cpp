@@ -7,6 +7,8 @@
 #include "Components/StaminaComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/PlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/LevelStreaming.h"
 #include "Engine/StaticMeshActor.h"
 
 void AProductionTopDownGameModeBase::ActorDied(AActor* DeadActor)
@@ -31,6 +33,7 @@ void AProductionTopDownGameModeBase::BeginPlay()
 		StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
 	
 	// Blueprint Event
+
 	StartGame();
 }
 
@@ -51,6 +54,8 @@ float AProductionTopDownGameModeBase::GetPlayerStamina() const
 	if (!Player) return 0;
 	return Player->FindComponentByClass<UStaminaComponent>()->GetStamina();
 }
+
+
 
 float AProductionTopDownGameModeBase::GetPlayerDefaultHealth() const
 {

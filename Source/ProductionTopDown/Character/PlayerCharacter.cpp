@@ -20,6 +20,7 @@
 #include "FirstBoss.h"
 //#include "ToolContextInterfaces.h"
 
+#include "Engine/LevelStreaming.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
@@ -69,9 +70,55 @@ void APlayerCharacter::TriggerDeath()
 
 }
 
+void APlayerCharacter::OnLevelLoaded()
+{
+	NumberOfStreamingLevels--;
+	if (NumberOfStreamingLevels == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
+		EnableInput(Cast<APlayerController>(GetController()));
+		GetCharacterMovement()->GravityScale = 1.f;
+	}
+	
+}
+
+void APlayerCharacter::HandleLevelStreamLoading()
+{
+	StreamingLevels.Empty();
+	NumberOfStreamingLevels = 0;
+	StreamingLevels = GetWorld()->GetStreamingLevels();
+	DisableInput(Cast<APlayerController>(GetController()));
+	GetCharacterMovement()->GravityScale = 0.f;
+	
+	for (auto StreamingLevel : StreamingLevels)
+	{
+		if (StreamingLevel)
+		{
+			NumberOfStreamingLevels++;
+			StreamingLevel->OnLevelLoaded.AddDynamic(this, &APlayerCharacter::OnLevelLoaded);
+		}
+		
+	}
+	bool bLevelsLoaded{false};
+	for (auto StreamingLevel : StreamingLevels)
+	{
+		if (StreamingLevel && StreamingLevel->IsLevelLoaded())
+		{
+			bLevelsLoaded = true;
+		}
+	}
+	if (bLevelsLoaded || StreamingLevels.Num() == 0)
+	{
+		EnableInput(Cast<APlayerController>(GetController()));
+		GetCharacterMovement()->GravityScale = 1.f;
+	}
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HandleLevelStreamLoading();
 
 	InputVector = FVector(0,0,0);
 	

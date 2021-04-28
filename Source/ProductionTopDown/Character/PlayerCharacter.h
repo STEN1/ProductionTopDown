@@ -213,4 +213,11 @@ private:
 	FTimerHandle HeavyOverLapEventHandle2;
 	FTimerHandle HeavyMovingHandle;
 	FTimerHandle HeavyParticle2;
+
+	UFUNCTION()
+	void OnLevelLoaded();
+
+	void HandleLevelStreamLoading();
+	TArray<ULevelStreaming*> StreamingLevels;
+	int32 NumberOfStreamingLevels{0};
 };
