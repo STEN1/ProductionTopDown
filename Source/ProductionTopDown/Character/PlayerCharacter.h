@@ -186,6 +186,7 @@ private:
 	float PushRange{100};
 	EPlayerState PlayerState;
 	FCriticalSection PlayerStateCriticalSection;
+	FCriticalSection LevelStreamingCriticalSection;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DashTimer{0.1f};

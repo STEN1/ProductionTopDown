@@ -73,6 +73,7 @@ void APlayerCharacter::TriggerDeath()
 
 void APlayerCharacter::OnLevelLoaded()
 {
+	FScopeLock Lock(&LevelStreamingCriticalSection);
 	NumberOfStreamingLevels--;
 	if (NumberOfStreamingLevels == 0)
 	{
