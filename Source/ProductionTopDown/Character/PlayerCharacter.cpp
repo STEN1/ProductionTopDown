@@ -107,7 +107,7 @@ void APlayerCharacter::HandleLevelStreamLoading()
 			bLevelsLoaded = true;
 		}
 	}
-	if (bLevelsLoaded)
+	if (bLevelsLoaded || StreamingLevels.Num() == 0)
 	{
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
