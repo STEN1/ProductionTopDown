@@ -74,16 +74,16 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::OnLevelLoaded()
 {
 	FScopeLock Lock(&LevelStreamingCriticalSection);
+	TArray<AActor*> StaticMeshActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
+	for (auto && StaticMeshActor : StaticMeshActors)
+			StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
 	NumberOfStreamingLevels--;
 	if (NumberOfStreamingLevels == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
-		TArray<AActor*> StaticMeshActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
-		for (auto && StaticMeshActor : StaticMeshActors)
-			StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
 	}
 	
 }
