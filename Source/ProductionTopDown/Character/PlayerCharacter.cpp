@@ -591,88 +591,88 @@ void APlayerCharacter::DoubleHeavyAttack()
 	{
 		
 	
-	const FVector BoxSize{160,140,50};
-	AttackRangeComponent->SetBoxExtent(BoxSize,true);
-	//SetBoxRange
-		
-	bHeavyAttack = true;
-		
-	if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
-	UE_LOG(LogTemp,Warning, TEXT("Overlap true first time"));
-	
-	if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
-
-	
-	if(InventoryComponent->GetItemObject()->HeavyAttackEffect)
-	{
-				
-		
-		const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle1");
-		const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle1");
-		const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle1").GetScale3D();
+		const FVector BoxSize{160,140,50};
+		AttackRangeComponent->SetBoxExtent(BoxSize,true);
+		//SetBoxRange
 			
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            GetWorld(),
-            InventoryComponent->GetItemObject()->HeavyAttackEffect,
-            SystemLocation,
-            SystemRotation,
-            SystemScale,
-            true,
-            true,
-            ENCPoolMethod::AutoRelease,
-            true
-            );
-	}
-	
-	GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle, [this]() {
-                //code who runs after delay time
-                if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
-			UE_LOG(LogTemp,Warning, TEXT("Overlap False first time"));
-            }, 0.05f, 0);
-	
-	GetWorld()->GetTimerManager().SetTimer(HeavyParticle2, [this]() {
-		
-		
-		if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
-		
+		bHeavyAttack = true;
+			
 		if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
-		UE_LOG(LogTemp,Warning, TEXT("Overlap true second time"));
-		
-		if(InventoryComponent->GetItemObject()->HeavyAttackEffect)
-		{
-
-            const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle2");
-            const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle2");
-            const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle2").GetScale3D();
-			
-            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                GetWorld(),
-                InventoryComponent->GetItemObject()->HeavyAttackEffect,
-                SystemLocation,
-                SystemRotation,
-                SystemScale,
-                true,
-                true,
-                ENCPoolMethod::AutoRelease,
-                true
-                );
-        }
+		UE_LOG(LogTemp,Warning, TEXT("Overlap true first time"));
 		
 		if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
-		
-        }, 0.2f, 0);
 	
-	GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle2, [this]() {
-            //code who runs after delay time
-            if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
-		UE_LOG(LogTemp,Warning, TEXT("Overlap False second time"));
-        }, 0.25f, 0);
 		
-	GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
-        //code who runs after delay time
-		bCanAttackAgain = true;
-        SetPlayerState(EPlayerState::Moving);
-    }, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
+		if(InventoryComponent && InventoryComponent->GetItemObject() && InventoryComponent->GetItemObject()->HeavyAttackEffect)
+		{
+					
+			
+			const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle1");
+			const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle1");
+			const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle1").GetScale3D();
+				
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				InventoryComponent->GetItemObject()->HeavyAttackEffect,
+				SystemLocation,
+				SystemRotation,
+				SystemScale,
+				true,
+				true,
+				ENCPoolMethod::AutoRelease,
+				true
+				);
+		}
+		
+		GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle, [this]() {
+					//code who runs after delay time
+					if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+				UE_LOG(LogTemp,Warning, TEXT("Overlap False first time"));
+				}, 0.05f, 0);
+		
+		GetWorld()->GetTimerManager().SetTimer(HeavyParticle2, [this]() {
+			
+			
+			if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
+			
+			if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(true);
+			UE_LOG(LogTemp,Warning, TEXT("Overlap true second time"));
+			
+			if(InventoryComponent && InventoryComponent->GetItemObject() &&InventoryComponent->GetItemObject()->HeavyAttackEffect)
+			{
+	
+				const FVector SystemLocation = GetMesh()->GetSocketLocation("HeavyParticle2");
+				const FRotator SystemRotation = GetMesh()->GetSocketRotation("HeavyParticle2");
+				const FVector SystemScale = GetMesh()->GetSocketTransform("HeavyParticle2").GetScale3D();
+				
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+					GetWorld(),
+					InventoryComponent->GetItemObject()->HeavyAttackEffect,
+					SystemLocation,
+					SystemRotation,
+					SystemScale,
+					true,
+					true,
+					ENCPoolMethod::AutoRelease,
+					true
+					);
+			}
+			
+			if(HeavyAttackSound)UGameplayStatics::PlaySoundAtLocation(GetWorld(), HeavyAttackSound, GetActorLocation(), GetActorRotation());
+			
+			}, 0.2f, 0);
+		
+		GetWorld()->GetTimerManager().SetTimer(HeavyOverLapEventHandle2, [this]() {
+				//code who runs after delay time
+				if(AttackRangeComponent)AttackRangeComponent->SetGenerateOverlapEvents(false);
+			UE_LOG(LogTemp,Warning, TEXT("Overlap False second time"));
+			}, 0.25f, 0);
+			
+		GetWorld()->GetTimerManager().SetTimer(HeavyMovingHandle, [this]() {
+			//code who runs after delay time
+			bCanAttackAgain = true;
+			SetPlayerState(EPlayerState::Moving);
+		}, InventoryComponent->GetItemObject()->GetAttackDelay(), 0.f);
 	}
 }
 
