@@ -27,6 +27,14 @@ void AProductionTopDownGameModeBase::BeginPlay()
 
 	// Enable overlap events for every StaticMeshActor so that spells can explode on overlap with env.
 	// Might be a better way to do this? but this gives nice controll :)
+	//GetWorldTimerManager().SetTimer(OverlapEventTimerHandle, [this]()
+	//{
+	//	
+	//	TArray<AActor*> StaticMeshActors;
+	//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
+	//	for (auto && StaticMeshActor : StaticMeshActors)
+	//		StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
+	//}, 4.f, false);
 	TArray<AActor*> StaticMeshActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
 	for (auto && StaticMeshActor : StaticMeshActors)
@@ -35,6 +43,11 @@ void AProductionTopDownGameModeBase::BeginPlay()
 	// Blueprint Event
 
 	StartGame();
+}
+
+void AProductionTopDownGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(OverlapEventTimerHandle);
 }
 
 float AProductionTopDownGameModeBase::GetPlayerHealth() const

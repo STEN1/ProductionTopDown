@@ -214,6 +214,7 @@ private:
 	FTimerHandle HeavyOverLapEventHandle2;
 	FTimerHandle HeavyMovingHandle;
 	FTimerHandle HeavyParticle2;
+	FTimerHandle OverlapEventTimerHandle;
 
 	UFUNCTION()
 	void OnLevelLoaded();

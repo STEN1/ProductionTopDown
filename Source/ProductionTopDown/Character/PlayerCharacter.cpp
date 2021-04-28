@@ -74,10 +74,6 @@ void APlayerCharacter::TriggerDeath()
 void APlayerCharacter::OnLevelLoaded()
 {
 	FScopeLock Lock(&LevelStreamingCriticalSection);
-	TArray<AActor*> StaticMeshActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
-	for (auto && StaticMeshActor : StaticMeshActors)
-			StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
 	NumberOfStreamingLevels--;
 	if (NumberOfStreamingLevels == 0)
 	{
@@ -118,6 +114,15 @@ void APlayerCharacter::HandleLevelStreamLoading()
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
 	}
+
+	GetWorldTimerManager().SetTimer(OverlapEventTimerHandle, [this]()
+	{
+		
+		TArray<AActor*> StaticMeshActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
+		for (auto && StaticMeshActor : StaticMeshActors)
+			StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
+	}, 4.f, false);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -180,6 +185,7 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
 	GetWorldTimerManager().ClearTimer(HeavyParticle2);
 	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
+	GetWorldTimerManager().ClearTimer(OverlapEventTimerHandle);
 	
 }
 
