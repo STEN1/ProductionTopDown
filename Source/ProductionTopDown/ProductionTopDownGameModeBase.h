@@ -59,4 +59,6 @@ private:
 	float GetPlayerDefaultStamina() const;
 	UFUNCTION()
 	float GetPlayerStamina() const;
+
+
 };
