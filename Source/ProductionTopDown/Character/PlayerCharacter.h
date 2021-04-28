@@ -68,6 +68,10 @@ public:
 
 
 	void RotateCharToMouse();
+
+	UFUNCTION(BlueprintCallable)
+	void SetMovingState();
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -101,7 +105,6 @@ protected:
 	void DragObject(APushable_ActorBase* PushableActor);
 
 	APushable_ActorBase* GetActorInFront();
-
 
 
 	//debug functions
@@ -195,6 +198,8 @@ private:
 	bool bDrawAttackRangeBox{false};
 	
 	bool bCanPush{false};
+
+	bool bCanAttackAgain{true};
 
 	//Timer Handles
 
