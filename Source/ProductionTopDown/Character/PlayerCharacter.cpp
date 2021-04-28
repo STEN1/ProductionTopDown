@@ -21,6 +21,7 @@
 //#include "ToolContextInterfaces.h"
 
 #include "Engine/LevelStreaming.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
@@ -78,6 +79,10 @@ void APlayerCharacter::OnLevelLoaded()
 		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
+		TArray<AActor*> StaticMeshActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), StaticMeshActors);
+		for (auto && StaticMeshActor : StaticMeshActors)
+			StaticMeshActor->FindComponentByClass<UStaticMeshComponent>()->SetGenerateOverlapEvents(true);
 	}
 	
 }
