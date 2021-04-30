@@ -86,7 +86,7 @@ void ABossAiController::Tick(float DeltaSeconds)
 			CurrentHP =  HealthComponent->GetHealth();
 			const float BossHpPercent = CurrentHP / HealthComponent->GetDefaultHealth();
 			//UE_LOG(LogTemp, Error, TEXT("BossHPPercent %f"),BossHpPercent);
-			if(BossHpPercent <= 0.5f )
+			if(BossHpPercent <= 0.3f )
 			{
 				//UE_LOG(LogTemp, Error, TEXT("Fidget time!!!!!"));
 				BossBlackBoard->SetValueAsBool(TEXT("UseFidgetMove"), true);
