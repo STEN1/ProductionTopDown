@@ -13,5 +13,10 @@ Michelle Bø Nevstad,
 Hedda Henriksen,
 Nikolai Storslett
 
-Example Gameplay:
+Beta Trailer
+https://youtu.be/vpR2HjxXYdY
+
+
+Alpha Gameplay:
 https://youtu.be/zMIENUUOeVc
+
