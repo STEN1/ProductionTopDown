@@ -823,6 +823,16 @@ void APlayerCharacter::SetMovingState()
 	SetPlayerState(EPlayerState::Moving);
 }
 
+void APlayerCharacter::ResetDash()
+{
+	GetWorldTimerManager().ClearTimer(DashCooldownHandle);
+	GetWorldTimerManager().ClearTimer(DashTimerHandle);
+
+	bCanDash = true;
+	GetCharacterMovement()->FallingLateralFriction = 0;
+	SetPlayerState(EPlayerState::Moving);
+}
+
 void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Trying to equip Weapon"));
