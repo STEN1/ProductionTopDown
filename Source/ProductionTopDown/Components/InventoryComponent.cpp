@@ -58,7 +58,11 @@ AItemBase* UInventoryComponent::GetItemObject() const
 
 TArray<AItemBase*> UInventoryComponent::GetInventory()
 {
-	return GameInstance->Inventory;
+	if (GameInstance)
+		return GameInstance->Inventory;
+	TArray<AItemBase*> EmptyArray;
+	EmptyArray.SetNum(InventorySize);
+	return EmptyArray;
 }
 
 void UInventoryComponent::LoadInventory(TArray<TSubclassOf<class AItemBase>> LoadedInventory)
@@ -103,7 +107,9 @@ int32 UInventoryComponent::GetInventorySize() const
 
 int32 UInventoryComponent::GetNumberOfHealthPots() const
 {
-	return GameInstance->NumberOfHealthPots;
+	if (GameInstance)
+		return GameInstance->NumberOfHealthPots;
+	return 0;
 }
 
 
