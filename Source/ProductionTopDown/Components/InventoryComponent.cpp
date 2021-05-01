@@ -283,19 +283,19 @@ void UInventoryComponent::UseHealthPot()
 
 void UInventoryComponent::PlayHealthPotUseEffects()
 {
-	if (PSWeaponBreakEffect && !PSWeaponBreakEffect->IsLooping())
+	if (PSHealthPotUseEffect && !PSHealthPotUseEffect->IsLooping())
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSWeaponBreakEffect, GetOwner()->GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSHealthPotUseEffect, GetOwner()->GetActorLocation());
 	}
-	if (PSWeaponBreakEffect && PSWeaponBreakEffect->IsLooping())
+	if (PSHealthPotUseEffect && PSHealthPotUseEffect->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
-	if (NSWeaponBreakEffect && !NSWeaponBreakEffect->IsLooping())
+	if (NSHealthPotUseEffect && !NSHealthPotUseEffect->IsLooping())
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSWeaponBreakEffect, GetOwner()->GetActorLocation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NSHealthPotUseEffect, GetOwner()->GetActorLocation());
 	}
-	if (NSWeaponBreakEffect && NSWeaponBreakEffect->IsLooping())
+	if (NSHealthPotUseEffect && NSHealthPotUseEffect->IsLooping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cant spawn looping niagra particle emitter from %s"), *GetOwner()->GetHumanReadableName());
 	}
