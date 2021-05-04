@@ -53,6 +53,15 @@ void AFirstBoss::Tick(float DeltaSeconds)
 	
 }
 
+void AFirstBoss::TriggerDeath()
+{
+	Super::TriggerDeath();
+	
+	RemoveHealthbarEvent();
+
+	this->Destroy();
+}
+
 EBossState AFirstBoss::GetEnemyState() const
 {
 	return BossState;
