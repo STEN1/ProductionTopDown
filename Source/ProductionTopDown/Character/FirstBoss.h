@@ -38,6 +38,11 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void TriggerDeath() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void RemoveHealthbarEvent();
+	
 	EBossState GetEnemyState() const;
 	void SetEnemyState(EBossState);
 	
@@ -48,7 +53,7 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 
 	UFUNCTION(BlueprintCallable)
 	void ToogleAttackRangeOverlap(bool EnableOverlap);
-	
+
 	void ShootFireBall();
 	void FidgetSpinAttack();
 	protected:
