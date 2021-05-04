@@ -6,6 +6,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProductionTopDown/Actors/Spawning/Spawner.h"
 #include "ProductionTopDown/Components/HealthComponent.h"
 #include "ProductionTopDown/Components/StaminaComponent.h"
 
@@ -70,7 +71,11 @@ void ACharacterBase::TriggerDeath()
             //code who runs after delay time
     		if(GetMesh())GetMesh()->SetSimulatePhysics(true);
         }, 0.2f, 0);
-	
+	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
+	if (Spawner)
+	{
+		Spawner->ActorDied(this);
+	}
 }
 
 bool ACharacterBase::Attack()

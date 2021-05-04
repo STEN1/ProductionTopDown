@@ -575,11 +575,7 @@ void AEnemyBase::TriggerDeath()
 	RemoveHealthBar();
 	
 	Super::TriggerDeath();
-	ASpawner* Spawner = Cast<ASpawner>(GetOwner());
-	if (Spawner)
-	{
-		Spawner->ActorDied(this);
-	}
+
 	
 	GetWorld()->GetTimerManager().SetTimer(DeathTimerHandle, [this]() {
         //code who runs after delay time
