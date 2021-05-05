@@ -239,6 +239,17 @@ void APlayerCharacter::Tick(float DeltaTime)
 	case EPlayerState::Charge:
 		RotateCharacter();
 		break;
+	case EPlayerState::Jumping:
+
+			//makes you able to rate character while on launchpad
+		if (CharacterMesh)
+		{
+			FRotator LastInputRotation = LastInput.Rotation();
+			LastInputRotation.Yaw -= 90;
+			CharacterMesh->SetWorldRotation(LastInputRotation);
+		}
+		
+		break;
 	default:
 		
 		break;
