@@ -136,22 +136,26 @@ void AEnemyBase::FollowPlayer()
 {
 	FVector MoveDir = GetMoveDirFromScent();
 	
-	if (MoveDir != FVector::ZeroVector)
-	{
-		SetActorRotation(MoveDir.Rotation());
-	} else
+	if (MoveDir == FVector::ZeroVector)
 	{
 		EnemyState = EEnemyState::Idle;
 	}
+
+	if (MoveDir != FVector::ZeroVector)
+	{
+		SetActorRotation(MoveDir.Rotation());
+	}
+	
 	
 	MoveDir += GetMoveOffsetFromWall(100.f, ECC_Visibility);
 	
 	if (bUseNavMesh)
 	{
+		EnemyAIController->UpdateControlRotation(GetWorld()->GetDeltaSeconds());
 		EnemyAIController->MoveTo(MoveDir);
 	}
 	else
-		Move(0.5f, MoveDir);
+		Move(1.f, MoveDir);
 }
 
 FVector AEnemyBase::GetMoveDirFromScent()
@@ -181,7 +185,7 @@ FVector AEnemyBase::GetMoveDirFromScent()
         {
 			if (bUseNavMesh)
 			{
-				return ScentComponent->ScentArray[i].GetSafeNormal2D();
+				return ScentComponent->ScentArray[i];
 			}
 			
 			FVector MoveDir = CalcVectorFromPlayerToTarget(ScentComponent->ScentArray[i]).GetSafeNormal2D();
@@ -412,18 +416,25 @@ void AEnemyBase::PatrolState()
 
 		if (bUseNavMesh)
 		{
-			MoveDir = PatrolPointSelected.GetSafeNormal2D();
+			MoveDir = PatrolPointSelected;
+
+			if (GetVelocity() != FVector::ZeroVector)
+				SetActorRotation(GetVelocity().Rotation());
+			
 		    EnemyAIController->MoveTo(MoveDir);
 		}
 		else
 		{
 		     MoveDir = CalcVectorFromPlayerToTarget(PatrolPointSelected);
              MoveDir.Z = 0.f;
-             Move(0.5f, MoveDir);
+             Move(1.f, MoveDir);
+			
+			 if (MoveDir != FVector::ZeroVector)
+                SetActorRotation(MoveDir.Rotation());
+			
 		}
 
-		if (MoveDir != FVector::ZeroVector)
-			SetActorRotation(MoveDir.Rotation());
+
 
 		if (FMath::Abs((GetActorLocation() - PatrolPointSelected).Size()) <= 100.f)
 		{
@@ -592,6 +603,6 @@ EEnemyState AEnemyBase::GetEnemyState()
 void AEnemyBase::ToggleAttackBox(bool ToggleAttack)
 {
 	AttackBox->SetGenerateOverlapEvents(ToggleAttack);
-	UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents: %s"), (ToggleAttack ? TEXT("True") : TEXT("False")));
+	//UE_LOG(LogTemp, Error, TEXT("SetGenerateOverlapEvents: %s"), (ToggleAttack ? TEXT("True") : TEXT("False")));
 }
 
