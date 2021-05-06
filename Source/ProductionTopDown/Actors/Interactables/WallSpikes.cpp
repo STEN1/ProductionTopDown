@@ -31,6 +31,7 @@ void AWallSpikes::Tick(float DeltaSeconds)
 	{
 		StaticMeshComponent->SetRelativeLocation({0.f, LaunchDistance, 0.f});
 		CurrentSpeed = -RetractSpeed;
+		if (HurtBox) HurtBox->SetGenerateOverlapEvents(false);
 	}
 	else if (StaticMeshComponent->GetRelativeLocation().Y < 0.f)
 	{
@@ -66,6 +67,7 @@ void AWallSpikes::Activate(bool On)
 				bWantToStop = false;
 				PlaySwooshSound();
 				SetActorTickEnabled(true);
+				HurtBox->SetGenerateOverlapEvents(true);
 			}, StartDelay, false);
 		}
 		else
@@ -73,6 +75,7 @@ void AWallSpikes::Activate(bool On)
 			bWantToStop = false;
 			PlaySwooshSound();
 			SetActorTickEnabled(true);
+			HurtBox->SetGenerateOverlapEvents(true);
 		}
 	}
 	else
@@ -89,6 +92,7 @@ void AWallSpikes::BeginPlay()
 	{
 		HurtBox->OnComponentBeginOverlap.AddDynamic(this, &AWallSpikes::HurtBeginOverlap);
 		ActivateBox->OnComponentBeginOverlap.AddDynamic(this, &AWallSpikes::ActivateBeginOverlap);
+		HurtBox->SetGenerateOverlapEvents(false);
 	}
 
 	SetActorTickEnabled(false);
