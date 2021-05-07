@@ -17,7 +17,8 @@ enum class EBossState : uint8
 	SpinAttack = 4	UMETA(DisplayName = "Spin Attack State"),
 	NormalAttack = 5 UMETA(DisplayName = "Normal Attack State"),
 	BigClearRoomAttack = 6 UMETA(DisplayName = "Big Clear Room Attack State"),
-	HalfCharged = 7 UMETA(DisplayName = "Half Charge State")
+	HalfCharged = 7 UMETA(DisplayName = "Half Charge State"),
+	Running = 8	UMETA(DisplayName = "Run state")
 };
 
 
