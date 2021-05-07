@@ -28,7 +28,7 @@ EBTNodeResult::Type UBTT_MeeleAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if(Bossptr)
 	{
 		Bossptr->SetEnemyState(EBossState::NormalAttack);
-		
+		Bossptr->SetAttackCounter(Bossptr->GetAttackCounter() -1);
 	}
 	
 	return EBTNodeResult::Succeeded;

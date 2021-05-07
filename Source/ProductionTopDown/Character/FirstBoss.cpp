@@ -77,8 +77,18 @@ float AFirstBoss::GetWalkSpeed() const
 	return WalkSpeed;
 }
 
+float AFirstBoss::GetAttackCounter()
+{
+	return AttackCounter;
+}
+
+void AFirstBoss::SetAttackCounter(float Counter)
+{
+	AttackCounter = Counter;
+}
+
 void AFirstBoss::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("BeginOverlapCalled"));
 	if(OtherActor != this)

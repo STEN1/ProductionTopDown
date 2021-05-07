@@ -47,6 +47,9 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	void SetEnemyState(EBossState);
 	
 	float GetWalkSpeed() const;
+
+	float GetAttackCounter();
+	void SetAttackCounter(float Counter);
 	
 	UFUNCTION()
     void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
@@ -90,6 +93,8 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AFidgetSpinnerSpell> FidgetSpinSpell;
 
+
+	float AttackCounter{3};
 	
 	APlayerCharacter* PlayerCharacter;
 
