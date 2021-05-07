@@ -17,7 +17,8 @@ enum class EBossState : uint8
 	SpinAttack = 4	UMETA(DisplayName = "Spin Attack State"),
 	NormalAttack = 5 UMETA(DisplayName = "Normal Attack State"),
 	BigClearRoomAttack = 6 UMETA(DisplayName = "Big Clear Room Attack State"),
-	HalfCharged = 7 UMETA(DisplayName = "Half Charge State")
+	HalfCharged = 7 UMETA(DisplayName = "Half Charge State"),
+	Running = 8	UMETA(DisplayName = "Run state")
 };
 
 
@@ -47,6 +48,9 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	void SetEnemyState(EBossState);
 	
 	float GetWalkSpeed() const;
+
+	float GetAttackCounter();
+	void SetAttackCounter(float Counter);
 	
 	UFUNCTION()
     void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
@@ -90,6 +94,8 @@ class PRODUCTIONTOPDOWN_API AFirstBoss : public ACharacterBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AFidgetSpinnerSpell> FidgetSpinSpell;
 
+
+	float AttackCounter{3};
 	
 	APlayerCharacter* PlayerCharacter;
 

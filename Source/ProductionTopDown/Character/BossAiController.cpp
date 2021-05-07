@@ -73,10 +73,21 @@ void ABossAiController::Tick(float DeltaSeconds)
 			BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), true);
 		else
 			BossBlackBoard->SetValueAsBool(TEXT("HasLineOfSight"), false);
+
+		if(Bossptr->GetAttackCounter() <= 0)
+		{
+			BossBlackBoard->SetValueAsBool(TEXT("ShootFireball"), true);
+		}
+		else
+		{
+			BossBlackBoard->SetValueAsBool(TEXT("ShootFireball"), false);
+		}
 		
 		if(GetPawn() &&  PlayerPawn && GetPawn()->GetDistanceTo(PlayerPawn) < 300.f) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), true);
 		else if(Bossptr->GetEnemyState() != EBossState::NormalAttack) BossBlackBoard->SetValueAsBool(TEXT("InAttackRange"), false);
 
+		
+		
 		//nuke room every 30% of hp
 		//walk to middle. use fidget spinner
 		UHealthComponent* HealthComponent = GetPawn()->FindComponentByClass<UHealthComponent>();
