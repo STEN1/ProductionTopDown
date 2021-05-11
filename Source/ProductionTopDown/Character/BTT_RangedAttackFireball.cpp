@@ -29,6 +29,8 @@ EBTNodeResult::Type UBTT_RangedAttackFireball::ExecuteTask(UBehaviorTreeComponen
 	{
 		Bossptr->ShootFireBall();
 		Bossptr->SetEnemyState(EBossState::RangeAttack);
+		// reset attack count
+		Bossptr->SetAttackCounter(3.f);
 	}
 	return EBTNodeResult::Succeeded;
 }
