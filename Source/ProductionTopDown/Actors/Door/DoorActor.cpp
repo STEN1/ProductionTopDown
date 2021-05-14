@@ -43,6 +43,10 @@ void ADoorActor::BeginPlay()
 		OpenTrigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ADoorActor::BeginOverlap);
 		OpenTrigger->GetBrushComponent()->OnComponentEndOverlap.AddDynamic(this, &ADoorActor::EndOverlap);
 	}
+	if (CloseTrigger)
+	{
+		CloseTrigger->GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &ADoorActor::CloseTriggerBeginOverlap);
+	}
 	SetActorTickEnabled(false);
 }
 
@@ -373,5 +377,16 @@ void ADoorActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		Activate(false);
+	}
+}
+
+void ADoorActor::CloseTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		bStayOpen = false;
+		Activate(false);
+		CloseTrigger->GetBrushComponent()->SetGenerateOverlapEvents(false);
 	}
 }
