@@ -58,6 +58,8 @@ void APlayerCharacter::TriggerDeath()
 {
 	// Never call this function direcly. Let the healthcomponent call it.
 	// If something needs to kill instantly use applydmg with a really big number :)
+	//animation fix
+	ClearAllTimers();
 	
 	if(PlayerState != EPlayerState::Dead)BPTriggerDeath(); // death message
 	SetPlayerState(EPlayerState::Dead);
@@ -176,16 +178,7 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 	
-	GetWorldTimerManager().ClearTimer(AttackChargeTimerHandle);
-	GetWorldTimerManager().ClearTimer(DashCooldownHandle);
-	GetWorldTimerManager().ClearTimer(DashTimerHandle);
-	GetWorldTimerManager().ClearTimer(LightOverLapEventHandle);
-	GetWorldTimerManager().ClearTimer(LightMovingHandle);
-	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle);
-	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
-	GetWorldTimerManager().ClearTimer(HeavyParticle2);
-	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
-	GetWorldTimerManager().ClearTimer(OverlapEventTimerHandle);
+	ClearAllTimers();
 	
 }
 
@@ -969,6 +962,21 @@ APushable_ActorBase* APlayerCharacter::GetActorInFront()
 		ActorInFront = Cast<APushable_ActorBase>(Hit.Actor);
 
 	return ActorInFront;
+}
+
+void APlayerCharacter::ClearAllTimers()
+{
+	//remember to add all new timer handles here
+	GetWorldTimerManager().ClearTimer(AttackChargeTimerHandle);
+	GetWorldTimerManager().ClearTimer(DashCooldownHandle);
+	GetWorldTimerManager().ClearTimer(DashTimerHandle);
+	GetWorldTimerManager().ClearTimer(LightOverLapEventHandle);
+	GetWorldTimerManager().ClearTimer(LightMovingHandle);
+	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle);
+	GetWorldTimerManager().ClearTimer(HeavyMovingHandle);
+	GetWorldTimerManager().ClearTimer(HeavyParticle2);
+	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
+	GetWorldTimerManager().ClearTimer(OverlapEventTimerHandle);
 }
 
 void APlayerCharacter::OnInventoryChange()
