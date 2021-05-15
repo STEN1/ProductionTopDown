@@ -107,7 +107,8 @@ protected:
 
 	APushable_ActorBase* GetActorInFront();
 
-
+	void ClearAllTimers();
+	
 	//debug functions
 	void LogPlayerState();
 	
