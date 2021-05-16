@@ -88,7 +88,7 @@ void ABossAiController::Tick(float DeltaSeconds)
 
 		
 		
-		//nuke room every 30% of hp
+		//nuke room when hp is at 30%
 		//walk to middle. use fidget spinner
 		UHealthComponent* HealthComponent = GetPawn()->FindComponentByClass<UHealthComponent>();
 		if (HealthComponent)
