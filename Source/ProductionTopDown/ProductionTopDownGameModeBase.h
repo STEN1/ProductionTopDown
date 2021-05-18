@@ -35,6 +35,8 @@ public:
 	void GameOver(bool PlayerWon);
 	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayTextBox();
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameLoaded();
 
 	UPROPERTY(BlueprintReadOnly)
 	FString TextBoxString{""};

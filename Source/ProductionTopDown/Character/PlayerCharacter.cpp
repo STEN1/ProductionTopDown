@@ -23,6 +23,7 @@
 #include "Engine/LevelStreaming.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "ProductionTopDown/ProductionTopDownGameModeBase.h"
 #include "Widgets/Text/ISlateEditableTextWidget.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -82,6 +83,10 @@ void APlayerCharacter::OnLevelLoaded()
 		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
+		if (AProductionTopDownGameModeBase* GameMode = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+		{
+			GameMode->GameLoaded();
+		}
 	}
 	
 }
@@ -115,6 +120,10 @@ void APlayerCharacter::HandleLevelStreamLoading()
 	{
 		EnableInput(Cast<APlayerController>(GetController()));
 		GetCharacterMovement()->GravityScale = 1.f;
+		if (AProductionTopDownGameModeBase* GameMode = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+		{
+			GameMode->GameLoaded();
+		}
 	}
 
 	GetWorldTimerManager().SetTimer(OverlapEventTimerHandle, [this]()
