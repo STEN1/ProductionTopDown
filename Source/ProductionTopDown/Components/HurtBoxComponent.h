@@ -25,9 +25,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="HurtBox")
 	FVector KnockbackJump{0.f, 0.f, 250.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
-	FVector BoxScale{2.5f, 2.5f, 1.f};
+	FVector BoxScale{3.2f, 3.2f, 1.f};
 	UPROPERTY(EditAnywhere, Category="HurtBox")
-	FVector BoxOffset{0.f, 0.f, 10.f};
+	FVector BoxOffset{0.f, 0.f, 120.f};
 	UPROPERTY(VisibleAnywhere, Category="HurtBox")
 	class UStaticMeshComponent* MeshAttachedTo{nullptr};
 	UPROPERTY(EditAnywhere, Category="HurtBox")

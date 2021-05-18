@@ -386,6 +386,7 @@ void ADoorActor::CloseTriggerBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	if (OtherComp->IsA(UCapsuleComponent::StaticClass()) && OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		bStayOpen = false;
+		CloseDelay = -1.f;
 		Activate(false);
 		CloseTrigger->GetBrushComponent()->SetGenerateOverlapEvents(false);
 	}
