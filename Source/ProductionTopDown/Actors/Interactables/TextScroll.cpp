@@ -50,12 +50,10 @@ void ATextScroll::BeginPlay()
 
 void ATextScroll::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AASdasdasd"))
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		if (WidgetComponent)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AASdasdasd"))
 			WidgetComponent->SetVisibility(true, false);
 		}
 	}
@@ -63,7 +61,6 @@ void ATextScroll::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void ATextScroll::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AASdasdasd"))
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		if (WidgetComponent)
