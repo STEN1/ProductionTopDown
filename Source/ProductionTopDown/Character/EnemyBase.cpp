@@ -563,14 +563,18 @@ void AEnemyBase::IdleState(float DeltaTime)
 		IdleTimer = 0.f;
 		PatrolIndex = 0;
         bPatrolSet = false;
-		EnemyState = EEnemyState::Patrol;
+		
+		if (PatrolHub)
+		{
+			EnemyState = EEnemyState::Patrol;
+		}
 	}
-	if (FMath::Rand() % 40 == 1)
-	{
-		const FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
-       	SetActorRotation(RandDir.Rotation());	//Look around randomly
-		Move(0.01f,RandDir);
-	}
+	// if (FMath::Rand() % 40 == 1)
+	// {
+	// 	const FVector RandDir{(float)(FMath::Rand() % 100), (float)(FMath::Rand() % 100), 0.f };
+ //       	SetActorRotation(RandDir.Rotation());														//Look around randomly
+	// 	Move(0.01f,RandDir);
+	// }
 }
 
 void AEnemyBase::TriggerDeath()
