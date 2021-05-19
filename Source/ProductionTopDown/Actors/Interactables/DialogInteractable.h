@@ -15,7 +15,9 @@ struct FDialogData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DialogData")
-	UTexture2D* DialogImage;
+	UTexture2D* DialogImageLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DialogData")
+	UTexture2D* DialogImageRight;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DialogData", meta = (MultiLine = "true"))
 	FString DialogText;
 	
