@@ -73,7 +73,7 @@ void APlayerCharacter::TriggerDeath()
 	//UE_LOG(LogTemp, Warning, TEXT("Player died"));
 
 }
-
+//bugfix, loading levels ended up killing you because of falling trough the world before, remove control of character while loading levels and set gravity to 0 (makes character float)
 void APlayerCharacter::OnLevelLoaded()
 {
 	FScopeLock Lock(&LevelStreamingCriticalSection);
@@ -818,6 +818,7 @@ void APlayerCharacter::SetMovingState()
 	SetPlayerState(EPlayerState::Moving);
 }
 
+//not in use
 void APlayerCharacter::ResetDash()
 {
 	GetWorldTimerManager().ClearTimer(DashCooldownHandle);
@@ -882,7 +883,7 @@ bool APlayerCharacter::AbleToDrag()
 APushable_ActorBase* APlayerCharacter::GetPushableActor()
 {
 	TArray<AActor*> OverlappingActors;
-	AttackRangeComponent->GetOverlappingActors(OverlappingActors);
+	AttackRangeComponent->GetOverlappingActors(OverlappingActors); // should use the interact component instead
 	for (int i = 0; i < OverlappingActors.Num(); ++i)
 	{
 		if(OverlappingActors[i]->IsA(APushable_ActorBase::StaticClass()))
