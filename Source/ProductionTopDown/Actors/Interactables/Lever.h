@@ -6,8 +6,6 @@
 #include "InteractableBase.h"
 #include "Lever.generated.h"
 
-
-
 UCLASS()
 class PRODUCTIONTOPDOWN_API ALever : public AInteractableBase
 {
