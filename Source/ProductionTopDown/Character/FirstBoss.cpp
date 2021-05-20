@@ -32,7 +32,7 @@ void AFirstBoss::BeginPlay()
 	if(AttackRange) AttackRange->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("AttackRange"));
 	if(AttackRange) AttackRange->SetRelativeScale3D(FVector(0.5f,0.5f,2.f));
 	if(AttackRange) AttackRange->OnComponentBeginOverlap.AddDynamic(this, &AFirstBoss::OnComponentBeginOverlap);
-	    
+	   
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 
 	PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
