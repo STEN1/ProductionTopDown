@@ -80,13 +80,7 @@ void APlayerCharacter::OnLevelLoaded()
 	NumberOfStreamingLevels--;
 	if (NumberOfStreamingLevels == 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
-		EnableInput(Cast<APlayerController>(GetController()));
-		GetCharacterMovement()->GravityScale = 1.f;
-		if (AProductionTopDownGameModeBase* GameMode = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
-		{
-			GameMode->GameLoaded();
-		}
+		LevelLoadComplete();
 	}
 	
 }
@@ -94,36 +88,24 @@ void APlayerCharacter::OnLevelLoaded()
 void APlayerCharacter::HandleLevelStreamLoading()
 {
 	StreamingLevels.Empty();
-	NumberOfStreamingLevels = 0;
 	StreamingLevels = GetWorld()->GetStreamingLevels();
 	DisableInput(Cast<APlayerController>(GetController()));
 	GetCharacterMovement()->GravityScale = 0.f;
+	NumberOfStreamingLevels = 0;
 	
 	for (auto StreamingLevel : StreamingLevels)
 	{
-		if (StreamingLevel)
+		if (StreamingLevel && !StreamingLevel->IsLevelLoaded())
 		{
 			NumberOfStreamingLevels++;
 			StreamingLevel->OnLevelLoaded.AddDynamic(this, &APlayerCharacter::OnLevelLoaded);
 		}
 		
 	}
-	bool bLevelsLoaded{false};
-	for (auto StreamingLevel : StreamingLevels)
+	
+	if (NumberOfStreamingLevels == 0)
 	{
-		if (StreamingLevel && StreamingLevel->IsLevelLoaded())
-		{
-			bLevelsLoaded = true;
-		}
-	}
-	if (bLevelsLoaded || StreamingLevels.Num() == 0)
-	{
-		EnableInput(Cast<APlayerController>(GetController()));
-		GetCharacterMovement()->GravityScale = 1.f;
-		if (AProductionTopDownGameModeBase* GameMode = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
-		{
-			GameMode->GameLoaded();
-		}
+		LevelLoadComplete();
 	}
 
 	GetWorldTimerManager().SetTimer(OverlapEventTimerHandle, [this]()
@@ -846,6 +828,21 @@ void APlayerCharacter::ResetDash()
 	SetPlayerState(EPlayerState::Moving);
 }
 
+void APlayerCharacter::LevelLoadComplete()
+{
+	GetWorldTimerManager().SetTimer(LevelLoadCompleteHandle, [this]()
+	{
+		UE_LOG(LogTemp, Error, TEXT("LEVEL LOADED"))
+		EnableInput(Cast<APlayerController>(GetController()));
+		GetCharacterMovement()->GravityScale = 1.f;
+		if (AProductionTopDownGameModeBase* GameMode = Cast<AProductionTopDownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+		{
+			GameMode->GameLoaded();
+		}
+	}, 1.f, false);
+
+}
+
 void APlayerCharacter::EquipWeaponFromInv(UStaticMesh* EquipWeapon)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Trying to equip Weapon"));
@@ -986,6 +983,7 @@ void APlayerCharacter::ClearAllTimers()
 	GetWorldTimerManager().ClearTimer(HeavyParticle2);
 	GetWorldTimerManager().ClearTimer(HeavyOverLapEventHandle2);
 	GetWorldTimerManager().ClearTimer(OverlapEventTimerHandle);
+	GetWorldTimerManager().ClearTimer(LevelLoadCompleteHandle);
 }
 
 void APlayerCharacter::OnInventoryChange()
